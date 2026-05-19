@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	"fls/internal/database"
 	"fls/internal/handler"
@@ -56,9 +57,22 @@ func main() {
 	shareService := service.NewShareService(db.DB)
 	statsService := service.NewStatsService(db.DB)
 
+	// First-run password setup wizard
+	passwordSet, err := authService.IsPasswordSet()
+	if err != nil {
+		slog.Error("failed to check admin password", "error", err)
+		os.Exit(1)
+	}
+	if !passwordSet {
+		if err := authService.SetupPasswordWizard(); err != nil {
+			slog.Error("password setup failed", "error", err)
+			os.Exit(1)
+		}
+	}
+
 	// Initialize session manager
 	sessionManager := scs.New()
-	sessionManager.Lifetime = 24 * 60 * 60
+	sessionManager.Lifetime = 24 * time.Hour
 
 	// Initialize handlers
 	loginHandler := &handler.LoginHandler{
