@@ -65,6 +65,7 @@ function toggleShareType() {
 
 <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
     <div style="flex: 1; min-width: 300px;">
+        <div class="responsive-table">
         <table>
             <tr>
                 <th>令牌</th>
@@ -122,6 +123,7 @@ function toggleShareType() {
                 <td>{{.Share.UpdatedAt.Format "2006-01-02 15:04"}}</td>
             </tr>
         </table>
+        </div>
 
         <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
             <a href="/admin/shares" role="button">&laquo; 返回列表</a>

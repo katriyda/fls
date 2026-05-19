@@ -6,6 +6,7 @@
     <a href="/admin/shares/new" role="button">新建分享</a>
 </div>
 {{if .Shares}}
+<div class="responsive-table">
 <table>
     <thead>
         <tr>
@@ -55,6 +56,7 @@
         {{end}}
     </tbody>
 </table>
+</div>
 <div style="margin-top: 1rem; display: flex; gap: 0.5rem; align-items: center;">
     {{if gt .Page 1}}
     <a href="/admin/shares?offset={{.PrevOffset}}&amp;limit={{.Limit}}" role="button">&laquo; 上一页</a>

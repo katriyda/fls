@@ -20,6 +20,12 @@ import (
 	chimw "github.com/go-chi/chi/v5/middleware"
 )
 
+var (
+	version = "dev"
+	commit  = "unknown"
+	date    = "unknown"
+)
+
 func main() {
 	port := flag.Int("port", 8080, "HTTP server port")
 	dataDir := flag.String("data-dir", "./data", "Data directory for uploads and database")
@@ -47,6 +53,8 @@ func main() {
 
 	// Initialize services
 	authService := service.NewAuth(db.DB)
+	shareService := service.NewShareService(db.DB)
+	statsService := service.NewStatsService(db.DB)
 
 	// Initialize session manager
 	sessionManager := scs.New()
@@ -59,11 +67,14 @@ func main() {
 		DataDir:        *dataDir,
 	}
 
+	dashboardHandler := handler.NewDashboardHandler(statsService, shareService, db.DB)
+
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)
-	r.Use(chimw.Recoverer)
+	r.Use(handler.RecoveryMiddleware)
 	r.Use(chimw.RealIP)
 	r.Use(middleware.SecurityHeadersMiddleware)
+	r.Use(sessionManager.LoadAndSave)
 
 	// Health check - no rate limit, no auth, no CSRF
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -90,15 +101,16 @@ func main() {
 		r.Use(middleware.CSRFMiddleware)
 		r.Use(middleware.AuthMiddleware(sessionManager))
 
-		r.Get("/admin/", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/admin/files", http.StatusFound)
-		})
+		r.Get("/admin/", dashboardHandler.GetDashboard)
 	})
 
 	// API routes (stateless) - general rate limit, no CSRF
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.RateLimitMiddleware(middleware.APIRate))
 		r.Use(middleware.AuthMiddleware(sessionManager))
+
+		statsHandler := handler.NewStatsHandler(statsService)
+		r.Get("/admin/api/stats", statsHandler.GetStats)
 
 		r.Post("/api/upload", func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "not implemented", http.StatusNotImplemented)
@@ -110,6 +122,9 @@ func main() {
 		middleware.ClearAuthenticated(r.Context(), sessionManager)
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	})
+
+	r.NotFound(handler.NotFoundHandler)
+	r.MethodNotAllowed(handler.MethodNotAllowedHandler)
 
 	addr := fmt.Sprintf(":%d", *port)
 	srv := &http.Server{

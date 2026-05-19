@@ -16,3 +16,18 @@ table { width: 100%; }
     td::before { content: attr(data-label); font-weight: bold; display: inline-block; width: 120px; }
     .hide-mobile { display: none; }
 }
+
+.responsive-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+body { overflow-x: hidden; }
+img { max-width: 100%; height: auto; }
+input:not([type="radio"]):not([type="checkbox"]), select, textarea { width: 100%; box-sizing: border-box; }
+@media (pointer: coarse) {
+    a, button, input, select, textarea { min-height: 44px; min-width: 44px; }
+}
+@media (max-width: 600px) {
+    .row[style*="flex"] { flex-direction: column; }
+    .row[style*="flex"] .card { min-width: 100%; }
+}
+@media (max-width: 480px) {
+    nav a { display: block; padding: 0.5em 0; }
+}

@@ -5,6 +5,7 @@
 
 {{if .EditMode}}
 <form hx-put="/admin/files/{{.File.ID}}" hx-target="body" hx-push-url="true">
+    <div class="responsive-table">
     <table>
         <tr>
             <th>ID</th>
@@ -35,10 +36,12 @@
             <td>{{.File.UpdatedAt.Format "2006-01-02 15:04:05"}}</td>
         </tr>
     </table>
+    </div>
     <button type="submit">保存</button>
     <a href="/admin/files/{{.File.ID}}">取消</a>
 </form>
 {{else}}
+<div class="responsive-table">
 <table>
     <tr>
         <th>ID</th>
@@ -69,6 +72,7 @@
         <td>{{.File.UpdatedAt.Format "2006-01-02 15:04:05"}}</td>
     </tr>
 </table>
+</div>
 <a href="/admin/files/{{.File.ID}}/edit">编辑</a>
 <button hx-delete="/admin/files/{{.File.ID}}" hx-confirm="确定要删除此文件吗？">删除</button>
 <a href="/admin/files">返回列表</a>
@@ -76,6 +80,7 @@
 
 {{if .Shares}}
 <h2>关联分享</h2>
+<div class="responsive-table">
 <table>
     <thead>
         <tr>
@@ -98,5 +103,6 @@
         {{end}}
     </tbody>
 </table>
+</div>
 {{end}}
 {{end}}

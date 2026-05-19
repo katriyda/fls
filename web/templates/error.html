@@ -1,0 +1,9 @@
+{{template "layout.html" .}}
+{{define "title"}}{{.Title}} - FLS{{end}}
+{{define "content"}}
+<div class="error-page">
+    <h1>{{.Code}}</h1>
+    <p>{{.Message}}</p>
+    <a href="/admin/">← 返回仪表盘</a>
+</div>
+{{end}}
