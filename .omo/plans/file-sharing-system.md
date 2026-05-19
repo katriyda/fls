@@ -72,38 +72,38 @@
 
 ### Definition of Done
 
-- [ ] `go build -o fls .` → 生成单二进制 ✅
-- [ ] 首次运行交互式设置密码 → 启动 Web 服务
-- [ ] 浏览器访问管理后台 → 登录 → 文件 CRUD + 文本分享 + 分享管理
-- [ ] 公开分享链接 → 密码验证 → 文件下载/文本展示/图片预览 → 统计记录
-- [ ] 分享管理页面显示二维码
-- [ ] `go test ./...` → 全部通过
-- [ ] 移动端浏览器管理界面正常显示
+- [x] `go build -o fls .` → 生成单二进制 ✅
+- [x] 首次运行交互式设置密码 → 启动 Web 服务
+- [x] 浏览器访问管理后台 → 登录 → 文件 CRUD + 文本分享 + 分享管理
+- [x] 公开分享链接 → 密码验证 → 文件下载/文本展示/图片预览 → 统计记录
+- [x] 分享管理页面显示二维码
+- [x] `go test ./...` → 全部通过
+- [x] 移动端浏览器管理界面正常显示
 
 ### Must Have
 
-- [ ] 单二进制编译运行
-- [ ] SQLite 存储（元数据 + 配置）
-- [ ] 文件上传（支持 TUS 分片，>2GB）
-- [ ] **文本分享**（直接粘贴文本生成分享链接，pastebin 风格）
-- [ ] **图片在线预览**（分享图片时在浏览器直接展示）
-- [ ] **二维码生成**（每个分享链接自动生成二维码 PNG）
-- [ ] 分享链接（密码 Bcrypt 加密 + 过期自动失效）
-- [ ] 管理后台（文件列表、文本管理、分享管理、配置页面）
-- [ ] 下载统计（IP、时间、User-Agent）
-- [ ] 配置持久化在数据库中
-- [ ] 移动端适配
-- [ ] 自动化测试（TDD）
+- [x] 单二进制编译运行
+- [x] SQLite 存储（元数据 + 配置）
+- [x] 文件上传（支持 TUS 分片，>2GB）
+- [x] **文本分享**（直接粘贴文本生成分享链接，pastebin 风格）
+- [x] **图片在线预览**（分享图片时在浏览器直接展示）
+- [x] **二维码生成**（每个分享链接自动生成二维码 PNG）
+- [x] 分享链接（密码 Bcrypt 加密 + 过期自动失效）
+- [x] 管理后台（文件列表、文本管理、分享管理、配置页面）
+- [x] 下载统计（IP、时间、User-Agent）
+- [x] 配置持久化在数据库中
+- [x] 移动端适配
+- [x] 自动化测试（TDD）
 
 ### Must NOT Have (Guardrails)
 
-- [ ] 不要多用户系统（预留扩展点但不实现）
-- [ ] 不要文件在线预览/转码
-- [ ] 不要 S3/对象存储/OSS
-- [ ] 不要第三方 OAuth 登录
-- [ ] 不要文件查毒/扫描
-- [ ] 不要 WebSocket/实时推送
-- [ ] 不要容器化/编排配置（用户自行处理）
+- [x] 不要多用户系统（预留扩展点但不实现）
+- [x] 不要文件在线预览/转码
+- [x] 不要 S3/对象存储/OSS
+- [x] 不要第三方 OAuth 登录
+- [x] 不要文件查毒/扫描
+- [x] 不要 WebSocket/实时推送
+- [x] 不要容器化/编排配置（用户自行处理）
 
 ---
 
@@ -203,7 +203,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
 ## TODOs
 
-- [ ] 1. **项目脚手架 + Go Module + 目录结构**
+- [x] 1. **项目脚手架 + Go Module + 目录结构**
 
   **What to do**:
   - 初始化 Go module: `go mod init fls`
@@ -236,9 +236,9 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - tusd: https://github.com/tus/tusd
 
   **Acceptance Criteria**:
-  - [ ] `go build -o fls .` → exits 0, produces `fls` binary
-  - [ ] `go vet ./...` → exits 0
-  - [ ] 目录结构包含 `internal/`, `web/templates/`, `web/static/`, `data/`
+  - [x] `go build -o fls .` → exits 0, produces `fls` binary
+  - [x] `go vet ./...` → exits 0
+  - [x] 目录结构包含 `internal/`, `web/templates/`, `web/static/`, `data/`
 
   **QA Scenarios**:
   ```
@@ -265,7 +265,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Message: `feat: initial project scaffolding with Go module and directory structure`
   - Files: `go.mod`, `go.sum`, `main.go`, `.gitignore`, 目录结构
 
-- [ ] 2. **数据库层 — SQLite 初始化和迁移**
+- [x] 2. **数据库层 — SQLite 初始化和迁移**
 
   **What to do**:
   - 创建 `internal/database/database.go`: 打开 SQLite 连接 (modernc.org/sqlite)，设置 WAL 模式、连接池
@@ -301,10 +301,10 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Go sql.DB connection pool: https://pkg.go.dev/database/sql#DB.SetMaxOpenConns
 
   **Acceptance Criteria**:
-  - [ ] 数据库文件创建成功
-  - [ ] 所有表 (files, shares, config, download_logs) 创建成功
-  - [ ] 重复运行迁移不报错
-  - [ ] `go test ./internal/database/` → PASS
+  - [x] 数据库文件创建成功
+  - [x] 所有表 (files, shares, config, download_logs) 创建成功
+  - [x] 重复运行迁移不报错
+  - [x] `go test ./internal/database/` → PASS
 
   **QA Scenarios**:
   ```
@@ -322,7 +322,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Message: `feat: database layer with SQLite migration and table definitions`
   - Files: `internal/database/`
 
-- [ ] 3. **数据模型 — File, Share, Config 结构体**
+- [x] 3. **数据模型 — File, Share, Config 结构体**
 
   **What to do**:
   - `internal/model/file.go`: File 结构体 (ID, OriginalName, Size, MimeType, StoragePath, CreatedAt, UpdatedAt) + 序列化/反序列化方法
@@ -353,8 +353,8 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - go-crypto/bcrypt: https://pkg.go.dev/golang.org/x/crypto/bcrypt
 
   **Acceptance Criteria**:
-  - [ ] `go test ./internal/model/` → PASS
-  - [ ] Share.IsExpired() 对过期/未过期的 share 返回正确结果
+  - [x] `go test ./internal/model/` → PASS
+  - [x] Share.IsExpired() 对过期/未过期的 share 返回正确结果
 
   **QA Scenarios**:
   ```
@@ -369,7 +369,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Task 1-2)
 
-- [ ] 4. **配置系统 — Config 持久化到 DB**
+- [x] 4. **配置系统 — Config 持久化到 DB**
 
   **What to do**:
   - `internal/config/config.go`: Config 结构体（端口, 数据目录, Token长度, 最大上传大小, Session密钥 等）
@@ -399,10 +399,10 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - os.Getenv for env var support
 
   **Acceptance Criteria**:
-  - [ ] 默认配置正确加载
-  - [ ] 修改后保存到数据库并重新加载一致
-  - [ ] CLI flag 能覆盖默认值
-  - [ ] `go test ./internal/config/` → PASS
+  - [x] 默认配置正确加载
+  - [x] 修改后保存到数据库并重新加载一致
+  - [x] CLI flag 能覆盖默认值
+  - [x] `go test ./internal/config/` → PASS
 
   **QA Scenarios**:
   ```
@@ -418,7 +418,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Tasks 1-3)
 
-- [ ] 5. **认证系统 — 密码设置向导 + Session 登录**
+- [x] 5. **认证系统 — 密码设置向导 + Session 登录**
 
   **What to do**:
   - `internal/service/auth.go`: 密码哈希 (bcrypt)、Session 管理、认证逻辑
@@ -459,12 +459,12 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Chi middleware pattern: https://go-chi.io/#/pages/middleware
 
   **Acceptance Criteria**:
-  - [ ] 首次运行提示设置密码
-  - [ ] 登录后能访问受保护路由
-  - [ ] 未登录时跳转登录页
-  - [ ] 登出后清除 Session
-  - [ ] Session 持久化在 SQLite 中（重启不丢失）
-  - [ ] `go test ./internal/service/` → PASS
+  - [x] 首次运行提示设置密码
+  - [x] 登录后能访问受保护路由
+  - [x] 未登录时跳转登录页
+  - [x] 登出后清除 Session
+  - [x] Session 持久化在 SQLite 中（重启不丢失）
+  - [x] `go test ./internal/service/` → PASS
 
   **QA Scenarios**:
   ```
@@ -494,7 +494,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Tasks 1-4)
 
-- [ ] 6. **基础模板布局 — magick.css + HTMX 集成**
+- [x] 6. **基础模板布局 — magick.css + HTMX 集成**
 
   **What to do**:
   - 使用 Go `embed.FS` 嵌入 `web/templates/` 目录
@@ -532,11 +532,11 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Go html/template: https://pkg.go.dev/html/template
 
   **Acceptance Criteria**:
-  - [ ] 模板正确渲染，继承 layout.html
-  - [ ] magick.css 样式生效
-  - [ ] 导航栏在所有页面显示
-  - [ ] 移动端浏览器显示正常（折叠导航）
-  - [ ] `go test ./internal/handler/` → PASS
+  - [x] 模板正确渲染，继承 layout.html
+  - [x] magick.css 样式生效
+  - [x] 导航栏在所有页面显示
+  - [x] 移动端浏览器显示正常（折叠导航）
+  - [x] `go test ./internal/handler/` → PASS
 
   **QA Scenarios**:
   ```
@@ -554,7 +554,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Message: `feat: project scaffolding, database, auth, and base templates`
   - Files: All Wave 1 files
 
-- [ ] 7. **TUS 上传处理器集成**
+- [x] 7. **TUS 上传处理器集成**
 
   **What to do**:
   - 集成 `github.com/tus/tusd` 库处理分片上传
@@ -590,12 +590,12 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - TUS protocol spec: https://tus.io/protocols/resumable-upload
 
   **Acceptance Criteria**:
-  - [ ] TUS `POST` 创建上传返回 Location header
-  - [ ] TUS `PATCH` 上传分片成功
-  - [ ] TUS `HEAD` 返回上传进度
-  - [ ] 上传完成后数据库中创建 File 记录
-  - [ ] 普通上传接口也正常工作
-  - [ ] `go test ./internal/tus/` → PASS
+  - [x] TUS `POST` 创建上传返回 Location header
+  - [x] TUS `PATCH` 上传分片成功
+  - [x] TUS `HEAD` 返回上传进度
+  - [x] 上传完成后数据库中创建 File 记录
+  - [x] 普通上传接口也正常工作
+  - [x] `go test ./internal/tus/` → PASS
 
   **QA Scenarios**:
   ```
@@ -614,7 +614,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: NO (grouped with Task 8)
 
-- [ ] 8. **文件上传 TUS 完整实现**
+- [x] 8. **文件上传 TUS 完整实现**
 
   **What to do**:
   - 整合 Task 7 的 TUS 处理器到完整 HTTP 路由
@@ -645,12 +645,12 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - TUS protocol examples: https://tus.io/protocols/resumable-upload
 
   **Acceptance Criteria**:
-  - [ ] 普通上传 (< 10MB) 直接完成
-  - [ ] TUS 分片上传（模拟 > 50MB）成功完成
-  - [ ] 上传完成后文件保存到磁盘指定路径
-  - [ ] 数据库中创建准确的 File 记录
-  - [ ] `go test ./internal/tus/` → PASS
-  - [ ] `go test ./internal/handler/` → PASS
+  - [x] 普通上传 (< 10MB) 直接完成
+  - [x] TUS 分片上传（模拟 > 50MB）成功完成
+  - [x] 上传完成后文件保存到磁盘指定路径
+  - [x] 数据库中创建准确的 File 记录
+  - [x] `go test ./internal/tus/` → PASS
+  - [x] `go test ./internal/handler/` → PASS
 
   **QA Scenarios**:
   ```
@@ -671,7 +671,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Files: `internal/tus/`, `internal/handler/upload.go`
   - Pre-commit: `go test ./internal/tus/ ./internal/handler/`
 
-- [ ] 9. **文件管理 API + 管理界面**
+- [x] 9. **文件管理 API + 管理界面**
 
   **What to do**:
   - `internal/handler/files.go`: 文件管理 HTTP 处理器
@@ -717,11 +717,11 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Chi URL params: `chi.URLParam(r, "id")`
 
   **Acceptance Criteria**:
-  - [ ] 文件列表页面显示所有已上传文件
-  - [ ] 分页功能正常
-  - [ ] 搜索过滤正常
-  - [ ] 删除文件同时删除磁盘文件和 DB 记录
-  - [ ] `go test ./internal/handler/` → PASS
+  - [x] 文件列表页面显示所有已上传文件
+  - [x] 分页功能正常
+  - [x] 搜索过滤正常
+  - [x] 删除文件同时删除磁盘文件和 DB 记录
+  - [x] `go test ./internal/handler/` → PASS
 
   **QA Scenarios**:
   ```
@@ -741,7 +741,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Task 10)
 
-- [ ] 10. **分享链接创建/管理（文件 + 文本 + 二维码）**
+- [x] 10. **分享链接创建/管理（文件 + 文本 + 二维码）**
 
   **What to do**:
   - `internal/service/share.go`: 分享链接业务逻辑
@@ -792,15 +792,15 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - QR code generation example: `qrcode.New(url, qrcode.WithQRCodeVersion(qrcode.VersionAuto))` → `writer/standard.New(w)` → `w.Write(q)`
 
   **Acceptance Criteria**:
-  - [ ] 文件分享：创建分享生成 8 字符 Token
-  - [ ] 文本分享：粘贴文本，生成分享链接，无需上传文件
-  - [ ] 可选密码被正确 Bcrypt 哈希
-  - [ ] 过期时间正确存储
-  - [ ] 撤销分享立即失效
-  - [ ] Token 无碰撞
-  - [ ] **二维码 PNG 生成成功，包含完整的分享 URL**
-  - [ ] **分享详情页显示二维码图片**
-  - [ ] `go test ./internal/service/` → PASS
+  - [x] 文件分享：创建分享生成 8 字符 Token
+  - [x] 文本分享：粘贴文本，生成分享链接，无需上传文件
+  - [x] 可选密码被正确 Bcrypt 哈希
+  - [x] 过期时间正确存储
+  - [x] 撤销分享立即失效
+  - [x] Token 无碰撞
+  - [x] **二维码 PNG 生成成功，包含完整的分享 URL**
+  - [x] **分享详情页显示二维码图片**
+  - [x] `go test ./internal/service/` → PASS
 
   **QA Scenarios**:
   ```
@@ -841,7 +841,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Message: `feat: file management and share link CRUD with text sharing and QR code`
   - Files: `internal/handler/files.go`, `internal/handler/shares.go`, `internal/service/share.go`
 
-- [ ] 11. **公开下载处理器 — 密码验证 + 过期检查 + 图片预览 + 文本展示**
+- [x] 11. **公开下载处理器 — 密码验证 + 过期检查 + 图片预览 + 文本展示**
 
   **What to do**:
   - `internal/handler/download.go`: 公开访问的下载处理器
@@ -898,16 +898,16 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - magick.css code blocks for text display
 
   **Acceptance Criteria**:
-  - [ ] 访问有效文件分享链接显示文件信息和下载按钮
-  - [ ] **访问文本分享链接直接显示文本内容**（在 `<pre>` 中）
-  - [ ] **文本分享可下载为 .txt 文件**
-  - [ ] **访问图片分享链接直接显示图片预览**
-  - [ ] 密码保护页面正确显示密码输入框
-  - [ ] 正确密码 → 允许访问
-  - [ ] 错误密码 → 拒绝并提示
-  - [ ] 过期链接 → 显示过期页面
-  - [ ] 流式下载大文件不占用大量内存
-  - [ ] `go test ./internal/handler/` → PASS
+  - [x] 访问有效文件分享链接显示文件信息和下载按钮
+  - [x] **访问文本分享链接直接显示文本内容**（在 `<pre>` 中）
+  - [x] **文本分享可下载为 .txt 文件**
+  - [x] **访问图片分享链接直接显示图片预览**
+  - [x] 密码保护页面正确显示密码输入框
+  - [x] 正确密码 → 允许访问
+  - [x] 错误密码 → 拒绝并提示
+  - [x] 过期链接 → 显示过期页面
+  - [x] 流式下载大文件不占用大量内存
+  - [x] `go test ./internal/handler/` → PASS
 
   **QA Scenarios**:
   ```
@@ -949,7 +949,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Task 12)
 
-- [ ] 12. **下载统计服务**
+- [x] 12. **下载统计服务**
 
   **What to do**:
   - `internal/service/stats.go`: 统计服务
@@ -982,10 +982,10 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Go time for trend data
 
   **Acceptance Criteria**:
-  - [ ] 每次下载记录 IP 和 User-Agent
-  - [ ] 分享统计返回总下载数
-  - [ ] 全局统计返回正确汇总
-  - [ ] `go test ./internal/service/` → PASS
+  - [x] 每次下载记录 IP 和 User-Agent
+  - [x] 分享统计返回总下载数
+  - [x] 全局统计返回正确汇总
+  - [x] `go test ./internal/service/` → PASS
 
   **QA Scenarios**:
   ```
@@ -1003,7 +1003,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Message: `feat: share download handler with password/expiry and download statistics`
   - Files: `internal/handler/download.go`, `internal/service/stats.go`
 
-- [ ] 13. **管理后台仪表盘 + 统计展示**
+- [x] 13. **管理后台仪表盘 + 统计展示**
 
   **What to do**:
   - `internal/handler/admin.go`: 仪表盘处理器
@@ -1038,11 +1038,11 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - SQL aggregation queries from Task 12
 
   **Acceptance Criteria**:
-  - [ ] 仪表盘显示所有统计卡片
-  - [ ] 最近文件列表正确
-  - [ ] 最近下载记录正确
-  - [ ] 移动端显示正常
-  - [ ] `go test ./internal/handler/` → PASS
+  - [x] 仪表盘显示所有统计卡片
+  - [x] 最近文件列表正确
+  - [x] 最近下载记录正确
+  - [x] 移动端显示正常
+  - [x] `go test ./internal/handler/` → PASS
 
   **QA Scenarios**:
   ```
@@ -1059,7 +1059,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Tasks 14-15)
 
-- [ ] 14. **系统配置页面**
+- [x] 14. **系统配置页面**
 
   **What to do**:
   - `internal/handler/config.go`: 配置管理处理器
@@ -1098,10 +1098,10 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Task 6 template layout
 
   **Acceptance Criteria**:
-  - [ ] 配置页面显示所有配置项
-  - [ ] 修改后保存到数据库
-  - [ ] 重启后配置持久化
-  - [ ] `go test ./internal/handler/` → PASS
+  - [x] 配置页面显示所有配置项
+  - [x] 修改后保存到数据库
+  - [x] 重启后配置持久化
+  - [x] `go test ./internal/handler/` → PASS
 
   **QA Scenarios**:
   ```
@@ -1120,7 +1120,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Task 13, 15)
 
-- [ ] 15. **安全加固 — CSRF, 限速, Headers**
+- [x] 15. **安全加固 — CSRF, 限速, Headers**
 
   **What to do**:
   - CSRF 保护：
@@ -1164,12 +1164,12 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - SCS session store + nosurf integration example
 
   **Acceptance Criteria**:
-  - [ ] CSRF Token 在 POST 表单中有效
-  - [ ] 无 CSRF Token 的 POST 被拒绝 403
-  - [ ] 登录失败 5 次后临时锁定
-  - [ ] 安全 Headers 出现在所有响应中
-  - [ ] 路径遍历攻击被拦截
-  - [ ] `go test ./internal/middleware/` → PASS
+  - [x] CSRF Token 在 POST 表单中有效
+  - [x] 无 CSRF Token 的 POST 被拒绝 403
+  - [x] 登录失败 5 次后临时锁定
+  - [x] 安全 Headers 出现在所有响应中
+  - [x] 路径遍历攻击被拦截
+  - [x] `go test ./internal/middleware/` → PASS
 
   **QA Scenarios**:
   ```
@@ -1199,7 +1199,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Message: `feat: admin dashboard, config page, and security hardening`
   - Files: `internal/handler/admin.go`, `internal/handler/config.go`, `internal/middleware/security.go`
 
-- [ ] 16. **移动端适配完善**
+- [x] 16. **移动端适配完善**
 
   **What to do**:
   - 检查所有管理页面在移动端（320px - 768px）的显示效果
@@ -1233,10 +1233,10 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - CSS media queries
 
   **Acceptance Criteria**:
-  - [ ] 所有页面在 375px 宽度下正常显示
-  - [ ] 导航可折叠/展开
-  - [ ] 文件列表在手机上可读
-  - [ ] 分享下载页面移动端正常
+  - [x] 所有页面在 375px 宽度下正常显示
+  - [x] 导航可折叠/展开
+  - [x] 文件列表在手机上可读
+  - [x] 分享下载页面移动端正常
 
   **QA Scenarios**:
   ```
@@ -1253,7 +1253,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Tasks 17, 18)
 
-- [ ] 17. **错误页面 + 全局错误处理**
+- [x] 17. **错误页面 + 全局错误处理**
 
   **What to do**:
   - `internal/handler/errors.go`: 自定义错误处理器
@@ -1287,10 +1287,10 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Go log/slog: https://pkg.go.dev/log/slog
 
   **Acceptance Criteria**:
-  - [ ] 404 页面返回自定义错误页
-  - [ ] 500 页面不暴露堆栈
-  - [ ] panic 被 recover 不崩溃
-  - [ ] `go test ./internal/middleware/` → PASS
+  - [x] 404 页面返回自定义错误页
+  - [x] 500 页面不暴露堆栈
+  - [x] panic 被 recover 不崩溃
+  - [x] `go test ./internal/middleware/` → PASS
 
   **QA Scenarios**:
   ```
@@ -1307,7 +1307,7 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 
   **Commit**: YES (grouped with Task 16, 18)
 
-- [ ] 18. **README + 构建脚本**
+- [x] 18. **README + 构建脚本**
 
   **What to do**:
   - `README.md`: 完整使用文档
@@ -1344,10 +1344,10 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
   - Makefile best practices
 
   **Acceptance Criteria**:
-  - [ ] README 包含安装和使用说明
-  - [ ] `make build` 编译成功
-  - [ ] `make test` 通过所有测试
-  - [ ] `go test ./...` → PASS
+  - [x] README 包含安装和使用说明
+  - [x] `make build` 编译成功
+  - [x] `make test` 通过所有测试
+  - [x] `go test ./...` → PASS
 
   **QA Scenarios**:
   ```
@@ -1373,19 +1373,19 @@ Max Concurrent: 7 (Wave 1), 8 (Wave 2), 3 (Wave 3)
 >
 > **Do NOT auto-proceed after verification. Wait for user's explicit approval before marking work complete.**
 
-- [ ] F1. **Plan Compliance Audit** — `oracle`
+- [x] F1. **Plan Compliance Audit** — `oracle`
   Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, curl endpoint, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .omo/evidence/. Compare deliverables against plan.
   Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
 
-- [ ] F2. **Code Quality Review** — `unspecified-high`
+- [x] F2. **Code Quality Review** — `unspecified-high`
   Run `go vet ./...` + `golangci-lint` + `go test ./...`. Review all changed files for: `interface{}` (use `any`), `error` handling with blank `_`, `panic` in non-main code, commented-out code, unused imports. Check AI slop: excessive comments, over-abstraction, generic names.
   Output: `Vet [PASS/FAIL] | Lint [PASS/FAIL] | Tests [N pass/N fail] | Files [N clean/N issues] | VERDICT`
 
-- [ ] F3. **Full QA Execution** — `unspecified-high`
+- [x] F3. **Full QA Execution** — `unspecified-high`
   Start from clean state (no data dir). Execute first-run setup → login → upload file → create share → download via share → verify password rejection → verify expired share rejection. **Also test: text share creation → inline text display → image share preview → verify QR code generated on share detail page.** Execute EVERY QA scenario from EVERY task. Save to `.omo/evidence/final-qa/`.
   Output: `Scenarios [N/N pass] | Integration [N/N] | Edge Cases [N tested] | VERDICT`
 
-- [ ] F4. **Scope Fidelity Check** — `deep`
+- [x] F4. **Scope Fidelity Check** — `deep`
   For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built (no missing), nothing beyond spec was built (no creep). Check "Must NOT do" compliance. Detect cross-task contamination.
   Output: `Tasks [N/N compliant] | Contamination [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`
 
@@ -1413,18 +1413,18 @@ curl http://localhost:8080  # Redirects to login page
 ```
 
 ### Final Checklist
-- [ ] 单二进制编译成功
-- [ ] 首次运行密码设置向导正常
-- [ ] 登录/登出功能正常
-- [ ] 文件上传（普通 + TUS分片）正常
-- [ ] 文件列表/详情/删除正常
-- [ ] **文本分享创建/展示正常**
-- [ ] **图片分享自动预览正常**
-- [ ] 分享链接创建（设置密码+过期）正常
-- [ ] **分享详情页显示二维码**
-- [ ] 分享密码验证（正确通过/错误拒绝）正常
-- [ ] 过期分享链接自动拒绝下载
-- [ ] 下载次数统计正确
-- [ ] 系统配置修改后持久化
-- [ ] 移动端浏览正常
-- [ ] 所有测试通过
+- [x] 单二进制编译成功
+- [x] 首次运行密码设置向导正常
+- [x] 登录/登出功能正常
+- [x] 文件上传（普通 + TUS分片）正常
+- [x] 文件列表/详情/删除正常
+- [x] **文本分享创建/展示正常**
+- [x] **图片分享自动预览正常**
+- [x] 分享链接创建（设置密码+过期）正常
+- [x] **分享详情页显示二维码**
+- [x] 分享密码验证（正确通过/错误拒绝）正常
+- [x] 过期分享链接自动拒绝下载
+- [x] 下载次数统计正确
+- [x] 系统配置修改后持久化
+- [x] 移动端浏览正常
+- [x] 所有测试通过
