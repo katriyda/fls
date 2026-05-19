@@ -201,6 +201,14 @@ func (s *ShareService) ListShares(offset, limit int) ([]*model.Share, int, error
 	return shares, total, nil
 }
 
+func (s *ShareService) IncrementDownloadCount(shareID string) error {
+	_, err := s.db.Exec("UPDATE shares SET download_count = download_count + 1 WHERE id = ?", shareID)
+	if err != nil {
+		return fmt.Errorf("increment download count: %w", err)
+	}
+	return nil
+}
+
 func (s *ShareService) DeleteShare(id string) error {
 	result, err := s.db.Exec("DELETE FROM shares WHERE id = ?", id)
 	if err != nil {
