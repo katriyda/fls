@@ -1,0 +1,14 @@
+{{template "layout.html" .}}
+{{define "title"}}图片预览 - FLS{{end}}
+{{define "content"}}
+<div class="container" style="max-width: 800px; margin: 0 auto;">
+    <h1>图片预览</h1>
+    <p><strong>{{.FileName}}</strong> ({{.Size | bytes}}) — {{.MimeType}}</p>
+    <div style="margin-bottom: 1em;">
+        <a href="/s/{{.Token}}/download" class="button" role="button" style="display: inline-block; padding: 0.5em 1em;">下载原图</a>
+    </div>
+    <div style="text-align: center;">
+        <img src="/s/{{.Token}}/raw" alt="{{.FileName}}" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+</div>
+{{end}}

@@ -1,0 +1,12 @@
+{{template "layout.html" .}}
+{{define "title"}}下载文件 - FLS{{end}}
+{{define "content"}}
+<div class="container" style="max-width: 600px; margin: 0 auto;">
+    <h1>下载文件</h1>
+    <div class="notice" style="margin-bottom: 1em;">
+        <p><strong>{{.FileName}}</strong></p>
+        <p>大小: {{.Size | bytes}} | 类型: {{.MimeType}}</p>
+    </div>
+    <a href="/s/{{.Token}}/download" class="button" role="button" style="display: inline-block; padding: 0.7em 1.5em;">下载文件</a>
+</div>
+{{end}}
