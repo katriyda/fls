@@ -1,0 +1,25 @@
+# Build artifacts
+fls
+fls.exe
+*.exe
+*.test
+*.out
+
+# Runtime data
+data/*
+!data/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# System
+.DS_Store
+Thumbs.db
+
+# Temp files
+/tmp/
+*.log

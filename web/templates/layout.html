@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{block "title" .}}FLS - 文件分享系统{{end}}</title>
+    <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+    <link rel="stylesheet" href="https://unpkg.com/magick.css">
+    <link rel="stylesheet" href="/static/custom.css">
+    <script src="https://unpkg.com/htmx.org@2"></script>
+</head>
+<body>
+    <main>
+        <header>
+            <nav>
+                <a href="/admin/" style="font-weight: bold; font-size: 1.2em;">📦 FLS</a>
+                {{if .Authenticated}}
+                <a href="/admin/">仪表盘</a>
+                <a href="/admin/files">文件</a>
+                <a href="/admin/shares">分享</a>
+                <a href="/admin/config">配置</a>
+                <a href="/logout">登出</a>
+                {{end}}
+            </nav>
+        </header>
+        <section>
+            {{block "content" .}}{{end}}
+        </section>
+        <footer>
+            <p>FLS - File Sharing System</p>
+        </footer>
+    </main>
+</body>
+</html>
