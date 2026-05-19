@@ -1,0 +1,102 @@
+{{template "layout.html" .}}
+{{define "title"}}文件详情 - FLS{{end}}
+{{define "content"}}
+<h1>文件详情</h1>
+
+{{if .EditMode}}
+<form hx-put="/admin/files/{{.File.ID}}" hx-target="body" hx-push-url="true">
+    <table>
+        <tr>
+            <th>ID</th>
+            <td>{{.File.ID}}</td>
+        </tr>
+        <tr>
+            <th>文件名</th>
+            <td>{{.File.Filename}}</td>
+        </tr>
+        <tr>
+            <th>原始名称</th>
+            <td><input type="text" name="original_name" value="{{.File.OriginalName}}" required></td>
+        </tr>
+        <tr>
+            <th>大小</th>
+            <td>{{.File.Size | bytes}}</td>
+        </tr>
+        <tr>
+            <th>MIME 类型</th>
+            <td>{{.File.MimeType}}</td>
+        </tr>
+        <tr>
+            <th>上传时间</th>
+            <td>{{.File.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+        <tr>
+            <th>更新时间</th>
+            <td>{{.File.UpdatedAt.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+    </table>
+    <button type="submit">保存</button>
+    <a href="/admin/files/{{.File.ID}}">取消</a>
+</form>
+{{else}}
+<table>
+    <tr>
+        <th>ID</th>
+        <td>{{.File.ID}}</td>
+    </tr>
+    <tr>
+        <th>文件名</th>
+        <td>{{.File.Filename}}</td>
+    </tr>
+    <tr>
+        <th>原始名称</th>
+        <td>{{.File.OriginalName}}</td>
+    </tr>
+    <tr>
+        <th>大小</th>
+        <td>{{.File.Size | bytes}}</td>
+    </tr>
+    <tr>
+        <th>MIME 类型</th>
+        <td>{{.File.MimeType}}</td>
+    </tr>
+    <tr>
+        <th>上传时间</th>
+        <td>{{.File.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+    </tr>
+    <tr>
+        <th>更新时间</th>
+        <td>{{.File.UpdatedAt.Format "2006-01-02 15:04:05"}}</td>
+    </tr>
+</table>
+<a href="/admin/files/{{.File.ID}}/edit">编辑</a>
+<button hx-delete="/admin/files/{{.File.ID}}" hx-confirm="确定要删除此文件吗？">删除</button>
+<a href="/admin/files">返回列表</a>
+{{end}}
+
+{{if .Shares}}
+<h2>关联分享</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Token</th>
+            <th>类型</th>
+            <th>下载次数</th>
+            <th>过期时间</th>
+            <th>创建时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Shares}}
+        <tr>
+            <td><a href="/admin/shares/{{.ID}}">{{.Token}}</a></td>
+            <td>{{if eq .ContentType "file"}}文件{{else if eq .ContentType "text"}}文本{{else}}{{.ContentType}}{{end}}</td>
+            <td>{{.DownloadCount}}/{{.MaxDownloads}}</td>
+            <td>{{if .ExpiresAt}}{{.ExpiresAt.Format "2006-01-02 15:04"}}{{else}}永不过期{{end}}</td>
+            <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}
+{{end}}

@@ -1,0 +1,70 @@
+{{template "layout.html" .}}
+{{define "title"}}分享管理 - FLS{{end}}
+{{define "content"}}
+<h1>分享管理</h1>
+<div style="margin-bottom: 1rem;">
+    <a href="/admin/shares/new" role="button">新建分享</a>
+</div>
+{{if .Shares}}
+<table>
+    <thead>
+        <tr>
+            <th>类型</th>
+            <th>令牌</th>
+            <th>目标</th>
+            <th>密码</th>
+            <th>过期时间</th>
+            <th>下载次数</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Shares}}
+        <tr>
+            <td>
+                {{if eq .ContentType "file"}}📄{{else}}📝{{end}}
+            </td>
+            <td>
+                <code style="cursor: pointer;" onclick="navigator.clipboard.writeText('{{.Token}}')">{{.Token}}</code>
+            </td>
+            <td>
+                {{if eq .ContentType "file"}}
+                    {{.FileName}}
+                {{else}}
+                    {{.TextPreview}}
+                {{end}}
+            </td>
+            <td>
+                {{if .HasPassword}}🔒{{else}}-{{end}}
+            </td>
+            <td>
+                {{if .ExpiresAt}}
+                    {{.ExpiresAt.Format "2006-01-02 15:04"}}
+                {{else}}
+                    永不过期
+                {{end}}
+            </td>
+            <td>{{.DownloadCount}}/{{if eq .MaxDownloads 0}}∞{{else}}{{.MaxDownloads}}{{end}}</td>
+            <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+            <td>
+                <a href="/admin/shares/{{.ID}}">查看</a>
+                <button hx-delete="/admin/shares/{{.ID}}" hx-confirm="确定删除此分享？">删除</button>
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+<div style="margin-top: 1rem; display: flex; gap: 0.5rem; align-items: center;">
+    {{if gt .Page 1}}
+    <a href="/admin/shares?offset={{.PrevOffset}}&amp;limit={{.Limit}}" role="button">&laquo; 上一页</a>
+    {{end}}
+    <span>第 {{.Page}} / {{.TotalPages}} 页 (共 {{.Total}} 条)</span>
+    {{if lt .Page .TotalPages}}
+    <a href="/admin/shares?offset={{.NextOffset}}&amp;limit={{.Limit}}" role="button">下一页 &raquo;</a>
+    {{end}}
+</div>
+{{else}}
+<p>暂无分享记录。</p>
+{{end}}
+{{end}}

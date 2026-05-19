@@ -3,6 +3,7 @@
 {{define "content"}}
 <h1>登录</h1>
 <form method="POST" action="/login">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
     <label for="password">管理员密码</label>
     <input type="password" id="password" name="password" required minlength="6" autofocus>
     <button type="submit">登录</button>

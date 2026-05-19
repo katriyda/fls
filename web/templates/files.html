@@ -1,0 +1,53 @@
+{{template "layout.html" .}}
+{{define "title"}}文件管理 - FLS{{end}}
+{{define "content"}}
+<h1>文件管理</h1>
+<div>
+    <input type="search" name="search" placeholder="搜索文件名..." value="{{.Search}}"
+           hx-get="/admin/files" hx-trigger="keyup changed delay:500ms" hx-target="#file-list" hx-push-url="true">
+</div>
+<div id="file-list">
+    <table>
+        <thead>
+            <tr>
+                <th>文件名</th>
+                <th>大小</th>
+                <th>类型</th>
+                <th>上传时间</th>
+                <th>分享数</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Files}}
+            <tr>
+                <td><a href="/admin/files/{{.ID}}">{{.OriginalName}}</a></td>
+                <td>{{.Size | bytes}}</td>
+                <td>{{.MimeType}}</td>
+                <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+                <td>{{.ShareCount}}</td>
+                <td>
+                    <a href="/admin/files/{{.ID}}">查看</a>
+                    <button hx-delete="/admin/files/{{.ID}}" hx-confirm="确定要删除此文件吗？">删除</button>
+                </td>
+            </tr>
+            {{else}}
+            <tr><td colspan="6">暂无文件</td></tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{if gt .TotalPages 1}}
+    <div>
+        {{if gt .Page 1}}
+        <a href="/admin/files?page={{.PrevPage}}&search={{.Search}}"
+           hx-get="/admin/files?page={{.PrevPage}}&search={{.Search}}" hx-target="#file-list">上一页</a>
+        {{end}}
+        <span>第 {{.Page}} / {{.TotalPages}} 页</span>
+        {{if lt .Page .TotalPages}}
+        <a href="/admin/files?page={{.NextPage}}&search={{.Search}}"
+           hx-get="/admin/files?page={{.NextPage}}&search={{.Search}}" hx-target="#file-list">下一页</a>
+        {{end}}
+    </div>
+    {{end}}
+</div>
+{{end}}

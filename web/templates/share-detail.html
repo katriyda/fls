@@ -1,0 +1,139 @@
+{{template "layout.html" .}}
+{{define "title"}}{{if eq .Mode "new"}}新建分享 - FLS{{else}}分享详情 - FLS{{end}}{{end}}
+{{define "content"}}
+{{if eq .Mode "new"}}
+<h1>新建分享</h1>
+<form method="POST" action="/admin/shares">
+    <div style="margin-bottom: 1rem;">
+        <label>分享类型</label>
+        <div>
+            <label>
+                <input type="radio" name="content_type" value="file" checked onchange="toggleShareType()">
+                文件分享
+            </label>
+            <label>
+                <input type="radio" name="content_type" value="text" onchange="toggleShareType()">
+                文本分享
+            </label>
+        </div>
+    </div>
+
+    <div id="file-share-fields">
+        <label for="file_id">选择文件</label>
+        <select id="file_id" name="file_id">
+            <option value="">-- 选择文件 --</option>
+            {{range .Files}}
+            <option value="{{.ID}}">{{.OriginalName}} ({{.Size}} bytes)</option>
+            {{end}}
+        </select>
+    </div>
+
+    <div id="text-share-fields" style="display: none;">
+        <label for="text_content">文本内容</label>
+        <textarea id="text_content" name="text_content" rows="6" style="width: 100%;"></textarea>
+    </div>
+
+    <label for="password">访问密码（可选）</label>
+    <input type="password" id="password" name="password" placeholder="留空则不设置密码">
+
+    <label for="expires_in">过期时间</label>
+    <select id="expires_in" name="expires_in">
+        <option value="1h">1 小时</option>
+        <option value="24h" selected>24 小时</option>
+        <option value="7d">7 天</option>
+        <option value="30d">30 天</option>
+        <option value="never">永不过期</option>
+    </select>
+
+    <label for="max_downloads">最大下载次数</label>
+    <input type="number" id="max_downloads" name="max_downloads" value="0" min="0">
+    <small>0 表示不限制</small>
+
+    <button type="submit">创建分享</button>
+</form>
+
+<script>
+function toggleShareType() {
+    var isFile = document.querySelector('input[name="content_type"]:checked').value === 'file';
+    document.getElementById('file-share-fields').style.display = isFile ? 'block' : 'none';
+    document.getElementById('text-share-fields').style.display = isFile ? 'none' : 'block';
+}
+</script>
+
+{{else}}
+<h1>分享详情</h1>
+
+<div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 300px;">
+        <table>
+            <tr>
+                <th>令牌</th>
+                <td>
+                    <code>{{.Share.Token}}</code>
+                    <button onclick="navigator.clipboard.writeText('{{.Share.Token}}')" style="margin-left: 0.5rem;">复制</button>
+                </td>
+            </tr>
+            <tr>
+                <th>分享链接</th>
+                <td>
+                    <input type="text" value="{{.ShareURL}}" readonly style="width: 100%;" onclick="this.select()">
+                    <button onclick="navigator.clipboard.writeText('{{.ShareURL}}')">复制链接</button>
+                </td>
+            </tr>
+            <tr>
+                <th>类型</th>
+                <td>{{if eq .Share.ContentType "file"}}📄 文件分享{{else}}📝 文本分享{{end}}</td>
+            </tr>
+            <tr>
+                <th>目标</th>
+                <td>
+                    {{if eq .Share.ContentType "file"}}
+                        {{.FileName}}
+                    {{else}}
+                        <pre style="max-height: 200px; overflow: auto; white-space: pre-wrap;">{{.Share.TextContent}}</pre>
+                    {{end}}
+                </td>
+            </tr>
+            <tr>
+                <th>密码保护</th>
+                <td>{{if .HasPassword}}🔒 是{{else}}-{{end}}</td>
+            </tr>
+            <tr>
+                <th>过期时间</th>
+                <td>
+                    {{if .Share.ExpiresAt}}
+                        {{.Share.ExpiresAt.Format "2006-01-02 15:04"}}
+                        {{if .Share.IsExpired}}<span style="color: #c00;">(已过期)</span>{{end}}
+                    {{else}}
+                        永不过期
+                    {{end}}
+                </td>
+            </tr>
+            <tr>
+                <th>下载次数</th>
+                <td>{{.Share.DownloadCount}}/{{if eq .Share.MaxDownloads 0}}∞{{else}}{{.Share.MaxDownloads}}{{end}}</td>
+            </tr>
+            <tr>
+                <th>创建时间</th>
+                <td>{{.Share.CreatedAt.Format "2006-01-02 15:04"}}</td>
+            </tr>
+            <tr>
+                <th>更新时间</th>
+                <td>{{.Share.UpdatedAt.Format "2006-01-02 15:04"}}</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <a href="/admin/shares" role="button">&laquo; 返回列表</a>
+            <button hx-delete="/admin/shares/{{.Share.ID}}" hx-confirm="确定删除此分享？" style="background: #c00; color: #fff;">删除分享</button>
+        </div>
+    </div>
+
+    <div style="flex: 0 0 auto; text-align: center;">
+        <h3>QR Code</h3>
+        <img src="/admin/shares/{{.Share.ID}}/qrcode" alt="QR Code" style="max-width: 256px;">
+        <p style="word-break: break-all; font-size: 0.8em;">{{.ShareURL}}</p>
+    </div>
+</div>
+{{end}}
+{{end}}

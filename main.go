@@ -7,10 +7,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
+	"fls/internal/database"
+	"fls/internal/handler"
+	"fls/internal/middleware"
+	"fls/internal/service"
+
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimw "github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -26,13 +33,82 @@ func main() {
 
 	slog.Info("FLS starting", "port", *port, "data-dir", *dataDir)
 
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.RealIP)
+	// Initialize database
+	db, err := database.New(filepath.Join(*dataDir, "fls.db"))
+	if err != nil {
+		slog.Error("failed to connect to database", "error", err)
+		os.Exit(1)
+	}
 
+	if err := db.Migrate(); err != nil {
+		slog.Error("failed to run database migrations", "error", err)
+		os.Exit(1)
+	}
+
+	// Initialize services
+	authService := service.NewAuth(db.DB)
+
+	// Initialize session manager
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 24 * 60 * 60
+
+	// Initialize handlers
+	loginHandler := &handler.LoginHandler{
+		Auth:           authService,
+		SessionManager: sessionManager,
+		DataDir:        *dataDir,
+	}
+
+	r := chi.NewRouter()
+	r.Use(chimw.Logger)
+	r.Use(chimw.Recoverer)
+	r.Use(chimw.RealIP)
+	r.Use(middleware.SecurityHeadersMiddleware)
+
+	// Health check - no rate limit, no auth, no CSRF
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK"))
+	})
+
+	// Static files - no rate limit, no auth, no CSRF
+	r.Group(func(r chi.Router) {
+		r.Handle("/static/*", http.StripPrefix("/static/", handler.StaticHandler()))
+	})
+
+	// Login routes - login rate limit + CSRF
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.RateLimitMiddleware(middleware.LoginRate))
+		r.Use(middleware.CSRFMiddleware)
+
+		r.Get("/login", loginHandler.GetLogin)
+		r.Post("/login", loginHandler.PostLogin)
+	})
+
+	// Admin routes - general rate limit + CSRF + auth
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.RateLimitMiddleware(middleware.APIRate))
+		r.Use(middleware.CSRFMiddleware)
+		r.Use(middleware.AuthMiddleware(sessionManager))
+
+		r.Get("/admin/", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/admin/files", http.StatusFound)
+		})
+	})
+
+	// API routes (stateless) - general rate limit, no CSRF
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.RateLimitMiddleware(middleware.APIRate))
+		r.Use(middleware.AuthMiddleware(sessionManager))
+
+		r.Post("/api/upload", func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "not implemented", http.StatusNotImplemented)
+		})
+	})
+
+	// Logout - no CSRF needed (just clearing session)
+	r.Post("/logout", func(w http.ResponseWriter, r *http.Request) {
+		middleware.ClearAuthenticated(r.Context(), sessionManager)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	})
 
 	addr := fmt.Sprintf(":%d", *port)

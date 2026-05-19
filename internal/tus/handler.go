@@ -8,18 +8,42 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
+
+type uploadInfo struct {
+	mu          sync.Mutex
+	id          string
+	size        int64
+	offset      int64
+	metadata    map[string]string
+	storagePath string
+	isFinished  bool
+	tempDir     string
+}
 
 type Handler struct {
 	db      *sql.DB
 	dataDir string
+	uploads sync.Map
 }
 
 func New(db *sql.DB, dataDir string) *Handler {
 	return &Handler{db: db, dataDir: dataDir}
+}
+
+func (h *Handler) Mount() http.Handler {
+	r := chi.NewRouter()
+	r.Post("/tus", h.TusCreateUpload)
+	r.Patch("/tus/{id}", h.TusPatchUpload)
+	r.Head("/tus/{id}", h.TusHeadUpload)
+	r.Delete("/tus/{id}", h.TusDeleteUpload)
+	r.Post("/simple", h.SimpleUpload)
+	return r
 }
 
 func (h *Handler) SimpleUpload(w http.ResponseWriter, r *http.Request) {
