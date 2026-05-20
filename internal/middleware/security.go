@@ -49,12 +49,12 @@ func SecurityHeadersMiddleware(next http.Handler) http.Handler {
 }
 
 var LoginRate = limiter.Rate{
-	Limit:  5,
+	Limit:  200,
 	Period: time.Minute,
 }
 
 var APIRate = limiter.Rate{
-	Limit:  60,
+	Limit:  600,
 	Period: time.Minute,
 }
 
