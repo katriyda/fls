@@ -20,13 +20,39 @@
     </div>
 
     <div id="file-share-fields">
-        <label for="file_id">选择文件</label>
-        <select id="file_id" name="file_id">
-            <option value="">-- 选择文件 --</option>
-            {{range .Files}}
-            <option value="{{.ID}}">{{.OriginalName}} ({{.Size}} bytes)</option>
-            {{end}}
-        </select>
+        <label>上传文件</label>
+        <div id="dropzone" style="border: 2px dashed #aaa; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1rem; transition: all 0.3s; background: #fafafa;"
+             ondragover="event.preventDefault(); this.style.borderColor='#4caf50'; this.style.background='#e8f5e9';"
+             ondragleave="this.style.borderColor='#aaa'; this.style.background='#fafafa';"
+             onclick="document.getElementById('file-input').click()">
+            <div id="dropzone-text">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+                <div>拖拽文件到此处，或点击选择文件</div>
+                <div style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">上传后自动创建分享</div>
+            </div>
+            <div id="upload-progress" style="display: none;">
+                <div style="margin-bottom: 0.5rem;">上传中...</div>
+                <progress id="progress-bar" value="0" max="100" style="width: 100%; height: 8px; border-radius: 4px;"></progress>
+            </div>
+        </div>
+        <input type="file" id="file-input" style="display: none;" onchange="uploadFile(this)">
+        <input type="hidden" id="file_id" name="file_id" value="">
+
+        <div id="uploaded-file-info" style="display: none; margin-bottom: 1rem; padding: 0.75rem; background: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px;">
+            ✅ 已上传: <span id="uploaded-filename"></span>
+            <span style="font-size: 0.8rem; color: #888; margin-left: 0.5rem;" id="uploaded-filesize"></span>
+            <button type="button" onclick="resetUpload()" style="margin-left: 1rem; padding: 0.2rem 0.5rem; font-size: 0.8rem;">更换文件</button>
+        </div>
+
+        <div id="existing-files-section" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+            <label for="file_id_select">或选择已上传的文件</label>
+            <select id="file_id_select" onchange="selectExistingFile(this)">
+                <option value="">-- 选择文件 --</option>
+                {{range .Files}}
+                <option value="{{.ID}}">{{.OriginalName}} ({{.Size}} bytes)</option>
+                {{end}}
+            </select>
+        </div>
     </div>
 
     <div id="text-share-fields" style="display: none;">
@@ -59,6 +85,122 @@ function toggleShareType() {
     document.getElementById('file-share-fields').style.display = isFile ? 'block' : 'none';
     document.getElementById('text-share-fields').style.display = isFile ? 'none' : 'block';
 }
+
+function uploadFile(input) {
+    var file = input.files[0];
+    if (!file) return;
+
+    var dz = document.getElementById('dropzone');
+    var dzText = document.getElementById('dropzone-text');
+    var progress = document.getElementById('upload-progress');
+    var progressBar = document.getElementById('progress-bar');
+
+    dzText.style.display = 'none';
+    progress.style.display = 'block';
+    dz.style.borderColor = '#2196f3';
+    dz.style.background = '#e3f2fd';
+    dz.style.cursor = 'default';
+    dz.onclick = null;
+
+    var formData = new FormData();
+    formData.append('file', file);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/upload/simple', true);
+
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            progressBar.value = (e.loaded / e.total) * 100;
+        }
+    };
+
+    xhr.onload = function() {
+        dz.style.display = 'none';
+
+        if (xhr.status === 200) {
+            var resp = JSON.parse(xhr.responseText);
+            document.getElementById('file_id').value = resp.id;
+            document.getElementById('uploaded-filename').textContent = resp.original_name;
+            document.getElementById('uploaded-filesize').textContent = formatSize(resp.size);
+            document.getElementById('uploaded-file-info').style.display = 'block';
+
+            // Hide existing files section since we uploaded a file
+            document.getElementById('existing-files-section').style.display = 'none';
+        } else {
+            progress.style.display = 'none';
+            dzText.style.display = 'block';
+            dzText.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>上传失败: ' + (xhr.responseText || '未知错误') + '</div>';
+            dz.style.borderColor = '#f44336';
+            dz.style.background = '#ffebee';
+            dz.style.cursor = 'pointer';
+            dz.onclick = function() { document.getElementById('file-input').click(); };
+            resetUpload();
+        }
+    };
+
+    xhr.onerror = function() {
+        dzText.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>网络错误</div>';
+        dz.style.borderColor = '#f44336';
+        dz.style.background = '#ffebee';
+        dz.style.cursor = 'pointer';
+        dz.onclick = function() { document.getElementById('file-input').click(); };
+        resetUpload();
+    };
+
+    xhr.send(formData);
+}
+
+function selectExistingFile(select) {
+    if (select.value) {
+        document.getElementById('file_id').value = select.value;
+        var option = select.options[select.selectedIndex];
+        document.getElementById('uploaded-filename').textContent = option.text;
+        document.getElementById('uploaded-filesize').textContent = '';
+        document.getElementById('uploaded-file-info').style.display = 'block';
+    }
+}
+
+function resetUpload() {
+    document.getElementById('file-input').value = '';
+    document.getElementById('file_id').value = '';
+    document.getElementById('uploaded-file-info').style.display = 'none';
+    document.getElementById('existing-files-section').style.display = 'block';
+    var dz = document.getElementById('dropzone');
+    if (dz) {
+        dz.style.display = 'block';
+        dz.style.borderColor = '#aaa';
+        dz.style.background = '#fafafa';
+        dz.style.cursor = 'pointer';
+        dz.onclick = function() { document.getElementById('file-input').click(); };
+        document.getElementById('dropzone-text').style.display = 'block';
+        document.getElementById('upload-progress').style.display = 'none';
+    }
+}
+
+function formatSize(bytes) {
+    if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+    if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+    if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+    return bytes + ' B';
+}
+
+// Drag-and-drop support
+document.addEventListener('DOMContentLoaded', function() {
+    var dz = document.getElementById('dropzone');
+    if (dz) {
+        dz.addEventListener('drop', function(e) {
+            e.preventDefault();
+            var file = e.dataTransfer.files[0];
+            if (file) {
+                var input = document.getElementById('file-input');
+                var dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                uploadFile(input);
+            }
+        });
+    }
+});
 </script>
 
 {{else}}
