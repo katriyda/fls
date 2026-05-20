@@ -7,7 +7,6 @@ fls.exe
 
 # Runtime data
 data/*
-!data/.gitkeep
 
 # IDE
 .idea/
@@ -22,7 +21,11 @@ Thumbs.db
 
 # Test artifacts
 test-data/
+test-results/
 
 # Temp files
 /tmp/
 *.log
+
+# Runtime generated
+fls-pid.txt
