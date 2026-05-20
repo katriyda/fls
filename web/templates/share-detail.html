@@ -123,52 +123,49 @@ function uploadFile(input) {
     dz.style.cursor = 'default';
     dz.onclick = null;
 
-    var formData = new FormData();
-    formData.append('file', file);
-
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/upload/simple', true);
-
-    xhr.upload.onprogress = function(e) {
-        if (e.lengthComputable) {
-            progressBar.value = (e.loaded / e.total) * 100;
-        }
-    };
-
-    xhr.onload = function() {
-        dz.style.display = 'none';
-
-        if (xhr.status === 200) {
-            var resp = JSON.parse(xhr.responseText);
-            document.getElementById('file_id').value = resp.id;
-            document.getElementById('uploaded-filename').textContent = resp.original_name;
-            document.getElementById('uploaded-filesize').textContent = formatSize(resp.size);
-            document.getElementById('uploaded-file-info').style.display = 'block';
-
-            // Hide existing files section since we uploaded a file
-            document.getElementById('existing-files-section').style.display = 'none';
-        } else {
+    // Use TUS for resumable, chunked file upload
+    var upload = new tus.Upload(file, {
+        endpoint: '/api/upload/tus',
+        retryDelays: [0, 1000, 3000, 5000, 10000, 20000],
+        chunkSize: 10 * 1024 * 1024, // 10MB chunks
+        metadata: {
+            filename: file.name,
+            filetype: file.type
+        },
+        onError: function(error) {
+            console.error("Upload failed: ", error);
             progress.style.display = 'none';
             dzText.style.display = 'block';
-            dzText.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>上传失败: ' + (xhr.responseText || '未知错误') + '</div>';
+            dzText.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>上传失败: ' + (error.message || '网络错误') + '</div>';
             dz.style.borderColor = '#f44336';
             dz.style.background = '#ffebee';
             dz.style.cursor = 'pointer';
             dz.onclick = function() { document.getElementById('file-input').click(); };
             resetUpload();
+        },
+        onProgress: function(bytesUploaded, bytesTotal) {
+            if (bytesTotal) {
+                progressBar.value = (bytesUploaded / bytesTotal) * 100;
+            }
+        },
+        onSuccess: function() {
+            dz.style.display = 'none';
+
+            // Extract finalized file UUID from the TUS upload URL
+            var uploadUrl = upload.url;
+            var fileId = uploadUrl.substring(uploadUrl.lastIndexOf('/') + 1);
+
+            document.getElementById('file_id').value = fileId;
+            document.getElementById('uploaded-filename').textContent = file.name;
+            document.getElementById('uploaded-filesize').textContent = formatSize(file.size);
+            document.getElementById('uploaded-file-info').style.display = 'block';
+
+            // Hide existing files section since we uploaded a file
+            document.getElementById('existing-files-section').style.display = 'none';
         }
-    };
+    });
 
-    xhr.onerror = function() {
-        dzText.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>网络错误</div>';
-        dz.style.borderColor = '#f44336';
-        dz.style.background = '#ffebee';
-        dz.style.cursor = 'pointer';
-        dz.onclick = function() { document.getElementById('file-input').click(); };
-        resetUpload();
-    };
-
-    xhr.send(formData);
+    upload.start();
 }
 
 function selectExistingFile(select) {

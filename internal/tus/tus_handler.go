@@ -151,12 +151,12 @@ func (h *Handler) finalizeUpload(info *uploadInfo) error {
 	}
 
 	mimeType := "application/octet-stream"
-	if sniff, err := os.ReadFile(info.storagePath); err == nil && len(sniff) > 0 {
-		headerBytes := sniff
-		if len(headerBytes) > 512 {
-			headerBytes = headerBytes[:512]
+	if f, err := os.Open(info.storagePath); err == nil {
+		defer f.Close()
+		buf := make([]byte, 512)
+		if n, err := f.Read(buf); err == nil && n > 0 {
+			mimeType = http.DetectContentType(buf[:n])
 		}
-		mimeType = http.DetectContentType(headerBytes)
 	}
 
 	if info.storagePath != finalPath {
@@ -274,7 +274,7 @@ func (h *Handler) TusCreateUpload(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("tus upload created", "id", id, "size", uploadLength, "metadata", metadata)
 
-	location := r.URL.Path + "/" + id
+	location := strings.TrimSuffix(r.URL.Path, "/") + "/" + id
 	w.Header().Set("Location", location)
 	w.WriteHeader(http.StatusCreated)
 }
