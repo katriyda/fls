@@ -472,7 +472,7 @@ form {
   margin-top: var(--space-lg);
 }
 
-/* We keep magick.css Caveat font and bottom-border design for inputs, just ensuring width and margin adjustments */
+/* Keep magick.css input look, but normalize text metrics so the caret does not overlap glyphs */
 input[type="email"],
 input[type="number"],
 input[type="password"],
@@ -485,6 +485,9 @@ select {
   box-sizing: border-box !important;
   margin-bottom: 0 !important; /* Let .form-group control spacing */
   background-color: transparent !important;
+  font-family: inherit !important;
+  line-height: 1.5 !important;
+  letter-spacing: normal !important;
 }
 
 input[type="radio"],
