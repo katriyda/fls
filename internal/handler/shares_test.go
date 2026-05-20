@@ -129,6 +129,7 @@ func TestCreateShare_Text(t *testing.T) {
 	body := "content_type=text&text_content=hello+world&expires_in=24h&max_downloads=5"
 	req := httptest.NewRequest("POST", "/admin/shares", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("HX-Request", "true")
 
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
@@ -157,6 +158,7 @@ func TestCreateShare_File(t *testing.T) {
 	body := "content_type=file&file_id=" + fileID + "&expires_in=7d"
 	req := httptest.NewRequest("POST", "/admin/shares", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("HX-Request", "true")
 
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
@@ -173,6 +175,7 @@ func TestCreateShare_WithPassword(t *testing.T) {
 	body := "content_type=text&text_content=secret&password=mypassword&expires_in=1h"
 	req := httptest.NewRequest("POST", "/admin/shares", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("HX-Request", "true")
 
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
@@ -298,6 +301,7 @@ func TestDeleteShare(t *testing.T) {
 
 	r := setupChiRouter(h)
 	req := httptest.NewRequest("DELETE", "/admin/shares/"+share.ID, nil)
+	req.Header.Set("HX-Request", "true")
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
 

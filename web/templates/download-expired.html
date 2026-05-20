@@ -1,9 +1,11 @@
 {{template "layout.html" .}}
 {{define "title"}}链接已过期 - FLS{{end}}
 {{define "content"}}
-<div class="container" style="max-width: 500px; margin: 0 auto; text-align: center;">
-    <h1>链接已过期</h1>
-    <p>该分享链接已过期，无法访问。</p>
-    <p>请联系文件分享者以获取新的链接。</p>
+<div class="container text-center">
+    <div class="card">
+        <h1 class="text-danger" style="margin-top: 0; font-size: 2rem;">链接已过期</h1>
+        <p class="text-muted">该分享链接已过期，无法访问。</p>
+        <p class="text-muted mb-0">请联系文件分享者以获取新的链接。</p>
+    </div>
 </div>
 {{end}}

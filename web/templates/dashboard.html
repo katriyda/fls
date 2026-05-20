@@ -3,33 +3,33 @@
 {{define "content"}}
 <h1>仪表盘</h1>
 
-<div class="row" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
-	<div class="card" style="flex: 1; min-width: 180px;">
-		<div style="font-size: 2rem;">📁</div>
-		<div style="font-size: 1.5rem; font-weight: bold;">{{.Stats.TotalFiles}}</div>
-		<div>文件总数</div>
+<div class="stat-cards">
+	<div class="stat-card">
+		<div class="stat-card-icon">📁</div>
+		<div class="stat-card-value">{{.Stats.TotalFiles}}</div>
+		<div class="stat-card-label">文件总数</div>
 	</div>
-	<div class="card" style="flex: 1; min-width: 180px;">
-		<div style="font-size: 2rem;">🔗</div>
-		<div style="font-size: 1.5rem; font-weight: bold;">{{.Stats.TotalShares}}</div>
-		<div>分享总数</div>
+	<div class="stat-card">
+		<div class="stat-card-icon">🔗</div>
+		<div class="stat-card-value">{{.Stats.TotalShares}}</div>
+		<div class="stat-card-label">分享总数</div>
 	</div>
-	<div class="card" style="flex: 1; min-width: 180px;">
-		<div style="font-size: 2rem;">⬇️</div>
-		<div style="font-size: 1.5rem; font-weight: bold;">{{.Stats.TotalDownloads}}</div>
-		<div>下载总数</div>
+	<div class="stat-card">
+		<div class="stat-card-icon">⬇️</div>
+		<div class="stat-card-value">{{.Stats.TotalDownloads}}</div>
+		<div class="stat-card-label">下载总数</div>
 	</div>
-	<div class="card" style="flex: 1; min-width: 180px;">
-		<div style="font-size: 2rem;">✅</div>
-		<div style="font-size: 1.5rem; font-weight: bold;">{{.Stats.ActiveShares}}</div>
-		<div>活跃分享</div>
+	<div class="stat-card">
+		<div class="stat-card-icon">✅</div>
+		<div class="stat-card-value">{{.Stats.ActiveShares}}</div>
+		<div class="stat-card-label">活跃分享</div>
 	</div>
 </div>
 
-<div class="card" style="margin-bottom: 2rem;">
+<div class="card mb-lg">
 	<h2>最近文件</h2>
 	<div class="responsive-table">
-	<table style="width:100%">
+	<table class="data-table">
 		<thead>
 			<tr>
 				<th>文件名</th>
@@ -54,10 +54,10 @@
 	</div>
 </div>
 
-<div class="card">
+<div class="card mb-lg">
 	<h2>最近分享</h2>
 	<div class="responsive-table">
-	<table style="width:100%">
+	<table class="data-table">
 		<thead>
 			<tr>
 				<th>令牌</th>

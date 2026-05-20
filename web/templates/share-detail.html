@@ -5,78 +5,99 @@
 <h1>新建分享</h1>
 <form method="POST" action="/admin/shares">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-    <div style="margin-bottom: 1rem;">
-        <label>分享类型</label>
-        <div>
-            <label>
-                <input type="radio" name="content_type" value="file" checked onchange="toggleShareType()">
-                文件分享
-            </label>
-            <label>
-                <input type="radio" name="content_type" value="text" onchange="toggleShareType()">
-                文本分享
-            </label>
+
+    <div class="form-section">
+        <h3>分享类型</h3>
+        <div class="form-group">
+            <label>分享类型</label>
+            <div>
+                <label>
+                    <input type="radio" name="content_type" value="file" checked onchange="toggleShareType()">
+                    文件分享
+                </label>
+                <label>
+                    <input type="radio" name="content_type" value="text" onchange="toggleShareType()">
+                    文本分享
+                </label>
+            </div>
         </div>
     </div>
 
-    <div id="file-share-fields">
-        <label>上传文件</label>
-        <div id="dropzone" style="border: 2px dashed #aaa; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1rem; transition: all 0.3s; background: #fafafa;"
-             ondragover="event.preventDefault(); this.style.borderColor='#4caf50'; this.style.background='#e8f5e9';"
-             ondragleave="this.style.borderColor='#aaa'; this.style.background='#fafafa';"
-             onclick="document.getElementById('file-input').click()">
-            <div id="dropzone-text">
-                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
-                <div>拖拽文件到此处，或点击选择文件</div>
-                <div style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">上传后自动创建分享</div>
+    <div class="form-section">
+        <h3>文件/文本上传</h3>
+        <div id="file-share-fields">
+            <div class="form-group">
+                <label>上传文件</label>
+                <div id="dropzone" class="dropzone"
+                     ondragover="event.preventDefault(); this.style.borderColor='#4caf50'; this.style.background='#e8f5e9';"
+                     ondragleave="this.style.borderColor='#aaa'; this.style.background='#fafafa';"
+                     onclick="document.getElementById('file-input').click()">
+                    <div id="dropzone-text">
+                        <div class="dropzone-icon">📁</div>
+                        <div>拖拽文件到此处，或点击选择文件</div>
+                        <div class="dropzone-hint">上传后自动创建分享</div>
+                    </div>
+                    <div id="upload-progress" class="upload-progress" style="display: none;">
+                        <div>上传中...</div>
+                        <progress id="progress-bar" class="upload-progress-bar" value="0" max="100"></progress>
+                    </div>
+                </div>
+                <input type="file" id="file-input" style="display: none;" onchange="uploadFile(this)">
+                <input type="hidden" id="file_id" name="file_id" value="">
+
+                <div id="uploaded-file-info" class="upload-success" style="display: none;">
+                    ✅ 已上传: <span id="uploaded-filename"></span>
+                    <span class="text-muted" id="uploaded-filesize"></span>
+                    <button type="button" class="btn btn-sm" onclick="resetUpload()">更换文件</button>
+                </div>
             </div>
-            <div id="upload-progress" style="display: none;">
-                <div style="margin-bottom: 0.5rem;">上传中...</div>
-                <progress id="progress-bar" value="0" max="100" style="width: 100%; height: 8px; border-radius: 4px;"></progress>
+
+            <div class="form-group">
+                <div id="existing-files-section">
+                    <label for="file_id_select">或选择已上传的文件</label>
+                    <select id="file_id_select" onchange="selectExistingFile(this)">
+                        <option value="">-- 选择文件 --</option>
+                        {{range .Files}}
+                        <option value="{{.ID}}">{{.OriginalName}} ({{.Size}} bytes)</option>
+                        {{end}}
+                    </select>
+                </div>
             </div>
         </div>
-        <input type="file" id="file-input" style="display: none;" onchange="uploadFile(this)">
-        <input type="hidden" id="file_id" name="file_id" value="">
 
-        <div id="uploaded-file-info" style="display: none; margin-bottom: 1rem; padding: 0.75rem; background: #e8f5e9; border: 1px solid #4caf50; border-radius: 4px;">
-            ✅ 已上传: <span id="uploaded-filename"></span>
-            <span style="font-size: 0.8rem; color: #888; margin-left: 0.5rem;" id="uploaded-filesize"></span>
-            <button type="button" onclick="resetUpload()" style="margin-left: 1rem; padding: 0.2rem 0.5rem; font-size: 0.8rem;">更换文件</button>
+        <div id="text-share-fields" style="display: none;">
+            <div class="form-group">
+                <label for="text_content">文本内容</label>
+                <textarea id="text_content" name="text_content" rows="6"></textarea>
+            </div>
         </div>
+    </div>
 
-        <div id="existing-files-section" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
-            <label for="file_id_select">或选择已上传的文件</label>
-            <select id="file_id_select" onchange="selectExistingFile(this)">
-                <option value="">-- 选择文件 --</option>
-                {{range .Files}}
-                <option value="{{.ID}}">{{.OriginalName}} ({{.Size}} bytes)</option>
-                {{end}}
+    <div class="form-section">
+        <h3>分享设置</h3>
+        <div class="form-group">
+            <label for="password">访问密码（可选）</label>
+            <input type="password" id="password" name="password" placeholder="留空则不设置密码">
+        </div>
+        <div class="form-group">
+            <label for="expires_in">过期时间</label>
+            <select id="expires_in" name="expires_in">
+                <option value="1h">1 小时</option>
+                <option value="24h" selected>24 小时</option>
+                <option value="7d">7 天</option>
+                <option value="30d">30 天</option>
+                <option value="never">永不过期</option>
             </select>
         </div>
+        <div class="form-group">
+            <label for="max_downloads">最大下载次数</label>
+            <input type="number" id="max_downloads" name="max_downloads" value="0" min="0">
+            <small>0 表示不限制</small>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">创建分享</button>
+        </div>
     </div>
-
-    <div id="text-share-fields" style="display: none;">
-        <label for="text_content">文本内容</label>
-        <textarea id="text_content" name="text_content" rows="6" style="width: 100%;"></textarea>
-    </div>
-
-    <label for="password">访问密码（可选）</label>
-    <input type="password" id="password" name="password" placeholder="留空则不设置密码">
-
-    <label for="expires_in">过期时间</label>
-    <select id="expires_in" name="expires_in">
-        <option value="1h">1 小时</option>
-        <option value="24h" selected>24 小时</option>
-        <option value="7d">7 天</option>
-        <option value="30d">30 天</option>
-        <option value="never">永不过期</option>
-    </select>
-
-    <label for="max_downloads">最大下载次数</label>
-    <input type="number" id="max_downloads" name="max_downloads" value="0" min="0">
-    <small>0 表示不限制</small>
-
-    <button type="submit">创建分享</button>
 </form>
 
 <script>
@@ -206,22 +227,22 @@ document.addEventListener('DOMContentLoaded', function() {
 {{else}}
 <h1>分享详情</h1>
 
-<div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-    <div style="flex: 1; min-width: 300px;">
+<div class="flex flex-wrap gap-lg">
+    <div>
         <div class="responsive-table">
-        <table>
+        <table class="data-table">
             <tr>
                 <th>令牌</th>
                 <td>
                     <code>{{.Share.Token}}</code>
-                    <button onclick="navigator.clipboard.writeText('{{.Share.Token}}')" style="margin-left: 0.5rem;">复制</button>
+                    <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.Share.Token}}')">复制</button>
                 </td>
             </tr>
             <tr>
                 <th>分享链接</th>
                 <td>
-                    <input type="text" value="{{.ShareURL}}" readonly style="width: 100%;" onclick="this.select()">
-                    <button onclick="navigator.clipboard.writeText('{{.ShareURL}}')">复制链接</button>
+                    <input type="text" value="{{.ShareURL}}" readonly onclick="this.select()">
+                    <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.ShareURL}}')">复制链接</button>
                 </td>
             </tr>
             <tr>
@@ -234,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {{if eq .Share.ContentType "file"}}
                         {{.FileName}}
                     {{else}}
-                        <pre style="max-height: 200px; overflow: auto; white-space: pre-wrap;">{{.Share.TextContent}}</pre>
+                        <pre>{{.Share.TextContent}}</pre>
                     {{end}}
                 </td>
             </tr>
@@ -247,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>
                     {{if .Share.ExpiresAt}}
                         {{.Share.ExpiresAt.Format "2006-01-02 15:04"}}
-                        {{if .Share.IsExpired}}<span style="color: #c00;">(已过期)</span>{{end}}
+                        {{if .Share.IsExpired}}<span class="text-danger">(已过期)</span>{{end}}
                     {{else}}
                         永不过期
                     {{end}}
@@ -268,16 +289,16 @@ document.addEventListener('DOMContentLoaded', function() {
         </table>
         </div>
 
-        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-            <a href="/admin/shares" role="button">&laquo; 返回列表</a>
-            <button hx-delete="/admin/shares/{{.Share.ID}}" hx-confirm="确定删除此分享？" style="background: #c00; color: #fff;">删除分享</button>
+        <div class="flex gap-sm mt-lg">
+            <a href="/admin/shares" class="btn" role="button">&laquo; 返回列表</a>
+            <button class="btn btn-danger" hx-delete="/admin/shares/{{.Share.ID}}" hx-confirm="确定删除此分享？">删除分享</button>
         </div>
     </div>
 
-    <div style="flex: 0 0 auto; text-align: center;">
+    <div class="card text-center">
         <h3>QR Code</h3>
-        <img src="/admin/shares/{{.Share.ID}}/qrcode" alt="QR Code" style="max-width: 256px;">
-        <p style="word-break: break-all; font-size: 0.8em;">{{.ShareURL}}</p>
+        <img src="/admin/shares/{{.Share.ID}}/qrcode" alt="QR Code" class="qrcode-img">
+        <p class="text-muted">{{.ShareURL}}</p>
     </div>
 </div>
 {{end}}

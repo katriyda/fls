@@ -8,7 +8,7 @@
 </div>
 <div id="file-list">
     <div class="responsive-table">
-    <table>
+    <table class="data-table">
         <thead>
             <tr>
                 <th>文件名</th>
@@ -28,8 +28,8 @@
                 <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
                 <td>{{.ShareCount}}</td>
                 <td>
-                    <a href="/admin/files/{{.ID}}">查看</a>
-                    <button hx-delete="/admin/files/{{.ID}}" hx-confirm="确定要删除此文件吗？">删除</button>
+                    <a href="/admin/files/{{.ID}}" class="btn btn-sm">查看</a>
+                    <button hx-delete="/admin/files/{{.ID}}" hx-confirm="确定要删除此文件吗？" class="btn btn-sm btn-danger">删除</button>
                 </td>
             </tr>
             {{else}}
@@ -39,15 +39,15 @@
     </table>
     </div>
     {{if gt .TotalPages 1}}
-    <div>
+    <div class="flex gap-sm mt-md">
         {{if gt .Page 1}}
         <a href="/admin/files?page={{.PrevPage}}&search={{.Search}}"
-           hx-get="/admin/files?page={{.PrevPage}}&search={{.Search}}" hx-target="#file-list">上一页</a>
+           hx-get="/admin/files?page={{.PrevPage}}&search={{.Search}}" hx-target="#file-list" class="btn btn-sm">上一页</a>
         {{end}}
         <span>第 {{.Page}} / {{.TotalPages}} 页</span>
         {{if lt .Page .TotalPages}}
         <a href="/admin/files?page={{.NextPage}}&search={{.Search}}"
-           hx-get="/admin/files?page={{.NextPage}}&search={{.Search}}" hx-target="#file-list">下一页</a>
+           hx-get="/admin/files?page={{.NextPage}}&search={{.Search}}" hx-target="#file-list" class="btn btn-sm">下一页</a>
         {{end}}
     </div>
     {{end}}

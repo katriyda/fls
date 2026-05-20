@@ -133,6 +133,7 @@ func TestFileHandler_DeleteFile(t *testing.T) {
 	r.Delete("/admin/files/{id}", fh.DeleteFile)
 
 	req := httptest.NewRequest("DELETE", "/admin/files/f1", nil)
+	req.Header.Set("HX-Request", "true")
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
 

@@ -10,17 +10,19 @@
     <script src="https://unpkg.com/htmx.org@2"></script>
 </head>
 <body>
-    <main>
+    <main class="{{if .Authenticated}}admin-mode{{end}}">
         <header>
-            <nav>
-                <a href="/admin/" style="font-weight: bold; font-size: 1.2em;">📦 FLS</a>
-                {{if .Authenticated}}
-                <a href="/admin/">仪表盘</a>
-                <a href="/admin/files">文件</a>
-                <a href="/admin/shares">分享</a>
-                <a href="/admin/config">配置</a>
-                <a href="/logout">登出</a>
-                {{end}}
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/admin/" class="nav-brand">📦 FLS</a></li>
+                    {{if .Authenticated}}
+                    <li><a href="/admin/" class="nav-link" data-page="dashboard">仪表盘</a></li>
+                    <li><a href="/admin/files" class="nav-link" data-page="files">文件</a></li>
+                    <li><a href="/admin/shares" class="nav-link" data-page="shares">分享</a></li>
+                    <li><a href="/admin/config" class="nav-link" data-page="config">配置</a></li>
+                    <li><a href="/logout" class="nav-link">登出</a></li>
+                    {{end}}
+                </ul>
             </nav>
         </header>
         <section>

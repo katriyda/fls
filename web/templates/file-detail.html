@@ -6,7 +6,7 @@
 {{if .EditMode}}
 <form hx-put="/admin/files/{{.File.ID}}" hx-target="body" hx-push-url="true">
     <div class="responsive-table">
-    <table>
+    <table class="data-table">
         <tr>
             <th>ID</th>
             <td>{{.File.ID}}</td>
@@ -15,7 +15,7 @@
             <th>文件名</th>
             <td>{{.File.Filename}}</td>
         </tr>
-        <tr>
+        <tr class="form-group">
             <th>原始名称</th>
             <td><input type="text" name="original_name" value="{{.File.OriginalName}}" required></td>
         </tr>
@@ -37,12 +37,14 @@
         </tr>
     </table>
     </div>
-    <button type="submit">保存</button>
-    <a href="/admin/files/{{.File.ID}}">取消</a>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a href="/admin/files/{{.File.ID}}" class="btn btn-sm">取消</a>
+    </div>
 </form>
 {{else}}
 <div class="responsive-table">
-<table>
+<table class="data-table">
     <tr>
         <th>ID</th>
         <td>{{.File.ID}}</td>
@@ -73,15 +75,15 @@
     </tr>
 </table>
 </div>
-<a href="/admin/files/{{.File.ID}}/edit">编辑</a>
-<button hx-delete="/admin/files/{{.File.ID}}" hx-confirm="确定要删除此文件吗？">删除</button>
-<a href="/admin/files">返回列表</a>
+<a href="/admin/files/{{.File.ID}}/edit" class="btn btn-sm">编辑</a>
+<button hx-delete="/admin/files/{{.File.ID}}" hx-confirm="确定要删除此文件吗？" class="btn btn-sm btn-danger">删除</button>
+<a href="/admin/files" class="btn btn-sm">返回列表</a>
 {{end}}
 
 {{if .Shares}}
 <h2>关联分享</h2>
 <div class="responsive-table">
-<table>
+<table class="data-table">
     <thead>
         <tr>
             <th>Token</th>

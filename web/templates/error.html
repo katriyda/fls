@@ -4,6 +4,10 @@
 <div class="error-page">
     <h1>{{.Code}}</h1>
     <p>{{.Message}}</p>
-    <a href="/admin/">← 返回仪表盘</a>
+    {{if .Authenticated}}
+    <a href="/admin/" class="btn">← 返回仪表盘</a>
+    {{else}}
+    <a href="/login" class="btn">← 返回登录</a>
+    {{end}}
 </div>
 {{end}}

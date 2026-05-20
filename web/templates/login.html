@@ -1,14 +1,20 @@
 {{template "layout.html" .}}
 {{define "title"}}登录 - FLS{{end}}
 {{define "content"}}
-<h1>登录</h1>
+<div class="card" style="max-width: 400px; margin: 6rem auto;">
+<h1 class="text-center mb-lg">登录</h1>
 <form method="POST" action="/login">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-    <label for="password">管理员密码</label>
-    <input type="password" id="password" name="password" required minlength="6" autofocus>
-    <button type="submit">登录</button>
+    <div class="form-group">
+        <label for="password">密码</label>
+        <input type="password" id="password" name="password" required minlength="6" autofocus placeholder="请输入管理员密码">
+    </div>
+    <div class="form-actions mt-lg">
+        <button type="submit" class="btn btn-primary" style="width: 100%;">登录</button>
+    </div>
     {{if .Error}}
-    <p style="color: #c00;">{{.Error}}</p>
+    <p class="text-danger">{{.Error}}</p>
     {{end}}
 </form>
+</div>
 {{end}}

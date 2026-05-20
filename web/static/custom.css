@@ -1,33 +1,825 @@
-/* FLS Custom Styles */
-nav a { text-decoration: none; }
-nav a:hover { text-decoration: underline; }
-button, input, select, textarea { min-height: 44px; }
-table { width: 100%; }
-.flash { padding: 0.5em 1em; margin: 1em 0; border-radius: 4px; }
-.flash-success { background: #dfd; border: 1px solid #ada; }
-.flash-error { background: #fdd; border: 1px solid #daa; }
-.qrcode-img { max-width: 256px; height: auto; margin: 1em 0; }
-.token-display { font-family: monospace; font-size: 1.2em; padding: 0.5em; background: #f5f5f5; border-radius: 4px; word-break: break-all; }
-.preview-img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; margin: 1em 0; }
-.text-content { white-space: pre-wrap; word-break: break-word; max-height: 500px; overflow-y: auto; padding: 1em; background: #f8f8f8; border-radius: 4px; }
-@media (max-width: 768px) {
-    nav { display: flex; flex-direction: column; gap: 0.5em; }
-    table, tbody, tr, td, th { display: block; }
-    td::before { content: attr(data-label); font-weight: bold; display: inline-block; width: 120px; }
-    .hide-mobile { display: none; }
+/* ================================================================== */
+/*  FLS Design System — Admin Layout & Component Classes               */
+/*  Built on top of magick.css base styling overrides                  */
+/* ================================================================== */
+
+/* 1. Import Premium Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+/* 2. Global Resets & Typography Override */
+html {
+  box-sizing: border-box;
 }
 
-.responsive-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-body { overflow-x: hidden; }
-img { max-width: 100%; height: auto; }
-input:not([type="radio"]):not([type="checkbox"]), select, textarea { width: 100%; box-sizing: border-box; }
+body {
+  overflow-x: hidden;
+}
+
+/* We let magick.css style h1, h2, h3 natively with Averia Libre, keeping its wizard symbols (✦ and 🙛) */
+
+p {
+  margin: 0 0 var(--space-md) 0 !important;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 3. Design Tokens */
+:root {
+  /* Spacing Scale (based on magick.css 10px rem) */
+  --space-xs: 0.4rem;   /* 4px */
+  --space-sm: 0.8rem;   /* 8px */
+  --space-md: 1.6rem;   /* 16px */
+  --space-lg: 2.4rem;   /* 24px */
+  --space-xl: 3.2rem;   /* 32px */
+  --space-2xl: 4.8rem;  /* 48px */
+
+  /* Border Radii - magick.css uses sharp edges (no border-radius) */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+
+  /* Shadows - simple, flat shadows or border lines */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+
+  /* Fonts matching magick.css */
+  --font-mono: 'Courier Prime', 'JetBrains Mono', monospace;
+
+  /* Colors — Light Mode (Aligning with magick.css variables!) */
+  --color-primary: #8a2be2;         /* Wizard Purple */
+  --color-primary-hover: #7b1fa2;
+  --color-primary-bg: rgba(138, 43, 226, 0.08);
+  
+  --color-danger: #d32f2f;
+  --color-danger-hover: #b71c1c;
+  --color-danger-bg: rgba(211, 47, 47, 0.08);
+  
+  --color-success: #388e3c;
+  --color-success-bg: rgba(56, 142, 60, 0.08);
+  
+  --color-warning: #fbc02d;
+  --color-warning-bg: rgba(251, 192, 45, 0.08);
+  
+  --color-text: var(--fg);
+  --color-text-secondary: rgba(14, 14, 14, 0.75);
+  --color-bg-card: var(--form-bg);
+  --color-bg-subtle: var(--bg);
+  --color-border: var(--fg);
+  --color-nav-hover: rgba(0, 0, 0, 0.05);
+  --color-accent-ring: rgba(138, 43, 226, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Colors — Dark Mode (Aligning with magick.css variables!) */
+    --color-primary: #bb86fc;       /* Wizard Light Purple */
+    --color-primary-hover: #b388ff;
+    --color-primary-bg: rgba(187, 134, 252, 0.12);
+    
+    --color-danger: #cf6679;
+    --color-danger-hover: #ef4444;
+    --color-danger-bg: rgba(207, 102, 121, 0.12);
+    
+    --color-success: #03dac6;
+    --color-success-bg: rgba(3, 218, 198, 0.12);
+    
+    --color-warning: #fbbf24;
+    --color-warning-bg: rgba(251, 192, 45, 0.12);
+    
+    --color-text: var(--fg);
+    --color-text-secondary: rgba(254, 254, 254, 0.75);
+    --color-bg-card: var(--form-bg);
+    --color-bg-subtle: var(--bg);
+    --color-border: var(--fg);
+    --color-nav-hover: rgba(255, 255, 255, 0.08);
+    --color-accent-ring: rgba(187, 134, 252, 0.25);
+  }
+}
+
+/* 4. Layout */
+main {
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  padding: var(--space-md) var(--space-lg) !important;
+}
+
+header, section, footer {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+header {
+  margin-top: var(--space-md) !important;
+  margin-bottom: var(--space-xl) !important;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-md) !important;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.page-header h1 {
+  margin: 0 !important;
+}
+
+.page-content {
+  padding: 0;
+}
+
+/* 5. Navigation */
+.main-nav ul {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.main-nav ul li {
+  display: flex;
+  align-items: center;
+  margin: 0 !important;
+}
+
+.nav-brand {
+  font-family: "Averia Libre", cursive;
+  font-weight: 800;
+  font-size: 2.2rem;
+  color: var(--color-primary) !important;
+  text-decoration: none !important;
+  margin-right: var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.nav-link {
+  font-family: "Averia Libre", cursive;
+  font-size: 1.8rem;
+  font-weight: 500;
+  padding: var(--space-xs) var(--space-sm);
+  color: var(--color-text-secondary) !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-primary) !important;
+  text-decoration: none !important;
+}
+
+.nav-link.active,
+.nav-link[aria-current="page"] {
+  color: var(--color-primary) !important;
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+main.admin-mode .main-nav ul li:last-child {
+  margin-left: auto !important;
+}
+
+/* 6. Cards & Dashboard Stats */
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-lg);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  margin-bottom: var(--space-lg);
+}
+
+.card:hover {
+  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.12);
+}
+
+.card h2:first-child,
+.card h3:first-child {
+  margin-top: 0;
+}
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-lg);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.stat-card-icon {
+  font-size: 3.2rem;
+  margin-bottom: var(--space-sm);
+  line-height: 1;
+}
+
+.stat-card-value {
+  font-size: 2.8rem;
+  font-family: 'Averia Libre', cursive;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.stat-card-label {
+  font-size: 1.4rem;
+  color: var(--color-text-secondary);
+  margin-top: var(--space-xs);
+  font-weight: 500;
+}
+
+/* 7. Data Tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.6rem;
+}
+
+.data-table th {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 2px solid var(--color-border);
+  text-align: left;
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+  color: var(--color-text);
+}
+
+.data-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--color-nav-hover);
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  padding-left: var(--space-sm);
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+  padding-right: var(--space-sm);
+}
+
+.responsive-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 8. Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 1.6rem; /* 16px in magick.css rem scaling */
+  font-weight: 500;
+  font-family: 'Averia Libre', cursive, inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+  min-height: 38px;
+  line-height: 1.2;
+  box-sizing: border-box !important;
+  vertical-align: middle !important;
+}
+
+.btn:hover {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary) !important;
+}
+
+.btn-primary {
+  background: var(--color-primary-bg);
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary);
+  color: #ffffff !important;
+  border-color: var(--color-primary);
+}
+
+.btn-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger) !important;
+  border-color: var(--color-danger);
+  font-weight: 600;
+}
+
+.btn-danger:hover {
+  background: var(--color-danger);
+  color: #ffffff !important;
+  border-color: var(--color-danger);
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 1.4rem; /* 14px in magick.css rem scaling */
+  min-height: 30px;
+}
+
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* 9. Forms & Inputs globally */
+form {
+  display: block !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  margin: 0 !important;
+}
+
+.form-section {
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.form-section h3 {
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-md) 0;
+}
+
+.form-group {
+  margin-bottom: var(--space-md);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: var(--color-text);
+}
+
+.form-group small,
+.form-group .text-muted {
+  font-size: 1.4rem;
+  color: var(--color-text-secondary);
+  display: block;
+  margin-top: var(--space-xs);
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.form-row > * {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+/* We keep magick.css Caveat font and bottom-border design for inputs, just ensuring width and margin adjustments */
+input[type="email"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="text"],
+input[type="url"],
+textarea,
+select {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-bottom: 0 !important; /* Let .form-group control spacing */
+  background-color: transparent !important;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  width: auto !important;
+  min-height: auto !important;
+  min-width: auto !important;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+input[type="radio"] + label,
+input[type="checkbox"] + label {
+  display: inline-block !important;
+  margin-right: 1.5rem !important;
+  font-size: 1.6rem !important;
+  font-family: "Averia Serif Libre", serif !important;
+  cursor: pointer;
+}
+
+/* 10. Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.badge-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.badge-info {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+/* 11. Dropzone & Upload */
+.dropzone {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: var(--color-bg-card);
+  margin-bottom: var(--space-md);
+}
+
+.dropzone:hover,
+.dropzone.drag-over {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  box-shadow: 0 4px 12px var(--color-accent-ring);
+}
+
+.dropzone-icon {
+  font-size: 3.6rem;
+  margin-bottom: var(--space-sm);
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.dropzone:hover .dropzone-icon {
+  transform: translateY(-4px);
+}
+
+.dropzone-text {
+  font-family: 'Averia Serif Libre', serif;
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 1.8rem;
+}
+
+.dropzone-hint {
+  font-size: 1.4rem;
+  color: var(--color-text-secondary);
+  margin-top: var(--space-xs);
+}
+
+.upload-progress {
+  display: none;
+}
+
+.upload-progress-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-sm);
+}
+
+.upload-success {
+  display: none;
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-sm);
+  color: var(--color-success);
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+/* 12. Empty States */
+.empty-state {
+  text-align: center;
+  padding: var(--space-xl) var(--space-md);
+  color: var(--color-text-secondary);
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-md);
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: var(--space-sm) 0;
+}
+
+/* 13. Pre-existing Styles & Utilities */
+.container {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 0 var(--space-md);
+  text-align: center;
+}
+
+main:not(.admin-mode) .card {
+  max-width: 480px;
+  margin: 4rem auto;
+}
+
+.flash {
+  padding: 0.75rem 1rem;
+  margin: var(--space-md) 0;
+  border-radius: var(--radius-sm);
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.flash-success {
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
+}
+
+.flash-error {
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.qrcode-img {
+  max-width: 200px;
+  height: auto;
+  margin: var(--space-md) 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs);
+  background: #ffffff;
+}
+
+.token-display {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  word-break: break-all;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.preview-img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin: var(--space-md) 0;
+}
+
+.text-content {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--space-md);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  line-height: 1.5;
+}
+
+footer {
+  margin-top: var(--space-2xl) !important;
+  padding: var(--space-md) 0 !important;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 1.4rem;
+}
+
+/* Flex Utilities */
+.flex          { display: flex; }
+.flex-wrap     { flex-wrap: wrap; }
+.flex-col      { flex-direction: column; }
+.items-center  { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.flex-center   { display: flex; align-items: center; justify-content: center; }
+
+.gap-xs  { gap: var(--space-xs); }
+.gap-sm  { gap: var(--space-sm); }
+.gap-md  { gap: var(--space-md); }
+.gap-lg  { gap: var(--space-lg); }
+
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+
+.text-left   { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right  { text-align: right !important; }
+.text-muted  { color: var(--color-text-secondary); }
+.text-danger { color: var(--color-danger); }
+.text-success { color: var(--color-success); }
+
+/* Error Page styling */
+.error-page {
+  max-width: 480px;
+  margin: 6rem auto;
+  text-align: center;
+  padding: var(--space-xl) var(--space-lg);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+}
+.error-page h1 {
+  font-size: 4rem;
+  color: var(--color-danger);
+  margin-top: 0;
+  margin-bottom: var(--space-sm);
+  font-weight: 800;
+  line-height: 1;
+}
+.error-page p {
+  color: var(--color-text-secondary);
+  font-size: 1.8rem;
+  margin-bottom: var(--space-xl);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+  .main-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-xs);
+  }
+  .main-nav ul li:last-child {
+    margin-left: 0 !important;
+  }
+  .nav-brand {
+    margin-right: 0;
+    justify-content: center;
+  }
+  .nav-link {
+    text-align: center;
+    display: block;
+    width: 100%;
+  }
+  
+  table, tbody, tr, td, th {
+    display: block;
+  }
+  .data-table th {
+    display: none; /* Hide headings on mobile cards */
+  }
+  .data-table td {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    position: relative;
+    padding-left: 40%;
+    text-align: right;
+  }
+  .data-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    position: absolute;
+    left: var(--space-md);
+    top: var(--space-sm);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    font-size: 1.3rem;
+  }
+  .hide-mobile {
+    display: none;
+  }
+}
+
 @media (pointer: coarse) {
-    a, button, input, select, textarea { min-height: 44px; min-width: 44px; }
+  a, button, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .btn-sm {
+    min-height: 36px;
+  }
 }
+
 @media (max-width: 600px) {
-    .row[style*="flex"] { flex-direction: column; }
-    .row[style*="flex"] .card { min-width: 100%; }
+  .row[style*="flex"] {
+    flex-direction: column;
+  }
+  .row[style*="flex"] .card {
+    min-width: 100%;
+  }
 }
+
 @media (max-width: 480px) {
-    nav a { display: block; padding: 0.5em 0; }
+  .nav-link {
+    padding: 0.5rem 0;
+  }
 }
