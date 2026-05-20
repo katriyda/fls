@@ -134,12 +134,14 @@ func (h *FileHandler) GetFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
+		slog.Error("GetFile query error", "err", err, "id", id)
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
 
 	shares, err := h.getFileShares(id)
 	if err != nil {
+		slog.Error("GetFile getFileShares error", "err", err, "id", id)
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
@@ -256,6 +258,7 @@ func (h *FileHandler) getFileShares(fileID string) ([]model.Share, error) {
 		`SELECT id, file_id, token, password_hash, expires_at, max_downloads, download_count, content_type, text_content, created_at, updated_at FROM shares WHERE file_id = ?`, fileID,
 	)
 	if err != nil {
+		slog.Error("getFileShares query error", "err", err, "fileID", fileID)
 		return nil, err
 	}
 	defer rows.Close()
@@ -263,9 +266,29 @@ func (h *FileHandler) getFileShares(fileID string) ([]model.Share, error) {
 	var shares []model.Share
 	for rows.Next() {
 		var s model.Share
-		if err := rows.Scan(&s.ID, &s.FileID, &s.Token, &s.PasswordHash, &s.ExpiresAt, &s.MaxDownloads, &s.DownloadCount, &s.ContentType, &s.TextContent, &s.CreatedAt, &s.UpdatedAt); err != nil {
+		var fileIDStr, passwordHash, textContent sql.NullString
+		var expiresAt sql.NullTime
+
+		if err := rows.Scan(
+			&s.ID, &fileIDStr, &s.Token, &passwordHash, &expiresAt,
+			&s.MaxDownloads, &s.DownloadCount, &s.ContentType, &textContent,
+			&s.CreatedAt, &s.UpdatedAt,
+		); err != nil {
+			slog.Error("getFileShares scan row error", "err", err, "fileID", fileID)
 			return nil, err
 		}
+
+		if fileIDStr.Valid {
+			s.FileID = &fileIDStr.String
+		}
+		if passwordHash.Valid {
+			s.PasswordHash = passwordHash.String
+		}
+		if expiresAt.Valid {
+			s.ExpiresAt = &expiresAt.Time
+		}
+		s.TextContent = textContent.String
+
 		shares = append(shares, s)
 	}
 	if shares == nil {

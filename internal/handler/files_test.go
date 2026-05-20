@@ -89,6 +89,16 @@ func TestFileHandler_GetFile(t *testing.T) {
 	_, sqldb := setupTestDB(t)
 	seedTestFile(sqldb, "f1", "report.pdf", "annual-report.pdf", 204800, "application/pdf", "/tmp/report.pdf")
 
+	// Seed a share with NULL password_hash and NULL text_content to verify Scan safety.
+	_, err := sqldb.Exec(
+		`INSERT INTO shares (id, file_id, token, password_hash, expires_at, max_downloads, download_count, content_type, text_content)
+		 VALUES (?, ?, ?, NULL, NULL, 0, 0, 'file', NULL)`,
+		"s1", "f1", "test-token",
+	)
+	if err != nil {
+		t.Fatalf("failed to seed test share: %v", err)
+	}
+
 	fh := NewFileHandler(sqldb)
 	r := chi.NewRouter()
 	r.Get("/admin/files/{id}", fh.GetFile)
@@ -98,7 +108,7 @@ func TestFileHandler_GetFile(t *testing.T) {
 	r.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
-		t.Errorf("GetFile status = %d, want 200", rec.Code)
+		t.Errorf("GetFile status = %d, want 200, body = %s", rec.Code, rec.Body.String())
 	}
 	if !strings.Contains(rec.Body.String(), "annual-report.pdf") {
 		t.Errorf("GetFile body should contain annual-report.pdf")
