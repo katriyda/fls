@@ -61,19 +61,19 @@ img {
   --font-mono: 'Courier Prime', 'JetBrains Mono', monospace;
 
   /* Colors — Light Mode (Aligning with magick.css variables!) */
-  --color-primary: #8a2be2;         /* Wizard Purple */
-  --color-primary-hover: #7b1fa2;
-  --color-primary-bg: rgba(138, 43, 226, 0.08);
+  --color-primary: var(--fg);
+  --color-primary-hover: var(--fg);
+  --color-primary-bg: rgba(0, 0, 0, 0.08);
   
-  --color-danger: #d32f2f;
-  --color-danger-hover: #b71c1c;
-  --color-danger-bg: rgba(211, 47, 47, 0.08);
+  --color-danger: #9c0000;
+  --color-danger-hover: #7a0000;
+  --color-danger-bg: rgba(156, 0, 0, 0.08);
   
-  --color-success: #388e3c;
-  --color-success-bg: rgba(56, 142, 60, 0.08);
+  --color-success: #1d6e1d;
+  --color-success-bg: rgba(29, 110, 29, 0.08);
   
-  --color-warning: #fbc02d;
-  --color-warning-bg: rgba(251, 192, 45, 0.08);
+  --color-warning: #856404;
+  --color-warning-bg: rgba(133, 100, 4, 0.08);
   
   --color-text: var(--fg);
   --color-text-secondary: rgba(14, 14, 14, 0.75);
@@ -81,25 +81,25 @@ img {
   --color-bg-subtle: var(--bg);
   --color-border: var(--fg);
   --color-nav-hover: rgba(0, 0, 0, 0.05);
-  --color-accent-ring: rgba(138, 43, 226, 0.15);
+  --color-accent-ring: rgba(0, 0, 0, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     /* Colors — Dark Mode (Aligning with magick.css variables!) */
-    --color-primary: #bb86fc;       /* Wizard Light Purple */
-    --color-primary-hover: #b388ff;
-    --color-primary-bg: rgba(187, 134, 252, 0.12);
+    --color-primary: var(--fg);
+    --color-primary-hover: var(--fg);
+    --color-primary-bg: rgba(255, 255, 255, 0.12);
     
-    --color-danger: #cf6679;
-    --color-danger-hover: #ef4444;
-    --color-danger-bg: rgba(207, 102, 121, 0.12);
+    --color-danger: #ff8585;
+    --color-danger-hover: #ff5c5c;
+    --color-danger-bg: rgba(255, 133, 133, 0.12);
     
-    --color-success: #03dac6;
-    --color-success-bg: rgba(3, 218, 198, 0.12);
+    --color-success: #85e085;
+    --color-success-bg: rgba(133, 224, 133, 0.12);
     
-    --color-warning: #fbbf24;
-    --color-warning-bg: rgba(251, 192, 45, 0.12);
+    --color-warning: #ffe066;
+    --color-warning-bg: rgba(255, 224, 102, 0.12);
     
     --color-text: var(--fg);
     --color-text-secondary: rgba(254, 254, 254, 0.75);
@@ -107,7 +107,7 @@ img {
     --color-bg-subtle: var(--bg);
     --color-border: var(--fg);
     --color-nav-hover: rgba(255, 255, 255, 0.08);
-    --color-accent-ring: rgba(187, 134, 252, 0.25);
+    --color-accent-ring: rgba(255, 255, 255, 0.15);
   }
 }
 
@@ -314,6 +314,7 @@ main.admin-mode .main-nav ul li:last-child {
 .data-table th:last-child,
 .data-table td:last-child {
   padding-right: var(--space-sm);
+  white-space: nowrap !important;
 }
 
 .responsive-table {
@@ -329,56 +330,65 @@ main.admin-mode .main-nav ul li:last-child {
   padding: 0.5rem 1rem;
   font-size: 1.6rem; /* 16px in magick.css rem scaling */
   font-weight: 500;
-  font-family: 'Averia Libre', cursive, inherit;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text);
+  font-family: 'Averia Serif Libre', serif, inherit;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: transparent !important;
+  color: var(--color-text) !important;
   cursor: pointer;
   text-decoration: none !important;
-  transition: all 0.2s ease;
-  min-height: 38px;
+  height: 38px;
   line-height: 1.2;
   box-sizing: border-box !important;
   vertical-align: middle !important;
+  margin: 0 !important;
+  box-shadow: 2px 2px 0 0 var(--color-border) !important;
+  transform: translate(0, 0) !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease !important;
 }
 
 .btn:hover {
-  background: var(--color-primary-bg);
-  border-color: var(--color-primary);
-  color: var(--color-primary) !important;
+  box-shadow: none !important;
+  transform: translate(2px, 2px) !important;
+  background: var(--color-primary-bg) !important;
+  color: var(--color-text) !important;
 }
 
 .btn-primary {
-  background: var(--color-primary-bg);
-  color: var(--color-primary) !important;
-  border-color: var(--color-primary);
+  background: var(--color-text) !important;
+  color: var(--color-bg-subtle) !important;
   font-weight: 600;
 }
 
 .btn-primary:hover {
-  background: var(--color-primary);
-  color: #ffffff !important;
-  border-color: var(--color-primary);
+  background: transparent !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+  transform: translate(2px, 2px) !important;
 }
 
 .btn-danger {
-  background: var(--color-danger-bg);
+  border-color: var(--color-danger) !important;
   color: var(--color-danger) !important;
-  border-color: var(--color-danger);
+  box-shadow: 2px 2px 0 0 var(--color-danger) !important;
   font-weight: 600;
 }
 
 .btn-danger:hover {
-  background: var(--color-danger);
-  color: #ffffff !important;
-  border-color: var(--color-danger);
+  background: var(--color-danger-bg) !important;
+  color: var(--color-danger) !important;
+  box-shadow: none !important;
+  transform: translate(2px, 2px) !important;
 }
 
 .btn-sm {
   padding: 0.25rem 0.75rem;
   font-size: 1.4rem; /* 14px in magick.css rem scaling */
-  min-height: 30px;
+  height: 30px;
+}
+
+.btn + .btn {
+  margin-left: 0.6rem !important;
 }
 
 .btn-group {
