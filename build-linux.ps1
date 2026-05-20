@@ -16,5 +16,5 @@ New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 Write-Host "Building fls Linux amd64..." -ForegroundColor Green
 $env:GOOS = "linux"
 $env:GOARCH = "amd64"
-mise x '--' go build -ldflags "$LDFlags" -o "$OutputDir/fls-linux-amd64" .
+mise.exe x '--' go build -ldflags "$LDFlags" -o "$OutputDir/fls-linux-amd64" .
 Write-Host "Build complete: $OutputDir/fls-linux-amd64" -ForegroundColor Green
