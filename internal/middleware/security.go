@@ -31,6 +31,17 @@ func CSRFToken(r *http.Request) string {
 func AddCSRFToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := nosurf.Token(r)
+
+		// Set a non-HttpOnly cookie with the CSRF token for JavaScript/HTMX access
+		http.SetCookie(w, &http.Cookie{
+			Name:     "XSRF-TOKEN",
+			Value:    token,
+			Path:     "/",
+			HttpOnly: false,
+			Secure:   r.URL.Scheme == "https" || r.Header.Get("X-Forwarded-Proto") == "https",
+			SameSite: http.SameSiteLaxMode,
+		})
+
 		ctx := context.WithValue(r.Context(), csrfTokenKey, token)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

@@ -8,6 +8,16 @@
     <link rel="stylesheet" href="https://unpkg.com/magick.css">
     <link rel="stylesheet" href="/static/custom.css?v=1.0.1">
     <script src="https://unpkg.com/htmx.org@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('htmx:configRequest', (event) => {
+                const match = document.cookie.match(new RegExp('(^| )XSRF-TOKEN=([^;]+)'));
+                if (match) {
+                    event.detail.headers['X-CSRF-Token'] = decodeURIComponent(match[2]);
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <main class="{{if .Authenticated}}admin-mode{{end}}">
