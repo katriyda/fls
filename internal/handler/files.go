@@ -172,8 +172,12 @@ func (h *FileHandler) DeleteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("HX-Redirect", "/admin/files")
-	w.WriteHeader(http.StatusOK)
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Redirect", "/admin/files")
+		w.WriteHeader(http.StatusOK)
+	} else {
+		http.Redirect(w, r, "/admin/files", http.StatusSeeOther)
+	}
 }
 
 func (h *FileHandler) EditFile(w http.ResponseWriter, r *http.Request) {

@@ -176,8 +176,12 @@ func (h *ShareHandler) CreateShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("HX-Redirect", "/admin/shares")
-	w.WriteHeader(http.StatusOK)
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Redirect", "/admin/shares")
+		w.WriteHeader(http.StatusOK)
+	} else {
+		http.Redirect(w, r, "/admin/shares", http.StatusSeeOther)
+	}
 }
 
 func (h *ShareHandler) GetShare(w http.ResponseWriter, r *http.Request) {
@@ -218,8 +222,12 @@ func (h *ShareHandler) DeleteShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("HX-Redirect", "/admin/shares")
-	w.WriteHeader(http.StatusOK)
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Redirect", "/admin/shares")
+		w.WriteHeader(http.StatusOK)
+	} else {
+		http.Redirect(w, r, "/admin/shares", http.StatusSeeOther)
+	}
 }
 
 func (h *ShareHandler) QRCode(w http.ResponseWriter, r *http.Request) {
