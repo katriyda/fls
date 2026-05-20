@@ -17,6 +17,7 @@ type Config struct {
 	SessionTimeout     time.Duration `json:"session_timeout"`
 	LogRetentionDays   int           `json:"log_retention_days"`
 	RateLimitPerMinute int           `json:"rate_limit_per_minute"`
+	PublicBaseURL      string        `json:"public_base_url"`
 	db                 *sql.DB
 }
 
@@ -30,6 +31,7 @@ func Defaults() *Config {
 		SessionTimeout:     24 * time.Hour,
 		LogRetentionDays:   90,
 		RateLimitPerMinute: 60,
+		PublicBaseURL:      "",
 	}
 }
 
@@ -80,6 +82,7 @@ func (c *Config) Save() error {
 		"session_timeout":       c.SessionTimeout.String(),
 		"log_retention_days":    strconv.Itoa(c.LogRetentionDays),
 		"rate_limit_per_minute": strconv.Itoa(c.RateLimitPerMinute),
+		"public_base_url":       c.PublicBaseURL,
 	}
 
 	stmt, err := tx.Prepare("INSERT OR REPLACE INTO config (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)")
@@ -138,6 +141,8 @@ func (c *Config) apply(key, value string) {
 		if v, err := strconv.Atoi(value); err == nil {
 			c.RateLimitPerMinute = v
 		}
+	case "public_base_url":
+		c.PublicBaseURL = value
 	}
 }
 
@@ -179,5 +184,8 @@ func (c *Config) EnvOverrides() {
 		if p, err := strconv.Atoi(v); err == nil {
 			c.RateLimitPerMinute = p
 		}
+	}
+	if v := os.Getenv("FLS_PUBLIC_BASE_URL"); v != "" {
+		c.PublicBaseURL = v
 	}
 }

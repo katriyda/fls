@@ -153,8 +153,8 @@ func TestShareForeignKey(t *testing.T) {
 		`INSERT INTO shares (id, token, file_id) VALUES (?, ?, ?)`,
 		"share-1", "tok-1", "nonexistent-file",
 	)
-	if err != nil {
-		t.Fatalf("insert share with nonexistent file_id (no FK enforced without PRAGMA foreign_keys): %v", err)
+	if err == nil {
+		t.Fatal("expected foreign key constraint violation error, got nil")
 	}
 }
 

@@ -14,7 +14,7 @@ type DB struct {
 }
 
 func New(dsn string) (*DB, error) {
-	db, err := sql.Open("sqlite", dsn+"?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)&_pragma=synchronous(NORMAL)")
+	db, err := sql.Open("sqlite", dsn+"?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)")
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}
@@ -84,4 +84,42 @@ func (db *DB) Migrate() error {
 	}
 	slog.Info("database migration completed")
 	return nil
+}
+
+// StartLogCleaner runs a periodic task to clean download logs older than retention days.
+func StartLogCleaner(db *sql.DB, getRetentionDays func() int) chan struct{} {
+	stop := make(chan struct{})
+	go func() {
+		ticker := time.NewTicker(24 * time.Hour)
+		defer ticker.Stop()
+
+		// Run once on startup
+		cleanLogs(db, getRetentionDays())
+
+		for {
+			select {
+			case <-ticker.C:
+				cleanLogs(db, getRetentionDays())
+			case <-stop:
+				return
+			}
+		}
+	}()
+	return stop
+}
+
+func cleanLogs(db *sql.DB, retentionDays int) {
+	if retentionDays <= 0 {
+		return // 0 means keep forever
+	}
+	cutoff := time.Now().AddDate(0, 0, -retentionDays)
+	res, err := db.Exec("DELETE FROM download_logs WHERE downloaded_at < ?", cutoff)
+	if err != nil {
+		slog.Error("failed to clean old download logs", "error", err)
+		return
+	}
+	rows, _ := res.RowsAffected()
+	if rows > 0 {
+		slog.Info("cleaned old download logs", "count", rows, "retention_days", retentionDays)
+	}
 }

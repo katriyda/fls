@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
@@ -163,13 +164,29 @@ func (h *FileHandler) DeleteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if storagePath != "" {
-		os.Remove(storagePath)
-	}
-
-	if _, err := h.db.Exec("DELETE FROM files WHERE id = ?", id); err != nil {
+	tx, err := h.db.Begin()
+	if err != nil {
 		http.Error(w, "database error", http.StatusInternalServerError)
 		return
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec("DELETE FROM files WHERE id = ?", id); err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	if storagePath != "" {
+		if err := os.Remove(storagePath); err != nil {
+			if !os.IsNotExist(err) {
+				slog.Error("failed to remove file from disk", "path", storagePath, "error", err)
+			}
+		}
 	}
 
 	if r.Header.Get("HX-Request") == "true" {

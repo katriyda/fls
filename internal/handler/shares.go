@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"fls/internal/config"
 	"fls/internal/middleware"
 	"fls/internal/model"
 	"fls/internal/service"
@@ -29,10 +30,11 @@ func (nopCloser) Close() error { return nil }
 type ShareHandler struct {
 	db       *sql.DB
 	shareSvc *service.ShareService
+	cfg      *config.Config
 }
 
-func NewShareHandler(db *sql.DB, shareSvc *service.ShareService) *ShareHandler {
-	return &ShareHandler{db: db, shareSvc: shareSvc}
+func NewShareHandler(db *sql.DB, shareSvc *service.ShareService, cfg *config.Config) *ShareHandler {
+	return &ShareHandler{db: db, shareSvc: shareSvc, cfg: cfg}
 }
 
 type shareRow struct {
@@ -60,21 +62,13 @@ func (h *ShareHandler) ListShares(w http.ResponseWriter, r *http.Request) {
 
 	rows := make([]shareRow, len(shares))
 	for i, share := range shares {
-		fileName := ""
-		if share.FileID != nil {
-			var name string
-			err := h.db.QueryRow("SELECT original_name FROM files WHERE id = ?", *share.FileID).Scan(&name)
-			if err == nil {
-				fileName = name
-			}
-		}
 		textPreview := ""
 		if share.IsTextShare() {
 			textPreview = truncateText(share.TextContent, 50)
 		}
 		rows[i] = shareRow{
 			Share:       share,
-			FileName:    fileName,
+			FileName:    share.FileName,
 			TextPreview: textPreview,
 			HasPassword: share.PasswordHash != "",
 		}
@@ -105,6 +99,17 @@ func (h *ShareHandler) ListShares(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *ShareHandler) getBaseURL(r *http.Request) string {
+	if h.cfg != nil && h.cfg.PublicBaseURL != "" {
+		return strings.TrimSuffix(h.cfg.PublicBaseURL, "/")
+	}
+	scheme := "http"
+	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s", scheme, r.Host)
+}
+
 func (h *ShareHandler) NewShareForm(w http.ResponseWriter, r *http.Request) {
 	files, err := h.listFiles()
 	if err != nil {
@@ -112,10 +117,27 @@ func (h *ShareHandler) NewShareForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defaultExpiryStr := "24h"
+	if h.cfg != nil {
+		switch h.cfg.DefaultExpiry {
+		case time.Hour:
+			defaultExpiryStr = "1h"
+		case 24 * time.Hour:
+			defaultExpiryStr = "24h"
+		case 7 * 24 * time.Hour:
+			defaultExpiryStr = "7d"
+		case 30 * 24 * time.Hour:
+			defaultExpiryStr = "30d"
+		case 0:
+			defaultExpiryStr = "never"
+		}
+	}
+
 	RenderTemplate(w, "share-detail", map[string]interface{}{
 		"Authenticated": true,
 		"Mode":          "new",
 		"Files":         files,
+		"DefaultExpiry": defaultExpiryStr,
 		"CSRFToken":     middleware.CSRFToken(r),
 	})
 }
@@ -192,24 +214,15 @@ func (h *ShareHandler) GetShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	baseURL := fmt.Sprintf("http://%s", r.Host)
+	baseURL := h.getBaseURL(r)
 	shareURL := baseURL + "/s/" + share.Token
-
-	fileName := ""
-	if share.FileID != nil {
-		var name string
-		err := h.db.QueryRow("SELECT original_name FROM files WHERE id = ?", *share.FileID).Scan(&name)
-		if err == nil {
-			fileName = name
-		}
-	}
 
 	RenderTemplate(w, "share-detail", map[string]interface{}{
 		"Authenticated": true,
 		"Mode":          "detail",
 		"Share":         share,
 		"ShareURL":      shareURL,
-		"FileName":      fileName,
+		"FileName":      share.FileName,
 		"HasPassword":   share.PasswordHash != "",
 	})
 }
@@ -238,7 +251,7 @@ func (h *ShareHandler) QRCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	baseURL := fmt.Sprintf("http://%s", r.Host)
+	baseURL := h.getBaseURL(r)
 	content := baseURL + "/s/" + share.Token
 
 	qrc, err := qrcode.New(content)

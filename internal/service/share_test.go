@@ -26,7 +26,7 @@ func openTestDB(t *testing.T) *database.DB {
 }
 
 func TestGenerateToken_Length(t *testing.T) {
-	svc := NewShareService(nil)
+	svc := NewShareService(nil, nil)
 	token, err := svc.GenerateToken(8)
 	if err != nil {
 		t.Fatalf("GenerateToken() returned error: %v", err)
@@ -37,7 +37,7 @@ func TestGenerateToken_Length(t *testing.T) {
 }
 
 func TestGenerateToken_Alphanumeric(t *testing.T) {
-	svc := NewShareService(nil)
+	svc := NewShareService(nil, nil)
 	token, err := svc.GenerateToken(100)
 	if err != nil {
 		t.Fatalf("GenerateToken() returned error: %v", err)
@@ -50,7 +50,7 @@ func TestGenerateToken_Alphanumeric(t *testing.T) {
 }
 
 func TestGenerateToken_NotHex(t *testing.T) {
-	svc := NewShareService(nil)
+	svc := NewShareService(nil, nil)
 	// Check that tokens aren't just hex
 	allHex := true
 	for i := 0; i < 10; i++ {
@@ -71,7 +71,7 @@ func TestGenerateToken_NotHex(t *testing.T) {
 }
 
 func TestGenerateToken_Unique(t *testing.T) {
-	svc := NewShareService(nil)
+	svc := NewShareService(nil, nil)
 	tokens := make(map[string]bool)
 	for i := 0; i < 100; i++ {
 		token, err := svc.GenerateToken(16)
@@ -87,7 +87,7 @@ func TestGenerateToken_Unique(t *testing.T) {
 
 func TestCreateFileShare(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	// Insert a file first
 	fileID := "test-file-id"
@@ -130,7 +130,7 @@ func TestCreateFileShare(t *testing.T) {
 
 func TestCreateTextShare(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	share, err := svc.CreateTextShare("Hello, World!", "", nil, 0)
 	if err != nil {
@@ -150,7 +150,7 @@ func TestCreateTextShare(t *testing.T) {
 
 func TestGetShare(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	share, err := svc.CreateTextShare("test content", "", nil, 0)
 	if err != nil {
@@ -175,7 +175,7 @@ func TestGetShare(t *testing.T) {
 
 func TestGetShare_NotFound(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	_, err := svc.GetShare("nonexistent-id")
 	if err == nil {
@@ -185,7 +185,7 @@ func TestGetShare_NotFound(t *testing.T) {
 
 func TestGetShareByToken(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	share, err := svc.CreateTextShare("test content", "", nil, 0)
 	if err != nil {
@@ -204,7 +204,7 @@ func TestGetShareByToken(t *testing.T) {
 
 func TestGetShareByToken_NotFound(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	_, err := svc.GetShareByToken("nonexistent-token")
 	if err == nil {
@@ -214,7 +214,7 @@ func TestGetShareByToken_NotFound(t *testing.T) {
 
 func TestListShares(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	for i := 0; i < 5; i++ {
 		content := strings.Repeat("x", i+1)
@@ -248,7 +248,7 @@ func TestListShares(t *testing.T) {
 
 func TestListShares_Empty(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	shares, total, err := svc.ListShares(0, 20)
 	if err != nil {
@@ -265,7 +265,7 @@ func TestListShares_Empty(t *testing.T) {
 
 func TestDeleteShare(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	share, err := svc.CreateTextShare("test content", "", nil, 0)
 	if err != nil {
@@ -285,7 +285,7 @@ func TestDeleteShare(t *testing.T) {
 
 func TestDeleteShare_NotFound(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	err := svc.DeleteShare("nonexistent-id")
 	if err == nil {
@@ -295,7 +295,7 @@ func TestDeleteShare_NotFound(t *testing.T) {
 
 func TestGetFileShares(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	fileID := "test-file-id"
 	_, err := db.Exec(
@@ -325,7 +325,7 @@ func TestGetFileShares(t *testing.T) {
 
 func TestGetFileShares_None(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	shares, err := svc.GetFileShares("nonexistent-file")
 	if err != nil {
@@ -339,7 +339,7 @@ func TestGetFileShares_None(t *testing.T) {
 
 func TestCreateFileShare_WithPassword(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	fileID := "test-file-id"
 	_, err := db.Exec(
@@ -367,7 +367,7 @@ func TestCreateFileShare_WithPassword(t *testing.T) {
 
 func TestCreateTextShare_WithPassword(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	passwordHash, err := HashPassword("test-password")
 	if err != nil {
@@ -386,7 +386,7 @@ func TestCreateTextShare_WithPassword(t *testing.T) {
 
 func TestTokenCollision(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	fileID := "test-file-id"
 	_, err := db.Exec(
@@ -439,7 +439,7 @@ func TestHashPassword_Empty(t *testing.T) {
 
 func TestShare_Expired(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	past := time.Now().Add(-24 * time.Hour)
 	share, err := svc.CreateTextShare("old content", "", &past, 0)
@@ -454,7 +454,7 @@ func TestShare_Expired(t *testing.T) {
 
 func TestShare_NotExpired(t *testing.T) {
 	db := openTestDB(t)
-	svc := NewShareService(db.DB)
+	svc := NewShareService(db.DB, nil)
 
 	future := time.Now().Add(24 * time.Hour)
 	share, err := svc.CreateTextShare("fresh content", "", &future, 0)

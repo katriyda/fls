@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"time"
 
+	"fls/internal/config"
 	"fls/internal/model"
 
 	"github.com/google/uuid"
@@ -14,11 +15,12 @@ import (
 )
 
 type ShareService struct {
-	db *sql.DB
+	db  *sql.DB
+	cfg *config.Config
 }
 
-func NewShareService(db *sql.DB) *ShareService {
-	return &ShareService{db: db}
+func NewShareService(db *sql.DB, cfg *config.Config) *ShareService {
+	return &ShareService{db: db, cfg: cfg}
 }
 
 func (s *ShareService) GenerateToken(length int) (string, error) {
@@ -54,7 +56,11 @@ func (s *ShareService) generateUniqueToken(length int) (string, error) {
 
 func (s *ShareService) CreateFileShare(fileID, passwordHash string, expiresAt *time.Time, maxDownloads int) (*model.Share, error) {
 	id := uuid.New().String()
-	token, err := s.generateUniqueToken(8)
+	length := 8
+	if s.cfg != nil && s.cfg.TokenLength >= 4 {
+		length = s.cfg.TokenLength
+	}
+	token, err := s.generateUniqueToken(length)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +99,11 @@ func (s *ShareService) CreateFileShare(fileID, passwordHash string, expiresAt *t
 
 func (s *ShareService) CreateTextShare(textContent, passwordHash string, expiresAt *time.Time, maxDownloads int) (*model.Share, error) {
 	id := uuid.New().String()
-	token, err := s.generateUniqueToken(8)
+	length := 8
+	if s.cfg != nil && s.cfg.TokenLength >= 4 {
+		length = s.cfg.TokenLength
+	}
+	token, err := s.generateUniqueToken(length)
 	if err != nil {
 		return nil, err
 	}
@@ -130,13 +140,13 @@ func (s *ShareService) CreateTextShare(textContent, passwordHash string, expires
 
 func scanShare(row interface{ Scan(dest ...interface{}) error }) (*model.Share, error) {
 	var share model.Share
-	var fileID, passwordHash, textContent sql.NullString
+	var fileID, passwordHash, textContent, originalName sql.NullString
 	var expiresAt sql.NullTime
 
 	err := row.Scan(
 		&share.ID, &fileID, &share.Token, &passwordHash, &expiresAt,
 		&share.MaxDownloads, &share.DownloadCount, &share.ContentType, &textContent,
-		&share.CreatedAt, &share.UpdatedAt,
+		&share.CreatedAt, &share.UpdatedAt, &originalName,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -155,21 +165,24 @@ func scanShare(row interface{ Scan(dest ...interface{}) error }) (*model.Share, 
 		share.ExpiresAt = &expiresAt.Time
 	}
 	share.TextContent = textContent.String
+	if originalName.Valid {
+		share.FileName = originalName.String
+	}
 
 	return &share, nil
 }
 
 func (s *ShareService) GetShare(id string) (*model.Share, error) {
 	return scanShare(s.db.QueryRow(
-		`SELECT id, file_id, token, password_hash, expires_at, max_downloads, download_count, content_type, text_content, created_at, updated_at
-		 FROM shares WHERE id = ?`, id,
+		`SELECT s.id, s.file_id, s.token, s.password_hash, s.expires_at, s.max_downloads, s.download_count, s.content_type, s.text_content, s.created_at, s.updated_at, f.original_name
+		 FROM shares s LEFT JOIN files f ON s.file_id = f.id WHERE s.id = ?`, id,
 	))
 }
 
 func (s *ShareService) GetShareByToken(token string) (*model.Share, error) {
 	return scanShare(s.db.QueryRow(
-		`SELECT id, file_id, token, password_hash, expires_at, max_downloads, download_count, content_type, text_content, created_at, updated_at
-		 FROM shares WHERE token = ?`, token,
+		`SELECT s.id, s.file_id, s.token, s.password_hash, s.expires_at, s.max_downloads, s.download_count, s.content_type, s.text_content, s.created_at, s.updated_at, f.original_name
+		 FROM shares s LEFT JOIN files f ON s.file_id = f.id WHERE s.token = ?`, token,
 	))
 }
 
@@ -181,8 +194,8 @@ func (s *ShareService) ListShares(offset, limit int) ([]*model.Share, int, error
 	}
 
 	rows, err := s.db.Query(
-		`SELECT id, file_id, token, password_hash, expires_at, max_downloads, download_count, content_type, text_content, created_at, updated_at
-		 FROM shares ORDER BY created_at DESC LIMIT ? OFFSET ?`, limit, offset,
+		`SELECT s.id, s.file_id, s.token, s.password_hash, s.expires_at, s.max_downloads, s.download_count, s.content_type, s.text_content, s.created_at, s.updated_at, f.original_name
+		 FROM shares s LEFT JOIN files f ON s.file_id = f.id ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, limit, offset,
 	)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list shares: %w", err)
@@ -226,8 +239,8 @@ func (s *ShareService) DeleteShare(id string) error {
 
 func (s *ShareService) GetFileShares(fileID string) ([]*model.Share, error) {
 	rows, err := s.db.Query(
-		`SELECT id, file_id, token, password_hash, expires_at, max_downloads, download_count, content_type, text_content, created_at, updated_at
-		 FROM shares WHERE file_id = ? ORDER BY created_at DESC`, fileID,
+		`SELECT s.id, s.file_id, s.token, s.password_hash, s.expires_at, s.max_downloads, s.download_count, s.content_type, s.text_content, s.created_at, s.updated_at, f.original_name
+		 FROM shares s LEFT JOIN files f ON s.file_id = f.id WHERE s.file_id = ? ORDER BY s.created_at DESC`, fileID,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("get file shares: %w", err)

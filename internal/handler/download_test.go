@@ -12,24 +12,29 @@ import (
 	"fls/internal/database"
 	"fls/internal/service"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 )
 
 func setupDownloadTest(t *testing.T) (*database.DB, *DownloadHandler, *service.ShareService) {
 	t.Helper()
 	_, sqldb := setupTestDB(t)
-	shareSvc := service.NewShareService(sqldb)
+	shareSvc := service.NewShareService(sqldb, nil)
 	statsSvc := service.NewStatsService(sqldb)
-	h := NewDownloadHandler(sqldb, shareSvc, statsSvc)
+	sm := scs.New()
+	h := NewDownloadHandler(sqldb, shareSvc, statsSvc, sm)
 	return nil, h, shareSvc
 }
 
-func setupDownloadRouter(h *DownloadHandler) chi.Router {
+func setupDownloadRouter(h *DownloadHandler) http.Handler {
 	r := chi.NewRouter()
 	r.Get("/s/{token}", h.ServeShare)
 	r.Post("/s/{token}", h.VerifySharePassword)
 	r.Get("/s/{token}/raw", h.RawContent)
 	r.Get("/s/{token}/download", h.DownloadFile)
+	if h.sm != nil {
+		return h.sm.LoadAndSave(r)
+	}
 	return r
 }
 
@@ -99,7 +104,7 @@ func TestDownload_ExpiredShare_ShowsExpired(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Errorf("ServeShare expired status = %d, want 200", rec.Code)
 	}
-	if !strings.Contains(rec.Body.String(), "链接已过期") {
+	if !strings.Contains(rec.Body.String(), "链接已失效/已过期") {
 		t.Errorf("body should contain expired message")
 	}
 }
@@ -156,7 +161,11 @@ func TestDownload_CorrectPassword_VerifiesAndShowsContent(t *testing.T) {
 		t.Errorf("redirect location = %q, want /s/%s", redirectURL, share.Token)
 	}
 
+	// We must pass the session cookie from the response to the next request to preserve session state!
 	req2 := httptest.NewRequest("GET", "/s/"+share.Token, nil)
+	for _, cookie := range rec.Result().Cookies() {
+		req2.AddCookie(cookie)
+	}
 	rec2 := httptest.NewRecorder()
 	r.ServeHTTP(rec2, req2)
 
@@ -197,9 +206,10 @@ func TestDownload_WrongPassword_ShowsError(t *testing.T) {
 
 func TestDownload_FileEndpoint_StreamsFile(t *testing.T) {
 	db, sqldb := setupTestDB(t)
-	shareSvc := service.NewShareService(sqldb)
+	shareSvc := service.NewShareService(sqldb, nil)
 	statsSvc := service.NewStatsService(sqldb)
-	h := NewDownloadHandler(sqldb, shareSvc, statsSvc)
+	sm := scs.New()
+	h := NewDownloadHandler(sqldb, shareSvc, statsSvc, sm)
 
 	fileID, _ := setupDownloadWithFile(t, sqldb)
 
@@ -230,9 +240,10 @@ func TestDownload_FileEndpoint_StreamsFile(t *testing.T) {
 
 func TestDownload_IncrementsCounter(t *testing.T) {
 	_, sqldb := setupTestDB(t)
-	shareSvc := service.NewShareService(sqldb)
+	shareSvc := service.NewShareService(sqldb, nil)
 	statsSvc := service.NewStatsService(sqldb)
-	h := NewDownloadHandler(sqldb, shareSvc, statsSvc)
+	sm := scs.New()
+	h := NewDownloadHandler(sqldb, shareSvc, statsSvc, sm)
 
 	fileID, _ := setupDownloadWithFile(t, sqldb)
 

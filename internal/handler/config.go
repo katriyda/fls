@@ -7,14 +7,17 @@ import (
 	"time"
 
 	"fls/internal/config"
+
+	"github.com/alexedwards/scs/v2"
 )
 
 type ConfigHandler struct {
 	cfg *config.Config
+	sm  *scs.SessionManager
 }
 
-func NewConfigHandler(cfg *config.Config) *ConfigHandler {
-	return &ConfigHandler{cfg: cfg}
+func NewConfigHandler(cfg *config.Config, sm *scs.SessionManager) *ConfigHandler {
+	return &ConfigHandler{cfg: cfg, sm: sm}
 }
 
 type configPageData struct {
@@ -28,6 +31,7 @@ type configPageData struct {
 	SessionTimeout     time.Duration
 	LogRetentionDays   int
 	RateLimitPerMinute int
+	PublicBaseURL      string
 }
 
 func (h *ConfigHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
@@ -60,6 +64,9 @@ func (h *ConfigHandler) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	if v := r.FormValue("session_timeout"); v != "" {
 		if parsed, err := time.ParseDuration(v); err == nil {
 			h.cfg.SessionTimeout = parsed
+			if h.sm != nil {
+				h.sm.Lifetime = parsed
+			}
 		}
 	}
 	if v := r.FormValue("log_retention_days"); v != "" {
@@ -71,6 +78,11 @@ func (h *ConfigHandler) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 		if parsed, err := strconv.Atoi(v); err == nil {
 			h.cfg.RateLimitPerMinute = parsed
 		}
+	}
+	if v := r.FormValue("public_base_url"); v != "" {
+		h.cfg.PublicBaseURL = v
+	} else {
+		h.cfg.PublicBaseURL = ""
 	}
 
 	if err := h.cfg.Save(); err != nil {
@@ -97,6 +109,7 @@ func (h *ConfigHandler) render(w http.ResponseWriter, flash string) {
 		SessionTimeout:     h.cfg.SessionTimeout,
 		LogRetentionDays:   h.cfg.LogRetentionDays,
 		RateLimitPerMinute: h.cfg.RateLimitPerMinute,
+		PublicBaseURL:      h.cfg.PublicBaseURL,
 	})
 }
 

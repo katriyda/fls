@@ -65,7 +65,7 @@ func setupTestServer(t *testing.T) (*http.Client, string, func()) {
 
 	// Services
 	authSvc := service.NewAuth(rdb.DB)
-	shareSvc := service.NewShareService(rdb.DB)
+	shareSvc := service.NewShareService(rdb.DB, nil)
 	statsSvc := service.NewStatsService(rdb.DB)
 
 	// Session
@@ -75,7 +75,7 @@ func setupTestServer(t *testing.T) (*http.Client, string, func()) {
 	// Handlers (only the ones registered in routes below)
 	loginH := &LoginHandler{Auth: authSvc, SessionManager: sm, DataDir: dir}
 	dashH := NewDashboardHandler(statsSvc, shareSvc, rdb.DB)
-	dlH := NewDownloadHandler(rdb.DB, shareSvc, statsSvc)
+	dlH := NewDownloadHandler(rdb.DB, shareSvc, statsSvc, sm)
 	statsH := NewStatsHandler(statsSvc)
 
 	// Router

@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
+
+	"fls/internal/config"
 
 	"github.com/justinas/nosurf"
 	"github.com/ulule/limiter/v3"
@@ -56,6 +59,68 @@ var LoginRate = limiter.Rate{
 var APIRate = limiter.Rate{
 	Limit:  600,
 	Period: time.Minute,
+}
+
+// DynamicRateLimitMiddleware creates a thread-safe rate limiter middleware that adjusts its limit dynamically.
+func DynamicRateLimitMiddleware(cfg *config.Config, isLogin bool) func(http.Handler) http.Handler {
+	store := memory.NewStore()
+	var currentLimit int
+	var instance *limiter.Limiter
+	var mu sync.Mutex
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			mu.Lock()
+			limit := 60
+			if cfg != nil {
+				if isLogin {
+					limit = cfg.RateLimitPerMinute / 3
+					if limit < 5 {
+						limit = 5
+					}
+				} else {
+					limit = cfg.RateLimitPerMinute
+				}
+			} else {
+				if isLogin {
+					limit = 200
+				} else {
+					limit = 600
+				}
+			}
+
+			if limit != currentLimit || instance == nil {
+				currentLimit = limit
+				rate := limiter.Rate{
+					Limit:  int64(limit),
+					Period: time.Minute,
+				}
+				instance = limiter.New(store, rate)
+			}
+			lim := instance
+			mu.Unlock()
+
+			key := r.RemoteAddr
+			lctx, err := lim.Get(r.Context(), key)
+			if err != nil {
+				http.Error(w, "internal error", http.StatusInternalServerError)
+				return
+			}
+
+			w.Header().Set("X-RateLimit-Limit", fmt.Sprintf("%d", currentLimit))
+			w.Header().Set("X-RateLimit-Remaining", fmt.Sprintf("%d", lctx.Remaining))
+			w.Header().Set("X-RateLimit-Reset", fmt.Sprintf("%d", lctx.Reset))
+
+			if lctx.Reached {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusTooManyRequests)
+				json.NewEncoder(w).Encode(map[string]string{"error": "rate limit exceeded"})
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func RateLimitMiddleware(rate limiter.Rate) func(http.Handler) http.Handler {

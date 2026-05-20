@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"fls/internal/config"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -30,10 +32,11 @@ type Handler struct {
 	db      *sql.DB
 	dataDir string
 	uploads sync.Map
+	cfg     *config.Config
 }
 
-func New(db *sql.DB, dataDir string) *Handler {
-	return &Handler{db: db, dataDir: dataDir}
+func New(db *sql.DB, dataDir string, cfg *config.Config) *Handler {
+	return &Handler{db: db, dataDir: dataDir, cfg: cfg}
 }
 
 func (h *Handler) Mount() http.Handler {
@@ -47,7 +50,11 @@ func (h *Handler) Mount() http.Handler {
 }
 
 func (h *Handler) SimpleUpload(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, 10<<30)
+	maxSize := int64(10 << 30) // default 10GB
+	if h.cfg != nil && h.cfg.MaxUploadSize > 0 {
+		maxSize = h.cfg.MaxUploadSize
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxSize)
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		http.Error(w, "failed to parse form: "+err.Error(), http.StatusBadRequest)
@@ -64,7 +71,7 @@ func (h *Handler) SimpleUpload(w http.ResponseWriter, r *http.Request) {
 	id := uuid.New().String()
 	now := time.Now()
 	dateDir := now.Format("2006-01")
-	storageDir := filepath.Join(h.dataDir, "uploads", dateDir)
+	storageDir := filepath.Join(h.dataDir, "uploads", dateDir, id)
 	if err := os.MkdirAll(storageDir, 0755); err != nil {
 		http.Error(w, "failed to create storage: "+err.Error(), http.StatusInternalServerError)
 		return

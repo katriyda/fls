@@ -40,7 +40,7 @@ func setupTest(t *testing.T) (*Handler, *sql.DB, string) {
 		t.Fatal(err)
 	}
 
-	return New(db, dataDir), db, dataDir
+	return New(db, dataDir, nil), db, dataDir
 }
 
 func TestSimpleUpload(t *testing.T) {

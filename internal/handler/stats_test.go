@@ -40,7 +40,7 @@ func TestStatsHandler_GlobalStats(t *testing.T) {
 func TestStatsHandler_ShareStats(t *testing.T) {
 	_, sqldb := setupTestDB(t)
 	statsSvc := service.NewStatsService(sqldb)
-	shareSvc := service.NewShareService(sqldb)
+	shareSvc := service.NewShareService(sqldb, nil)
 	h := NewStatsHandler(statsSvc)
 
 	share, err := shareSvc.CreateTextShare("test", "", nil, 0)

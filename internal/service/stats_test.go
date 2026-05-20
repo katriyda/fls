@@ -7,7 +7,7 @@ import (
 func TestStatsService_RecordDownload(t *testing.T) {
 	db := openTestDB(t)
 	svc := NewStatsService(db.DB)
-	shareSvc := NewShareService(db.DB)
+	shareSvc := NewShareService(db.DB, nil)
 
 	share, err := shareSvc.CreateTextShare("test content", "", nil, 0)
 	if err != nil {
@@ -32,7 +32,7 @@ func TestStatsService_RecordDownload(t *testing.T) {
 func TestStatsService_GetShareStats(t *testing.T) {
 	db := openTestDB(t)
 	svc := NewStatsService(db.DB)
-	shareSvc := NewShareService(db.DB)
+	shareSvc := NewShareService(db.DB, nil)
 
 	share, err := shareSvc.CreateTextShare("stats test", "", nil, 0)
 	if err != nil {
@@ -69,7 +69,7 @@ func TestStatsService_GetShareStats(t *testing.T) {
 func TestStatsService_GetGlobalStats(t *testing.T) {
 	db := openTestDB(t)
 	svc := NewStatsService(db.DB)
-	shareSvc := NewShareService(db.DB)
+	shareSvc := NewShareService(db.DB, nil)
 
 	fileID := "global-stats-test-file"
 	_, err := db.Exec(

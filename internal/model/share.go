@@ -16,8 +16,16 @@ type Share struct {
 	DownloadCount int        `json:"download_count"`
 	ContentType   string     `json:"content_type"` // "file" or "text"
 	TextContent   string     `json:"text_content,omitempty"`
+	FileName      string     `json:"file_name,omitempty"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
+}
+
+func (s *Share) IsDownloadLimitReached() bool {
+	if s.MaxDownloads <= 0 {
+		return false
+	}
+	return s.DownloadCount >= s.MaxDownloads
 }
 
 func (s *Share) IsExpired() bool {

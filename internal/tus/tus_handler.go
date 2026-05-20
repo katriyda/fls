@@ -2,6 +2,7 @@ package tus
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
@@ -12,9 +13,21 @@ import (
 	"strings"
 	"time"
 
+	"fls/internal/middleware"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
+
+type uploadInfoJSON struct {
+	ID          string            `json:"id"`
+	Size        int64             `json:"size"`
+	Offset      int64             `json:"offset"`
+	Metadata    map[string]string `json:"metadata"`
+	StoragePath string            `json:"storage_path"`
+	IsFinished  bool              `json:"is_finished"`
+	TempDir     string            `json:"temp_dir"`
+}
 
 func parseUploadMetadata(header string) map[string]string {
 	m := make(map[string]string)
@@ -54,13 +67,88 @@ func encodeUploadMetadata(metadata map[string]string) string {
 	return strings.Join(parts, ",")
 }
 
+func (h *Handler) saveUploadInfo(info *uploadInfo) {
+	data := uploadInfoJSON{
+		ID:          info.id,
+		Size:        info.size,
+		Offset:      info.offset,
+		Metadata:    info.metadata,
+		StoragePath: info.storagePath,
+		IsFinished:  info.isFinished,
+		TempDir:     info.tempDir,
+	}
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		slog.Error("failed to marshal upload info", "id", info.id, "error", err)
+		return
+	}
+	metaPath := filepath.Join(info.tempDir, ".metadata.json")
+	if err := os.WriteFile(metaPath, bytes, 0644); err != nil {
+		slog.Error("failed to write upload metadata file", "id", info.id, "error", err)
+	}
+}
+
+func (h *Handler) getUploadInfo(id string) (*uploadInfo, bool) {
+	// First check memory
+	if value, ok := h.uploads.Load(id); ok {
+		return value.(*uploadInfo), true
+	}
+
+	// Try to restore from disk
+	pattern := filepath.Join(h.dataDir, "uploads", "*", id)
+	matches, err := filepath.Glob(pattern)
+	if err != nil || len(matches) == 0 {
+		return nil, false
+	}
+
+	dir := matches[0]
+	metaPath := filepath.Join(dir, ".metadata.json")
+	bytes, err := os.ReadFile(metaPath)
+	if err != nil {
+		return nil, false
+	}
+
+	var data uploadInfoJSON
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		slog.Error("failed to unmarshal upload info", "id", id, "error", err)
+		return nil, false
+	}
+
+	// Verify storagePath actually exists
+	if _, err := os.Stat(data.StoragePath); os.IsNotExist(err) {
+		return nil, false
+	}
+
+	info := &uploadInfo{
+		id:          data.ID,
+		size:        data.Size,
+		offset:      data.Offset,
+		metadata:    data.Metadata,
+		storagePath: data.StoragePath,
+		isFinished:  data.IsFinished,
+		tempDir:     data.TempDir,
+	}
+
+	h.uploads.Store(id, info)
+	return info, true
+}
+
 func (h *Handler) finalizeUpload(info *uploadInfo) error {
 	originalName := info.metadata["filename"]
 	if originalName == "" {
 		originalName = info.id
 	}
 
+	// Sanitize filename to prevent path traversal
+	originalName = filepath.Base(originalName)
+	originalName = strings.ReplaceAll(originalName, "/", "")
+	originalName = strings.ReplaceAll(originalName, "\\", "")
+
 	finalPath := filepath.Join(info.tempDir, originalName)
+
+	if err := middleware.ValidatePath(info.tempDir, finalPath); err != nil {
+		return fmt.Errorf("invalid path: %w", err)
+	}
 
 	mimeType := "application/octet-stream"
 	if sniff, err := os.ReadFile(info.storagePath); err == nil && len(sniff) > 0 {
@@ -104,6 +192,7 @@ func (h *Handler) finalizeUpload(info *uploadInfo) error {
 
 	info.storagePath = finalPath
 	info.isFinished = true
+	h.saveUploadInfo(info)
 	slog.Info("tus upload complete", "id", info.id, "name", originalName, "size", info.offset)
 	return nil
 }
@@ -129,6 +218,11 @@ func (h *Handler) TusCreateUpload(w http.ResponseWriter, r *http.Request) {
 	uploadLength, err := strconv.ParseInt(uploadLengthStr, 10, 64)
 	if err != nil || uploadLength < 0 {
 		http.Error(w, "invalid Upload-Length", http.StatusBadRequest)
+		return
+	}
+
+	if h.cfg != nil && h.cfg.MaxUploadSize > 0 && uploadLength > h.cfg.MaxUploadSize {
+		http.Error(w, "file size exceeds maximum upload size limit", http.StatusRequestEntityTooLarge)
 		return
 	}
 
@@ -176,6 +270,7 @@ func (h *Handler) TusCreateUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.uploads.Store(id, info)
+	h.saveUploadInfo(info)
 
 	slog.Info("tus upload created", "id", id, "size", uploadLength, "metadata", metadata)
 
@@ -191,12 +286,11 @@ func (h *Handler) TusHeadUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	value, ok := h.uploads.Load(id)
+	info, ok := h.getUploadInfo(id)
 	if !ok {
 		http.Error(w, "upload not found", http.StatusNotFound)
 		return
 	}
-	info := value.(*uploadInfo)
 
 	info.mu.Lock()
 	offset := info.offset
@@ -242,12 +336,11 @@ func (h *Handler) TusPatchUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	value, ok := h.uploads.Load(id)
+	info, ok := h.getUploadInfo(id)
 	if !ok {
 		http.Error(w, "upload not found", http.StatusNotFound)
 		return
 	}
-	info := value.(*uploadInfo)
 
 	info.mu.Lock()
 	defer info.mu.Unlock()
@@ -262,23 +355,36 @@ func (h *Handler) TusPatchUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	remaining := info.size - info.offset
+	if remaining <= 0 {
+		http.Error(w, "upload size limit exceeded", http.StatusRequestEntityTooLarge)
+		return
+	}
+
 	f, err := os.OpenFile(info.storagePath, os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		slog.Error("failed to open temp file", "id", id, "error", err)
 		http.Error(w, "failed to open file", http.StatusInternalServerError)
 		return
 	}
+	defer f.Close()
 
-	written, err := io.Copy(f, r.Body)
+	limitReader := io.LimitReader(r.Body, remaining)
+	written, err := io.Copy(f, limitReader)
 	if err != nil {
-		f.Close()
 		slog.Error("failed to write chunk", "id", id, "error", err)
 		http.Error(w, "failed to write chunk", http.StatusInternalServerError)
 		return
 	}
-	f.Close()
 
 	info.offset += written
+	h.saveUploadInfo(info)
+
+	buf := make([]byte, 1)
+	if n, _ := r.Body.Read(buf); n > 0 {
+		http.Error(w, "upload length exceeded limit", http.StatusRequestEntityTooLarge)
+		return
+	}
 
 	if info.size > 0 && info.offset >= info.size {
 		if err := h.finalizeUpload(info); err != nil {
@@ -299,12 +405,11 @@ func (h *Handler) TusDeleteUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	value, ok := h.uploads.Load(id)
+	info, ok := h.getUploadInfo(id)
 	if !ok {
 		http.Error(w, "upload not found", http.StatusNotFound)
 		return
 	}
-	info := value.(*uploadInfo)
 
 	info.mu.Lock()
 	info.mu.Unlock()
@@ -317,5 +422,3 @@ func (h *Handler) TusDeleteUpload(w http.ResponseWriter, r *http.Request) {
 	slog.Info("tus upload cancelled", "id", id)
 	w.WriteHeader(http.StatusNoContent)
 }
-
-

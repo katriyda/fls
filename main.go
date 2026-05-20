@@ -53,9 +53,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initialize config (loads from DB)
+	cfg := config.New(db.DB)
+
+	// Start background log cleaner
+	cleanerStop := database.StartLogCleaner(db.DB, func() int {
+		return cfg.LogRetentionDays
+	})
+	defer close(cleanerStop)
+
 	// Initialize services
 	authService := service.NewAuth(db.DB)
-	shareService := service.NewShareService(db.DB)
+	shareService := service.NewShareService(db.DB, cfg)
 	statsService := service.NewStatsService(db.DB)
 
 	// First-run password setup wizard
@@ -71,9 +80,6 @@ func main() {
 		}
 	}
 
-	// Initialize config (loads from DB)
-	cfg := config.New(db.DB)
-
 	// Initialize session manager
 	sessionManager := scs.New()
 	sessionManager.Lifetime = cfg.SessionTimeout
@@ -87,10 +93,10 @@ func main() {
 
 	dashboardHandler := handler.NewDashboardHandler(statsService, shareService, db.DB)
 	fileHandler := handler.NewFileHandler(db.DB)
-	shareHandler := handler.NewShareHandler(db.DB, shareService)
-	downloadHandler := handler.NewDownloadHandler(db.DB, shareService, statsService)
-	configHandler := handler.NewConfigHandler(cfg)
-	tusHandler := tus.New(db.DB, *dataDir)
+	shareHandler := handler.NewShareHandler(db.DB, shareService, cfg)
+	downloadHandler := handler.NewDownloadHandler(db.DB, shareService, statsService, sessionManager)
+	configHandler := handler.NewConfigHandler(cfg, sessionManager)
+	tusHandler := tus.New(db.DB, *dataDir, cfg)
 	statsHandler := handler.NewStatsHandler(statsService)
 
 	r := chi.NewRouter()
@@ -112,7 +118,7 @@ func main() {
 
 	// Login routes - login rate limit + CSRF
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.RateLimitMiddleware(middleware.LoginRate))
+		r.Use(middleware.DynamicRateLimitMiddleware(cfg, true))
 		r.Use(middleware.CSRFMiddleware)
 
 		r.Get("/login", loginHandler.GetLogin)
@@ -121,7 +127,7 @@ func main() {
 
 	// Public share/download routes - rate limited, no auth, no CSRF
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.RateLimitMiddleware(middleware.APIRate))
+		r.Use(middleware.DynamicRateLimitMiddleware(cfg, false))
 
 		r.Get("/s/{token}", downloadHandler.ServeShare)
 		r.Post("/s/{token}", downloadHandler.VerifySharePassword)
@@ -137,7 +143,7 @@ func main() {
 
 	// Admin routes - rate limit + CSRF + auth
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.RateLimitMiddleware(middleware.APIRate))
+		r.Use(middleware.DynamicRateLimitMiddleware(cfg, false))
 		r.Use(middleware.CSRFMiddleware)
 		r.Use(middleware.AuthMiddleware(sessionManager))
 
@@ -168,7 +174,7 @@ func main() {
 
 	// Upload routes - auth required, API rate limit, no CSRF
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.RateLimitMiddleware(middleware.APIRate))
+		r.Use(middleware.DynamicRateLimitMiddleware(cfg, false))
 		r.Use(middleware.AuthMiddleware(sessionManager))
 
 		r.Mount("/api/upload", tusHandler.Mount())

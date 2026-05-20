@@ -32,8 +32,8 @@ func openTestDB(t *testing.T) *database.DB {
 func setupShareHandler(t *testing.T) (*database.DB, *ShareHandler, *service.ShareService) {
 	t.Helper()
 	db := openTestDB(t)
-	shareSvc := service.NewShareService(db.DB)
-	h := NewShareHandler(db.DB, shareSvc)
+	shareSvc := service.NewShareService(db.DB, nil)
+	h := NewShareHandler(db.DB, shareSvc, nil)
 	return db, h, shareSvc
 }
 

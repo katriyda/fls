@@ -54,6 +54,11 @@
             <input type="number" id="rate_limit_per_minute" name="rate_limit_per_minute" value="{{.RateLimitPerMinute}}" min="1">
             <small class="text-muted">默认: 60</small>
         </div>
+        <div class="form-group">
+            <label for="public_base_url">公开基础 URL (Public Base URL)</label>
+            <input type="text" id="public_base_url" name="public_base_url" value="{{.PublicBaseURL}}" placeholder="例如 https://share.example.com">
+            <small class="text-muted">留空则根据访问请求动态生成。用于生成分享链接和二维码。</small>
+        </div>
     </div>
 
     <div class="form-section">

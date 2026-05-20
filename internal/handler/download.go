@@ -2,15 +2,15 @@ package handler
 
 import (
 	"database/sql"
+	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
-	"time"
 
 	"fls/internal/model"
 	"fls/internal/service"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -18,28 +18,46 @@ type DownloadHandler struct {
 	db       *sql.DB
 	shareSvc *service.ShareService
 	statsSvc *service.StatsService
-	verified sync.Map
+	sm       *scs.SessionManager
 }
 
-func NewDownloadHandler(db *sql.DB, shareSvc *service.ShareService, statsSvc *service.StatsService) *DownloadHandler {
-	return &DownloadHandler{db: db, shareSvc: shareSvc, statsSvc: statsSvc}
+func NewDownloadHandler(db *sql.DB, shareSvc *service.ShareService, statsSvc *service.StatsService, sm *scs.SessionManager) *DownloadHandler {
+	return &DownloadHandler{db: db, shareSvc: shareSvc, statsSvc: statsSvc, sm: sm}
 }
 
-func (h *DownloadHandler) isVerified(token string) bool {
-	v, ok := h.verified.Load(token)
-	if !ok {
+type shareStatus int
+
+const (
+	statusOK shareStatus = iota
+	statusExpired
+	statusDownloadLimitReached
+	statusPasswordRequired
+)
+
+func (h *DownloadHandler) isVerified(r *http.Request, token string) bool {
+	if h.sm == nil {
 		return false
 	}
-	expiry, ok := v.(time.Time)
-	if !ok || time.Now().After(expiry) {
-		h.verified.Delete(token)
-		return false
-	}
-	return true
+	return h.sm.GetBool(r.Context(), "verified_"+token)
 }
 
-func (h *DownloadHandler) markVerified(token string) {
-	h.verified.Store(token, time.Now().Add(24*time.Hour))
+func (h *DownloadHandler) markVerified(r *http.Request, token string) {
+	if h.sm != nil {
+		h.sm.Put(r.Context(), "verified_"+token, true)
+	}
+}
+
+func (h *DownloadHandler) validateShare(r *http.Request, share *model.Share) shareStatus {
+	if share.IsExpired() {
+		return statusExpired
+	}
+	if share.IsDownloadLimitReached() {
+		return statusDownloadLimitReached
+	}
+	if share.PasswordHash != "" && !h.isVerified(r, share.Token) {
+		return statusPasswordRequired
+	}
+	return statusOK
 }
 
 func (h *DownloadHandler) ServeShare(w http.ResponseWriter, r *http.Request) {
@@ -50,15 +68,23 @@ func (h *DownloadHandler) ServeShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if share.IsExpired() {
+	status := h.validateShare(r, share)
+	switch status {
+	case statusExpired:
 		RenderTemplate(w, "download-expired", map[string]interface{}{
 			"Authenticated": false,
 			"Token":         token,
+			"Reason":        "expired",
 		})
 		return
-	}
-
-	if share.PasswordHash != "" && !h.isVerified(token) {
+	case statusDownloadLimitReached:
+		RenderTemplate(w, "download-expired", map[string]interface{}{
+			"Authenticated": false,
+			"Token":         token,
+			"Reason":        "download_limit",
+		})
+		return
+	case statusPasswordRequired:
 		RenderTemplate(w, "download-password", map[string]interface{}{
 			"Authenticated": false,
 			"Token":         token,
@@ -117,10 +143,16 @@ func (h *DownloadHandler) VerifySharePassword(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if share.IsExpired() {
+	status := h.validateShare(r, share)
+	if status == statusExpired || status == statusDownloadLimitReached {
+		reason := "expired"
+		if status == statusDownloadLimitReached {
+			reason = "download_limit"
+		}
 		RenderTemplate(w, "download-expired", map[string]interface{}{
 			"Authenticated": false,
 			"Token":         token,
+			"Reason":        reason,
 		})
 		return
 	}
@@ -136,7 +168,7 @@ func (h *DownloadHandler) VerifySharePassword(w http.ResponseWriter, r *http.Req
 
 	password := r.FormValue("password")
 	if share.IsPasswordCorrect(password) {
-		h.markVerified(token)
+		h.markVerified(r, token)
 		http.Redirect(w, r, "/s/"+token, http.StatusSeeOther)
 		return
 	}
@@ -156,12 +188,12 @@ func (h *DownloadHandler) RawContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if share.IsExpired() {
-		http.Error(w, "share has expired", http.StatusGone)
+	status := h.validateShare(r, share)
+	switch status {
+	case statusExpired, statusDownloadLimitReached:
+		http.Error(w, "share has expired or limit reached", http.StatusGone)
 		return
-	}
-
-	if share.PasswordHash != "" && !h.isVerified(token) {
+	case statusPasswordRequired:
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -199,12 +231,12 @@ func (h *DownloadHandler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if share.IsExpired() {
-		http.Error(w, "share has expired", http.StatusGone)
+	status := h.validateShare(r, share)
+	switch status {
+	case statusExpired, statusDownloadLimitReached:
+		http.Error(w, "share has expired or limit reached", http.StatusGone)
 		return
-	}
-
-	if share.PasswordHash != "" && !h.isVerified(token) {
+	case statusPasswordRequired:
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -231,8 +263,12 @@ func (h *DownloadHandler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 		storagePath = fileObj.StoragePath
 	}
 
-	h.statsSvc.RecordDownload(share.ID, r.RemoteAddr, r.UserAgent())
-	h.shareSvc.IncrementDownloadCount(share.ID)
+	if err := h.statsSvc.RecordDownload(share.ID, r.RemoteAddr, r.UserAgent()); err != nil {
+		slog.Error("failed to record download stats", "share_id", share.ID, "error", err)
+	}
+	if err := h.shareSvc.IncrementDownloadCount(share.ID); err != nil {
+		slog.Error("failed to increment download count", "share_id", share.ID, "error", err)
+	}
 
 	w.Header().Set("Content-Disposition", "attachment; filename="+originalName)
 
