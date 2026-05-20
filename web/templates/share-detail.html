@@ -227,8 +227,8 @@ document.addEventListener('DOMContentLoaded', function() {
 {{else}}
 <h1>分享详情</h1>
 
-<div class="flex flex-wrap gap-lg">
-    <div>
+<div class="share-detail-grid">
+    <div class="share-detail-info">
         <div class="responsive-table">
         <table class="data-table">
             <tr>
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-    <div class="card text-center">
+    <div class="card text-center share-detail-qrcode">
         <h3>QR Code</h3>
         <img src="/admin/shares/{{.Share.ID}}/qrcode" alt="QR Code" class="qrcode-img">
         <p class="text-muted">{{.ShareURL}}</p>

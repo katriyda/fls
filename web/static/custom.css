@@ -660,6 +660,26 @@ main:not(.admin-mode) .card {
   color: var(--color-danger);
 }
 
+/* Share Detail Split Layout */
+.share-detail-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  align-items: flex-start; /* Prevent columns from stretching vertically */
+}
+
+.share-detail-info {
+  flex: 1 1 500px;
+  margin: 0 !important;
+}
+
+.share-detail-qrcode {
+  flex: 0 0 300px;
+  max-width: 100%;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+
 .qrcode-img {
   max-width: 200px;
   height: auto;

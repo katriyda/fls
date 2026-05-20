@@ -41,10 +41,10 @@
 		<tbody>
 			{{range .RecentFiles}}
 			<tr>
-				<td><a href="/admin/files/{{.ID}}">{{.Name}}</a></td>
-				<td>{{.MimeType}}</td>
-				<td>{{.Size | bytes}}</td>
-				<td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+				<td data-label="文件名"><a href="/admin/files/{{.ID}}">{{.Name}}</a></td>
+				<td data-label="类型">{{.MimeType}}</td>
+				<td data-label="大小">{{.Size | bytes}}</td>
+				<td data-label="创建时间">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
 			</tr>
 			{{else}}
 			<tr><td colspan="4">暂无文件</td></tr>
@@ -71,12 +71,12 @@
 		<tbody>
 			{{range .RecentShares}}
 			<tr>
-				<td><a href="/admin/shares/{{.ID}}">{{.Token}}</a></td>
-				<td>{{if eq .ShareType "file"}}文件{{else}}文本{{end}}</td>
-				<td>{{.FileName}}</td>
-				<td>{{.DownloadCount}}</td>
-				<td>{{if .ExpiresAt}}{{.ExpiresAt.Format "2006-01-02 15:04"}}{{else}}永不过期{{end}}</td>
-				<td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+				<td data-label="令牌"><a href="/admin/shares/{{.ID}}">{{.Token}}</a></td>
+				<td data-label="类型">{{if eq .ShareType "file"}}文件{{else}}文本{{end}}</td>
+				<td data-label="文件">{{.FileName}}</td>
+				<td data-label="下载次数">{{.DownloadCount}}</td>
+				<td data-label="过期时间">{{if .ExpiresAt}}{{.ExpiresAt.Format "2006-01-02 15:04"}}{{else}}永不过期{{end}}</td>
+				<td data-label="创建时间">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
 			</tr>
 			{{else}}
 			<tr><td colspan="6">暂无分享</td></tr>
