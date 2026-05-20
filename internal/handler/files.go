@@ -33,6 +33,7 @@ type filesPageData struct {
 	TotalPages    int
 	PrevPage      int
 	NextPage      int
+	Total         int
 }
 
 type fileDetailPageData struct {
@@ -117,6 +118,7 @@ func (h *FileHandler) ListFiles(w http.ResponseWriter, r *http.Request) {
 		TotalPages:    totalPages,
 		PrevPage:      prevPage,
 		NextPage:      nextPage,
+		Total:         total,
 	})
 }
 
