@@ -391,6 +391,13 @@ main.admin-mode .main-nav ul li:last-child {
   margin-left: 0.6rem !important;
 }
 
+/* Reset margin-left when buttons are inside a flex/grid container (since the container gap handles spacing) */
+.flex > .btn,
+.btn-group > .btn,
+.form-actions > .btn {
+  margin-left: 0 !important;
+}
+
 .btn-group {
   display: flex;
   flex-wrap: wrap;
