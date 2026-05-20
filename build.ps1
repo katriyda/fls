@@ -10,5 +10,5 @@ $LDFlags = "-s -w -X main.version=$Version -X main.commit=$Commit -X main.date=$
 
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 Write-Host "Building fls Windows amd64..." -ForegroundColor Green
-go build -ldflags "$LDFlags" -o "$OutputDir/fls.exe" .
+mise x '--' go build -ldflags "$LDFlags" -o "$OutputDir/fls.exe" .
 Write-Host "Build complete: $OutputDir/fls.exe" -ForegroundColor Green
