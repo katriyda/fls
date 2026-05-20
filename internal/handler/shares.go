@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"fls/internal/middleware"
 	"fls/internal/model"
 	"fls/internal/service"
 
@@ -115,6 +116,7 @@ func (h *ShareHandler) NewShareForm(w http.ResponseWriter, r *http.Request) {
 		"Authenticated": true,
 		"Mode":          "new",
 		"Files":         files,
+		"CSRFToken":     middleware.CSRFToken(r),
 	})
 }
 

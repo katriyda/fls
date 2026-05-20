@@ -4,6 +4,7 @@
 {{if eq .Mode "new"}}
 <h1>新建分享</h1>
 <form method="POST" action="/admin/shares">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
     <div style="margin-bottom: 1rem;">
         <label>分享类型</label>
         <div>

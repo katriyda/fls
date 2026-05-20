@@ -6,9 +6,10 @@ import (
 )
 
 type ErrorData struct {
-	Title   string
-	Code    int
-	Message string
+	Title         string
+	Code          int
+	Message       string
+	Authenticated bool
 }
 
 func renderError(w http.ResponseWriter, code int, title, message string) {
