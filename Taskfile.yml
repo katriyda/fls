@@ -46,15 +46,9 @@ tasks:
     cmds:
       - task: build
       - rm -rf test-data
-      - cmd: printf 'admin123\nadmin123\n' | ./fls --port 8080 --data-dir ./test-data
-        platforms: [linux, darwin]
-      - cmd: Write-Output "admin123", "admin123" | .\fls --port 8080 --data-dir ./test-data
-        platforms: [windows]
+      - printf 'admin123\nadmin123\n' | ./fls --port 8080 --data-dir ./test-data
 
   run:
     desc: Start fls without rebuild
     cmds:
-      - cmd: ./fls --port 8080 --data-dir ./data
-        platforms: [linux, darwin]
-      - cmd: .\fls --port 8080 --data-dir ./data
-        platforms: [windows]
+      - ./fls --port 8080 --data-dir ./data
