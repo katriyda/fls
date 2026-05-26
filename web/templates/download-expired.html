@@ -1,16 +1,14 @@
 {{template "layout.html" .}}
 {{define "title"}}{{if eq .Reason "download_limit"}}下载次数已达上限 - FLS{{else}}链接已失效 - FLS{{end}}{{end}}
 {{define "content"}}
-<div class="container text-center">
-    <div class="card">
-        {{if eq .Reason "download_limit"}}
-        <h1 class="text-danger" style="margin-top: 0; font-size: 2rem;">下载次数已达上限</h1>
-        <p class="text-muted">该分享链接的下载次数已达到设定上限，无法继续访问。</p>
-        {{else}}
-        <h1 class="text-danger" style="margin-top: 0; font-size: 2rem;">链接已失效/已过期</h1>
-        <p class="text-muted">该分享链接已过期或失效，无法访问。</p>
-        {{end}}
-        <p class="text-muted mb-0">请联系文件分享者以获取新的链接。</p>
-    </div>
+<div class="card download-card text-center">
+    {{if eq .Reason "download_limit"}}
+    <h1 class="text-danger mt-0">下载次数已达上限</h1>
+    <p class="text-muted">该分享链接的下载次数已达到设定上限，无法继续访问。</p>
+    {{else}}
+    <h1 class="text-danger mt-0">链接已失效/已过期</h1>
+    <p class="text-muted">该分享链接已过期或失效，无法访问。</p>
+    {{end}}
+    <p class="text-muted mb-0">请联系文件分享者以获取新的链接。</p>
 </div>
 {{end}}

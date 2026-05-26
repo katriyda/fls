@@ -29,8 +29,8 @@
             <div class="form-group">
                 <label>上传文件</label>
                 <div id="dropzone" class="dropzone"
-                     ondragover="event.preventDefault(); this.style.borderColor='#4caf50'; this.style.background='#e8f5e9';"
-                     ondragleave="this.style.borderColor='#aaa'; this.style.background='#fafafa';"
+                     ondragover="event.preventDefault(); this.classList.add('dropzone-dragover');"
+                     ondragleave="this.classList.remove('dropzone-dragover');"
                      onclick="document.getElementById('file-input').click()">
                     <div id="dropzone-text">
                         <div class="dropzone-icon">📁</div>
@@ -118,8 +118,8 @@ function uploadFile(input) {
 
     dzText.style.display = 'none';
     progress.style.display = 'block';
-    dz.style.borderColor = '#2196f3';
-    dz.style.background = '#e3f2fd';
+    dz.classList.add('dropzone-uploading');
+    dz.classList.remove('dropzone-dragover');
     dz.style.cursor = 'default';
     dz.onclick = null;
 
@@ -137,8 +137,8 @@ function uploadFile(input) {
             progress.style.display = 'none';
             dzText.style.display = 'block';
             dzText.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>上传失败: ' + (error.message || '网络错误') + '</div>';
-            dz.style.borderColor = '#f44336';
-            dz.style.background = '#ffebee';
+            dz.classList.add('dropzone-error');
+            dz.classList.remove('dropzone-uploading');
             dz.style.cursor = 'pointer';
             dz.onclick = function() { document.getElementById('file-input').click(); };
             resetUpload();
@@ -186,8 +186,7 @@ function resetUpload() {
     var dz = document.getElementById('dropzone');
     if (dz) {
         dz.style.display = 'block';
-        dz.style.borderColor = '#aaa';
-        dz.style.background = '#fafafa';
+        dz.classList.remove('dropzone-uploading', 'dropzone-error', 'dropzone-dragover');
         dz.style.cursor = 'pointer';
         dz.onclick = function() { document.getElementById('file-input').click(); };
         document.getElementById('dropzone-text').style.display = 'block';
@@ -252,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {{if eq .Share.ContentType "file"}}
                         {{.FileName}}
                     {{else}}
-                        <pre>{{.Share.TextContent}}</pre>
+                        <pre class="text-content">{{.Share.TextContent}}</pre>
                     {{end}}
                 </td>
             </tr>

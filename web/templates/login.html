@@ -1,7 +1,7 @@
 {{template "layout.html" .}}
 {{define "title"}}登录 - FLS{{end}}
 {{define "content"}}
-<div class="card" style="max-width: 400px; margin: 6rem auto;">
+<div class="card login-card">
 <h1 class="text-center mb-lg">登录</h1>
 <form method="POST" action="/login">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
@@ -10,7 +10,7 @@
         <input type="password" id="password" name="password" required minlength="6" autofocus placeholder="请输入管理员密码">
     </div>
     <div class="form-actions mt-lg">
-        <button type="submit" class="btn btn-primary" style="width: 100%;">登录</button>
+        <button type="submit" class="btn btn-primary">登录</button>
     </div>
     {{if .Error}}
     <p class="text-danger">{{.Error}}</p>

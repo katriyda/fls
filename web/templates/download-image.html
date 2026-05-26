@@ -1,17 +1,14 @@
 {{template "layout.html" .}}
 {{define "title"}}图片预览 - FLS{{end}}
 {{define "content"}}
-<div class="container">
-    <h1>图片预览</h1>
-    <div class="card text-center">
-        <h3 style="margin-bottom: var(--space-xs); word-break: break-all;">{{.FileName}}</h3>
-        <p class="text-muted" style="margin-bottom: var(--space-md);">大小: {{.Size | bytes}} | 类型: {{.MimeType}}</p>
-        <div class="mb-lg" style="background: var(--color-bg-subtle); padding: var(--space-md); border-radius: var(--radius-sm); border: 1px solid var(--color-border); display: flex; justify-content: center; align-items: center;">
-            <img src="/s/{{.Token}}/raw" alt="{{.FileName}}" class="preview-img" style="max-height: 400px; border-radius: var(--radius-sm); margin: 0;">
-        </div>
-        <div class="flex justify-center">
-            <a href="/s/{{.Token}}/download" class="btn btn-primary" role="button">下载图片</a>
-        </div>
+<div class="card download-card text-center">
+    <h3 class="mb-sm" style="word-break: break-word;">{{.FileName}}</h3>
+    <p class="text-muted mb-md">大小: {{.Size | bytes}} | 类型: {{.MimeType}}</p>
+    <div class="mb-lg image-preview-container">
+        <img src="/s/{{.Token}}/raw" alt="{{.FileName}}" class="preview-img" style="max-height: 400px; margin: 0;" loading="lazy">
+    </div>
+    <div class="flex justify-center">
+        <a href="/s/{{.Token}}/download" class="btn btn-primary" role="button">下载图片</a>
     </div>
 </div>
 {{end}}
