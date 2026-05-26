@@ -1,13 +1,15 @@
 {{template "layout.html" .}}
 {{define "title"}}{{.Title}} - FLS{{end}}
 {{define "content"}}
-<div class="error-page">
+<div class="error-wrapper">
+<div class="card error-page">
     <h1>{{.Code}}</h1>
     <p>{{.Message}}</p>
     {{if .Authenticated}}
-    <a href="/admin/" class="btn">← 返回仪表盘</a>
+    <a href="/admin/" class="btn btn-primary">← 返回仪表盘</a>
     {{else}}
-    <a href="/login" class="btn">← 返回登录</a>
+    <a href="/login" class="btn btn-primary">← 返回登录</a>
     {{end}}
+</div>
 </div>
 {{end}}

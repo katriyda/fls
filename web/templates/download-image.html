@@ -1,14 +1,14 @@
 {{template "layout.html" .}}
 {{define "title"}}图片预览 - FLS{{end}}
 {{define "content"}}
-<div class="card download-card text-center">
-    <h3 class="mb-sm" style="word-break: break-word;">{{.FileName}}</h3>
-    <p class="text-muted mb-md">大小: {{.Size | bytes}} | 类型: {{.MimeType}}</p>
-    <div class="mb-lg image-preview-container">
-        <img src="/s/{{.Token}}/raw" alt="{{.FileName}}" class="preview-img" style="max-height: 400px; margin: 0;" loading="lazy">
+<div class="download-wrapper">
+<div class="card" style="max-width: 60rem;">
+    <h3 style="word-break: break-word; margin-bottom: var(--space-xs);">{{.FileName}}</h3>
+    <p class="text-muted" style="margin-bottom: var(--space-md);">大小: {{.Size | bytes}} · 类型: {{.MimeType}}</p>
+    <div class="image-preview-container mb-lg">
+        <img src="/s/{{.Token}}/raw" alt="{{.FileName}}" style="max-height: 40rem; margin: 0;" loading="lazy">
     </div>
-    <div class="flex justify-center">
-        <a href="/s/{{.Token}}/download" class="btn btn-primary" role="button">下载图片</a>
-    </div>
+    <a href="/s/{{.Token}}/download" class="btn btn-primary" style="padding: 0.6rem 2.4rem;">下载图片</a>
+</div>
 </div>
 {{end}}

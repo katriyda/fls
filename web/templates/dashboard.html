@@ -1,88 +1,90 @@
 {{template "layout.html" .}}
 {{define "title"}}仪表盘 - FLS{{end}}
 {{define "content"}}
-<h1>仪表盘</h1>
+<div class="page-header">
+    <h1>仪表盘</h1>
+</div>
 
 <div class="stat-cards">
-	<div class="stat-card">
-		<div class="stat-card-icon">📁</div>
-		<div class="stat-card-value">{{.Stats.TotalFiles}}</div>
-		<div class="stat-card-label">文件总数</div>
-	</div>
-	<div class="stat-card">
-		<div class="stat-card-icon">🔗</div>
-		<div class="stat-card-value">{{.Stats.TotalShares}}</div>
-		<div class="stat-card-label">分享总数</div>
-	</div>
-	<div class="stat-card">
-		<div class="stat-card-icon">⬇️</div>
-		<div class="stat-card-value">{{.Stats.TotalDownloads}}</div>
-		<div class="stat-card-label">下载总数</div>
-	</div>
-	<div class="stat-card">
-		<div class="stat-card-icon">✅</div>
-		<div class="stat-card-value">{{.Stats.ActiveShares}}</div>
-		<div class="stat-card-label">活跃分享</div>
-	</div>
+    <div class="stat-card">
+        <div class="stat-card-icon">📁</div>
+        <div class="stat-card-value">{{.Stats.TotalFiles}}</div>
+        <div class="stat-card-label">文件总数</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon">🔗</div>
+        <div class="stat-card-value">{{.Stats.TotalShares}}</div>
+        <div class="stat-card-label">分享总数</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon">⬇</div>
+        <div class="stat-card-value">{{.Stats.TotalDownloads}}</div>
+        <div class="stat-card-label">下载总数</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-icon">◉</div>
+        <div class="stat-card-value">{{.Stats.ActiveShares}}</div>
+        <div class="stat-card-label">活跃分享</div>
+    </div>
 </div>
 
-<div class="card mb-lg">
-	<h2>最近文件</h2>
-	<div class="responsive-table">
-	<table class="data-table">
-		<thead>
-			<tr>
-				<th>文件名</th>
-				<th>类型</th>
-				<th>大小</th>
-				<th>创建时间</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{range .RecentFiles}}
-			<tr>
-				<td data-label="文件名"><a href="/admin/files/{{.ID}}">{{.Name}}</a></td>
-				<td data-label="类型">{{.MimeType}}</td>
-				<td data-label="大小">{{.Size | bytes}}</td>
-				<td data-label="创建时间">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
-			</tr>
-			{{else}}
-			<tr><td colspan="4">暂无文件</td></tr>
-			{{end}}
-		</tbody>
-	</table>
-	</div>
+<div class="card">
+    <h2>最近文件</h2>
+    <div class="responsive-table">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>文件名</th>
+                <th>类型</th>
+                <th>大小</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .RecentFiles}}
+            <tr>
+                <td data-label="文件名"><a href="/admin/files/{{.ID}}">{{.Name}}</a></td>
+                <td data-label="类型">{{.MimeType}}</td>
+                <td data-label="大小">{{.Size | bytes}}</td>
+                <td data-label="创建时间">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+            </tr>
+            {{else}}
+            <tr><td colspan="4" class="text-muted">暂无文件</td></tr>
+            {{end}}
+        </tbody>
+    </table>
+    </div>
 </div>
 
-<div class="card mb-lg">
-	<h2>最近分享</h2>
-	<div class="responsive-table">
-	<table class="data-table">
-		<thead>
-			<tr>
-				<th>令牌</th>
-				<th>类型</th>
-				<th>文件</th>
-				<th>下载次数</th>
-				<th>过期时间</th>
-				<th>创建时间</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{range .RecentShares}}
-			<tr>
-				<td data-label="令牌"><a href="/admin/shares/{{.ID}}">{{.Token}}</a></td>
-				<td data-label="类型">{{if eq .ShareType "file"}}文件{{else}}文本{{end}}</td>
-				<td data-label="文件">{{.FileName}}</td>
-				<td data-label="下载次数">{{.DownloadCount}}</td>
-				<td data-label="过期时间">{{if .ExpiresAt}}{{.ExpiresAt.Format "2006-01-02 15:04"}}{{else}}永不过期{{end}}</td>
-				<td data-label="创建时间">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
-			</tr>
-			{{else}}
-			<tr><td colspan="6">暂无分享</td></tr>
-			{{end}}
-		</tbody>
-	</table>
-	</div>
+<div class="card">
+    <h2>最近分享</h2>
+    <div class="responsive-table">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>令牌</th>
+                <th>类型</th>
+                <th>文件</th>
+                <th>下载</th>
+                <th>过期时间</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .RecentShares}}
+            <tr>
+                <td data-label="令牌"><a href="/admin/shares/{{.ID}}">{{.Token}}</a></td>
+                <td data-label="类型">{{if eq .ShareType "file"}}文件{{else}}文本{{end}}</td>
+                <td data-label="文件">{{.FileName}}</td>
+                <td data-label="下载">{{.DownloadCount}}</td>
+                <td data-label="过期时间">{{if .ExpiresAt}}{{.ExpiresAt.Format "2006-01-02"}}{{else}}—{{end}}</td>
+                <td data-label="创建时间">{{.CreatedAt.Format "2006-01-02"}}</td>
+            </tr>
+            {{else}}
+            <tr><td colspan="6" class="text-muted">暂无分享</td></tr>
+            {{end}}
+        </tbody>
+    </table>
+    </div>
 </div>
 {{end}}

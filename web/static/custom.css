@@ -1,41 +1,34 @@
 /* ================================================================== */
-/*  FLS Design System — magick.css-inspired standalone stylesheet     */
-/*  Replaces normalize.css + magick.css + previous custom.css         */
-/*  License: MIT                                                      */
+/*  FLS Design System — magick.css-inspired + system fonts            */
+/*  Clean, readable, functional. Based on magick.css design spirit     */
 /* ================================================================== */
 
-/* 1. Import Fonts (magick.css font stack) */
-@import url('https://fonts.googleapis.com/css2?family=Averia+Libre:ital,wght@0,400;0,700;1,400;1,700&family=Averia+Serif+Libre:ital,wght@0,300;0,700;1,300;1,700&family=Caveat&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Spectral:ital,wght@0,300;0,600;1,300;1,600&display=swap&family=Noto+Sans+Symbols+2&display=swap');
-
-/* 2. CSS Reset */
+/* 1. CSS Reset */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* 3. Root Variables */
+/* 2. Root Variables */
 :root {
-    /* magick base colors */
+    /* magick.css core colors */
     --fg: #0e0e0e;
     --bg: #fefefe;
     --form-bg: #fbfbfb;
     --form-fg: #00004d;
-    --form-fg-placeholder: #00004d9a;
+    --form-fg-placeholder: rgba(0, 0, 77, 0.6);
 
-    /* Spacing scale (based on 62.5% rem, 1.6rem = 16px) */
+    /* Spacing */
     --space-xs: 0.4rem;
     --space-sm: 0.8rem;
     --space-md: 1.6rem;
     --space-lg: 2.4rem;
     --space-xl: 3.2rem;
     --space-2xl: 4.8rem;
+    --space-3xl: 6.4rem;
 
-    /* Semantic colors */
-    --color-primary: var(--fg);
-    --color-primary-hover: var(--fg);
-    --color-primary-bg: rgba(0, 0, 0, 0.08);
-
+    /* Semantic */
     --color-danger: #9c0000;
     --color-danger-hover: #7a0000;
     --color-danger-bg: rgba(156, 0, 0, 0.08);
@@ -46,13 +39,15 @@
     --color-warning: #856404;
     --color-warning-bg: rgba(133, 100, 4, 0.08);
 
-    --color-text-secondary: rgba(14, 14, 14, 0.75);
-    --color-bg-card: var(--form-bg);
+    --color-text-secondary: rgba(14, 14, 14, 0.65);
     --color-border: var(--fg);
-    --color-nav-hover: rgba(0, 0, 0, 0.05);
+    --color-nav-hover: rgba(0, 0, 0, 0.04);
+    --color-accent: var(--fg);
 
-    /* Typography */
-    --font-mono: "Courier Prime", monospace;
+    --shadow-card: 0 0 1.2rem 0 rgba(0, 0, 0, 0.06);
+
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+    --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, "Courier New", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -61,244 +56,101 @@
         --bg: #0e0e0e;
         --form-bg: #1a1a1a;
         --form-fg: #fefefe;
-        --form-fg-placeholder: #fefefe9a;
+        --form-fg-placeholder: rgba(254, 254, 254, 0.6);
 
-        --color-primary-bg: rgba(255, 255, 255, 0.12);
         --color-danger: #ff8585;
         --color-danger-hover: #ff5c5c;
         --color-danger-bg: rgba(255, 133, 133, 0.12);
+
         --color-success: #85e085;
         --color-success-bg: rgba(133, 224, 133, 0.12);
+
         --color-warning: #ffe066;
         --color-warning-bg: rgba(255, 224, 102, 0.12);
-        --color-text-secondary: rgba(254, 254, 254, 0.75);
-        --color-nav-hover: rgba(255, 255, 255, 0.08);
+
+        --color-text-secondary: rgba(254, 254, 254, 0.6);
+        --color-nav-hover: rgba(255, 255, 255, 0.06);
+
+        --shadow-card: 0 0 1.2rem 0 rgba(0, 0, 0, 0.3);
     }
 }
 
-/* 4. Base Typography & Layout */
+/* 3. Base Typography */
 html {
-    font-size: 62.5%; /* 1.6rem = 16px */
+    font-size: 62.5%;
     line-height: 1.15;
     -webkit-text-size-adjust: 100%;
 }
 
 body {
-    font-size: 1.8rem;
-    background-color: var(--bg);
+    font-size: 1.6rem;
+    background: var(--bg);
     color: var(--fg);
-    font-family: "Averia Serif Libre", serif;
-    font-style: normal;
-    line-height: 2.2rem;
-    font-weight: 300;
-    overflow-x: hidden;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: 1.6;
 }
 
 main {
     margin: auto;
     max-width: 76rem;
-    padding: 0 1rem;
+    padding: 0 var(--space-md);
     width: 100%;
-    position: relative;
 }
 
-p {
-    margin: 1.6rem 0;
-}
+p { margin: 1.2rem 0; }
 
-a {
-    color: var(--fg);
-    text-decoration: none;
-}
+a { color: var(--fg); text-decoration: underline; text-underline-offset: 0.2rem; }
+a:hover { color: var(--fg); text-decoration-thickness: 0.2rem; }
 
-a:hover {
-    text-decoration: underline;
-}
+b, strong { font-weight: 700; }
+i, em { font-style: italic; }
 
-b, strong { font-weight: 600; }
-i, em { font-size: calc(1em + 0.1rem); }
+img { max-width: 100%; height: auto; }
 
-img {
-    max-width: 100%;
-    height: auto;
-    margin: 0.8rem 0;
-}
-
-figure img { margin: 0; padding: 0; }
-figure { margin: 2rem 0; padding: 0; text-align: center; }
-figure * { margin-left: auto; margin-right: auto; }
-figure code, figure pre { text-align: left; }
-figcaption { margin: 0.8rem 0; font-size: 1.8rem; }
-
-/* 5. Headings */
+/* 4. Headings */
 h1, h2, h3, h4 {
-    font-family: "Averia Libre", cursive;
+    font-weight: 700;
     color: var(--fg);
-    font-style: normal;
-    font-weight: 600;
     margin: 1.6rem 0;
+    line-height: 1.25;
 }
 
-h1 {
-    text-transform: uppercase;
-    font-size: 3.6rem;
-    line-height: 3.3rem;
-}
+h1 { font-size: 3.2rem; }
+h2 { font-size: 2.4rem; }
+h3 { font-size: 1.8rem; }
+h4 { font-size: 1.6rem; font-style: italic; }
 
-h2 {
-    font-size: 2.25rem;
-    text-transform: uppercase;
-}
-
-h3 {
-    font-size: 2.025rem;
-}
-
-h3::before {
-    font-family: "Noto Sans Symbols 2", sans-serif;
-    content: "🙛 ";
-}
-
-h4 {
-    font-style: italic;
-    font-size: 2.025rem;
-}
-
-header h1 {
-    font-size: 4rem;
-    text-align: center;
-    padding: 4rem 0 1.2rem;
-    margin-bottom: 1rem;
-}
-
-header h1::before,
-header h1::after {
-    content: "✦";
-    font-size: 1.5rem;
-    vertical-align: middle;
-    padding: 0 0.5rem;
-}
-
-/* 6. Navigation (magick centered style) */
-header nav ul {
-    list-style-type: none;
-    text-align: center;
-    margin-top: 1rem;
-    padding-inline-start: 0;
-}
-
-header nav ul li {
-    display: inline;
-    margin: 0 1.2rem;
-}
-
-header nav ul li a {
-    text-decoration: none;
-    color: var(--fg);
-}
-
-header nav ul li a::before {
-    content: "❯ ";
-    opacity: 0;
-}
-
-header nav ul li a:hover::before {
-    opacity: 1;
-}
-
-/* 7. Layout sections */
-header,
-section,
-footer {
-    margin: 0.7rem;
-    padding: 0.7rem;
-}
-
-header > *:last-child,
-section > *:last-child,
-footer > *:last-child {
-    margin-bottom: 0;
-}
-
-header {
-    margin-top: 4rem;
-    margin-bottom: 8rem;
-}
-
-footer {
-    text-align: center;
-    margin-top: 5rem;
-    margin-bottom: 2rem;
-}
-
-/* 8. Lists */
-:where(main ol, main ul) {
-    margin-inline-start: 0;
-    padding-inline-start: 3rem;
-    margin: 0.8rem 0;
-}
-
-dl { margin: 0.8rem 0; }
-dd { margin: 0 1.6rem; }
-
-/* 9. Tables (magick base) */
+/* 5. Tables (magick base) */
 table {
     border-spacing: 0;
+    width: 100%;
 }
 
 td, th {
-    padding: 0.4rem 1rem;
+    padding: var(--space-sm) var(--space-md);
+    text-align: left;
+    vertical-align: middle;
 }
 
 th {
     border-bottom: 2px solid var(--fg);
-    text-align: left;
+    font-weight: 700;
 }
 
 td:first-child, th:first-child { padding-left: 0; }
 td:last-child, th:last-child { padding-right: 0; }
 
-/* 10. Forms (magick paper-note grid style) */
+/* 6. Forms (magick paper-note style) */
 form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 1rem;
-    margin: 0.8rem 0;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    background-color: var(--form-bg);
+    display: block;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
-/* Every admin form section, group, and actions area spans full width */
-form .form-section,
-form .form-group,
-form .form-actions,
-form .responsive-table {
-    grid-column: span 2;
-}
-
-form input[type="email"],
-form input[type="number"],
-form input[type="password"],
-form input[type="search"],
-form input[type="tel"],
-form input[type="text"],
-form input[type="url"],
-form label,
-form fieldset,
-form select,
-form textarea {
-    grid-column: span 2;
-}
-
-form input,
-form button,
-form textarea {
-    width: 100%;
-    resize: vertical;
-}
-
-/* 11. Inputs (magick handwritten style) */
+/* 7. Inputs (magick border-bottom style) */
 input[type="email"],
 input[type="number"],
 input[type="password"],
@@ -308,446 +160,82 @@ input[type="text"],
 input[type="url"],
 textarea,
 select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
-    box-shadow: none;
+    width: 100%;
     border: none;
-    padding: 0.4rem 1rem;
-    margin-bottom: 1.6rem;
-    font-size: 1.8rem;
-    color: var(--fg);
-    background-color: transparent;
     border-bottom: 1px solid var(--fg);
     border-radius: 0;
-    font-family: "Caveat", cursive;
-    font-size: 2.6rem;
+    padding: var(--space-xs) 0;
+    font-size: 1.6rem;
+    font-family: var(--font-sans);
     color: var(--form-fg);
+    background: transparent;
     caret-color: var(--form-fg);
+    outline: none;
+    line-height: 1.5;
+    margin-bottom: var(--space-md);
 }
 
-input[type="password"] {
-    font-family: inherit !important;
-    line-height: 1.5 !important;
-    letter-spacing: normal !important;
+input:focus, textarea:focus, select:focus {
+    border-bottom-width: 2px;
+    margin-bottom: calc(var(--space-md) - 1px);
 }
 
-input[type="email"]:disabled,
-input[type="number"]:disabled,
-input[type="password"]:disabled,
-input[type="search"]:disabled,
-input[type="tel"]:disabled,
-input[type="text"]:disabled,
-input[type="url"]:disabled,
-textarea:disabled,
-select:disabled {
-    border-bottom: 1px dashed var(--fg);
-    text-decoration: line-through;
-}
-
-input::placeholder,
-textarea::placeholder {
+input::placeholder, textarea::placeholder {
     color: var(--form-fg-placeholder);
 }
 
-input[type="email"]:focus,
-input[type="number"]:focus,
-input[type="password"]:focus,
-input[type="search"]:focus,
-input[type="tel"]:focus,
-input[type="text"]:focus,
-input[type="url"]:focus,
-textarea:focus,
-select:focus {
-    outline: none;
-    border-bottom: 2px solid var(--fg);
-    margin-bottom: calc(1.6rem - 1px);
-}
-
-/* Radio & checkbox */
 input[type="radio"],
 input[type="checkbox"] {
     width: auto;
-    margin-right: 0.5rem;
-    min-height: auto;
-    min-width: auto;
+    margin-right: var(--space-xs);
     cursor: pointer;
+    accent-color: var(--fg);
 }
 
 input[type="radio"] + label,
 input[type="checkbox"] + label {
     display: inline-block;
-    margin-right: 2rem;
-    font-family: "Averia Serif Libre", serif;
+    margin-right: 1.5rem;
     cursor: pointer;
 }
 
-input[type="radio"]:disabled + label,
-input[type="checkbox"]:disabled + label {
-    text-decoration: line-through;
-    opacity: 0.5;
-}
-
-/* Fieldset */
-fieldset {
-    border: 1px solid var(--fg);
-    width: fit-content;
-}
-
-form fieldset {
-    width: 100%;
-}
-
-/* 12. Buttons (magick flat style) */
-button,
-input[type="button"],
-input[type="reset"],
-input[type="submit"] {
-    background-color: transparent;
-    color: var(--fg);
-    padding: 10px;
-    margin-top: 1.6rem;
-    border: 1px solid var(--fg);
+select {
     cursor: pointer;
-    font-family: inherit;
-    font-size: 1.8rem;
+    padding-right: 2rem;
+    background: transparent;
 }
 
-button:disabled,
-input[type="button"]:disabled,
-input[type="reset"]:disabled,
-input[type="submit"]:disabled {
-    opacity: 0.5;
-    border-style: dashed;
-    cursor: not-allowed;
-    text-decoration: line-through;
-}
-
-/* 13. Code & Preformatting */
-code {
-    font-family: "Courier Prime", monospace;
-    font-size: 1.6rem;
-}
-
-pre:has(code) {
-    padding: 1rem 1.6rem;
-    margin: 1.6rem 0;
-    overflow-y: hidden;
-    font-family: "Courier Prime", monospace;
-    font-size: 1.6rem;
-    border-top: 2px solid var(--fg);
-    border-bottom: 2px solid var(--fg);
-}
-
-/* 14. Blockquote */
-blockquote {
-    padding: 1rem 1.6rem;
-    overflow-y: hidden;
-    width: fit-content;
-    max-width: 80%;
-    margin: 2rem auto;
-}
-
-blockquote p {
-    font-family: "Spectral", serif;
-    font-style: italic;
-    font-size: 2.1rem;
-    font-weight: 300;
-    line-height: 2.4rem;
-    margin: 2.1rem 0;
-}
-
-blockquote footer {
-    margin: 0;
-    padding: 0;
-    float: right;
-    text-align: right;
-    width: 55%;
-    font-family: "Spectral", serif;
-    font-style: normal;
-    font-size: 1.4rem;
-}
-
-blockquote footer cite {
-    font-style: italic;
-}
-
-/* 15. Sidenotes & Asides */
-.sidenote,
-aside {
-    float: right;
-    clear: right;
-    width: 40%;
-    margin: 1rem 1rem 1rem 3rem;
-    padding: 0.5rem 0.5rem 0.5rem 2rem;
-    border-left: 3px solid var(--fg);
-    font-size: 1.4rem;
-    line-height: 1.3;
-}
-
-aside h1, aside h2, aside h3, aside h4 {
-    margin-top: 0;
-}
-
-/* ============================================================ */
-/*  ADMIN COMPONENTS (extends magick base)                      */
-/* ============================================================ */
-
-/* 16. Admin Layout Overrides */
-.admin-mode main {
-    max-width: 1100px;
-    padding: var(--space-md) var(--space-lg);
-}
-
-.admin-mode header {
-    margin-top: var(--space-md);
-    margin-bottom: var(--space-xl);
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: var(--space-md);
-}
-
-.admin-mode section {
-    margin: 0;
-    padding: 0;
-}
-
-.admin-mode footer {
-    margin-top: var(--space-2xl);
-    padding: var(--space-md) 0;
-    border-top: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-    font-size: 1.4rem;
-    font-family: "Averia Serif Libre", serif;
-}
-
-.page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: var(--space-md);
-    margin-bottom: var(--space-lg);
-}
-
-.page-header h1 {
-    margin: 0;
-}
-
-.page-content {
-    padding: 0;
-}
-
-/* 17. Admin Navigation */
-.admin-mode .main-nav ul {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    flex-wrap: wrap;
-    width: 100%;
-    list-style: none;
-    text-align: left;
-    margin: 0;
-}
-
-.admin-mode .main-nav ul li {
-    display: flex;
-    align-items: center;
-    margin: 0;
-}
-
-.admin-mode .main-nav ul li:last-child {
-    margin-left: auto;
-}
-
-.nav-brand {
-    font-family: "Averia Libre", cursive;
-    font-weight: 800;
-    font-size: 2.2rem;
-    color: var(--fg);
-    text-decoration: none;
-    margin-right: var(--space-md);
-    padding: var(--space-xs) var(--space-sm);
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-}
-
-.admin-mode .main-nav ul li .nav-brand::before {
-    content: none;
-}
-
-.nav-link {
-    font-family: "Averia Libre", cursive;
-    font-size: 1.8rem;
-    font-weight: 500;
-    padding: var(--space-xs) var(--space-sm);
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    transition: opacity 0.2s ease;
-}
-
-.admin-mode .main-nav ul li .nav-link::before {
-    content: none;
-}
-
-.nav-link:hover {
-    color: var(--fg);
-    text-decoration: none;
-    opacity: 0.7;
-}
-
-.nav-link.active,
-.nav-link[aria-current="page"] {
-    color: var(--fg);
-    font-weight: 700;
-    border-bottom: 2px solid var(--fg);
-}
-
-/* 18. Cards */
-.card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--fg);
-    padding: var(--space-lg);
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.08);
-    margin-bottom: var(--space-lg);
-}
-
-.card h2:first-child,
-.card h3:first-child {
-    margin-top: 0;
-}
-
-/* 19. Dashboard Stat Cards */
-.stat-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-md);
-    margin-bottom: var(--space-xl);
-}
-
-.stat-card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--fg);
-    padding: var(--space-lg);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.12);
-}
-
-.stat-card-icon {
-    font-size: 3.2rem;
-    margin-bottom: var(--space-sm);
-    line-height: 1;
-}
-
-.stat-card-value {
-    font-size: 2.8rem;
-    font-family: "Averia Libre", cursive;
-    font-weight: 800;
-    line-height: 1.2;
-}
-
-.stat-card-label {
-    font-size: 1.4rem;
-    color: var(--color-text-secondary);
-    margin-top: var(--space-xs);
-    font-weight: 500;
-}
-
-/* 20. Admin Data Tables */
-.data-table td[colspan] {
-    text-align: center;
-    color: var(--color-text-secondary);
-    padding: var(--space-lg);
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 1.6rem;
-}
-
-.data-table th {
-    padding: var(--space-sm) var(--space-md);
-    border-bottom: 2px solid var(--fg);
-    text-align: left;
-    font-size: 1.4rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-secondary);
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.data-table td {
-    padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--fg);
-    vertical-align: middle;
-}
-
-.data-table tbody tr {
-    transition: background-color 0.15s ease;
-}
-
-.data-table tbody tr:hover {
-    background-color: var(--color-nav-hover);
-}
-
-.data-table th:first-child,
-.data-table td:first-child {
-    padding-left: var(--space-sm);
-}
-
-.data-table th:last-child,
-.data-table td:last-child {
-    padding-right: var(--space-sm);
-    white-space: nowrap;
-}
-
-.responsive-table {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* 21. Admin Buttons */
+/* 8. Buttons (magick flat style) */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 1rem;
-    font-size: 1.6rem;
-    font-weight: 500;
-    font-family: "Averia Serif Libre", serif;
+    padding: var(--space-sm) var(--space-md);
+    font-size: 1.4rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
     border: 1px solid var(--fg);
     background: transparent;
     color: var(--fg);
     cursor: pointer;
     text-decoration: none;
-    height: 38px;
     line-height: 1.2;
     vertical-align: middle;
-    margin: 0;
+    height: 3.6rem;
     transition: background 0.1s ease;
+    text-decoration: none;
 }
 
 .btn:hover {
-    background: var(--color-primary-bg);
-    color: var(--fg);
+    background: var(--color-nav-hover);
     text-decoration: none;
 }
 
 .btn-primary {
     background: var(--fg);
     color: var(--bg);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .btn-primary:hover {
@@ -758,7 +246,6 @@ aside h1, aside h2, aside h3, aside h4 {
 .btn-danger {
     border-color: var(--color-danger);
     color: var(--color-danger);
-    font-weight: 600;
 }
 
 .btn-danger:hover {
@@ -767,72 +254,314 @@ aside h1, aside h2, aside h3, aside h4 {
 }
 
 .btn-sm {
-    padding: 0.25rem 0.75rem;
+    padding: 0.25rem var(--space-sm);
+    font-size: 1.3rem;
+    height: 2.8rem;
+}
+
+.btn + .btn { margin-left: var(--space-sm); }
+.btn-group { display: flex; flex-wrap: wrap; gap: var(--space-sm); align-items: center; }
+
+/* 9. Layout — Section */
+header, section, footer {
+    margin: var(--space-sm);
+    padding: var(--space-sm);
+}
+
+header { margin-top: var(--space-2xl); margin-bottom: var(--space-xl); }
+
+footer {
+    text-align: center;
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-md);
     font-size: 1.4rem;
-    height: 30px;
-    margin-top: 0 !important;
+    color: var(--color-text-secondary);
 }
 
-.btn + .btn {
-    margin-left: 0.6rem;
+/* ============================================================ */
+/*  ADMIN — Layout & Components                                 */
+/* ============================================================ */
+
+/* 10. Admin: Wide layout */
+main.admin-mode {
+    max-width: 128rem;
+    padding: 0 var(--space-2xl);
 }
 
-.btn-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-sm);
-    align-items: center;
-}
-
-/* 22. Admin Forms */
-.form-section {
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-lg);
+.admin-mode header {
+    margin: 0 0 var(--space-xl);
+    padding: var(--space-md) 0;
     border-bottom: 1px solid var(--fg);
 }
 
-.form-section:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-bottom: 0;
+.admin-mode section {
+    margin: 0;
+    padding: 0 0 var(--space-2xl);
+}
+
+.admin-mode footer {
+    margin: var(--space-2xl) 0 0;
+    padding: var(--space-lg) 0 0;
+    border-top: 1px solid var(--fg);
+}
+
+/* 11. Admin: Navigation */
+.main-nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    list-style: none;
+    flex-wrap: wrap;
+}
+
+.main-nav ul li:last-child {
+    margin-left: auto;
+}
+
+.nav-brand {
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--fg);
+    text-decoration: none;
+    margin-right: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    letter-spacing: -0.03em;
+}
+
+.nav-brand:hover { text-decoration: none; }
+
+.nav-link {
+    font-size: 1.5rem;
+    font-weight: 500;
+    padding: var(--space-xs) var(--space-sm);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.nav-link:hover {
+    color: var(--fg);
+    text-decoration: none;
+}
+
+.nav-link.active {
+    color: var(--fg);
+    font-weight: 700;
+}
+
+/* 12. Admin: Page Header */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.page-header h1 { margin: 0; }
+
+/* 13. Admin: Card (magick paper style) */
+.card {
+    background: var(--form-bg);
+    border: 1px solid var(--fg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--space-lg);
+}
+
+.card h2:first-child,
+.card h3:first-child {
+    margin-top: 0;
+}
+
+/* 14. Admin: Stat Cards */
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+    background: var(--form-bg);
+    border: 1px solid var(--fg);
+    padding: var(--space-xl) var(--space-lg);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0 1.6rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.card h2:first-child,
+.card h3:first-child {
+    margin-top: 0;
+}
+
+/* 14. Admin: Stat Cards */
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+    background: var(--form-bg);
+    border: 1px solid var(--fg);
+    padding: var(--space-xl) var(--space-lg);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0 1.6rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-icon {
+    font-size: 3.2rem;
+    margin-bottom: var(--space-sm);
+    line-height: 1;
+}
+
+.stat-card-value {
+    font-size: 3.6rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.stat-card-label {
+    font-size: 1.3rem;
+    color: var(--color-text-secondary);
+    margin-top: var(--space-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* 15. Admin: Data Table */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.5rem;
+}
+
+.data-table td[colspan] {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: var(--space-2xl);
+}
+
+.data-table th {
+    padding: var(--space-lg) var(--space-md) var(--space-sm);
+    border-bottom: 2px solid var(--fg);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: var(--space-lg) var(--space-md);
+    border-bottom: 1px solid var(--fg);
+}
+
+.data-table tbody tr {
+    transition: background 0.12s ease;
+}
+
+.data-table tbody tr:hover {
+    background: var(--color-nav-hover);
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+    white-space: nowrap;
+    padding-right: 0;
+}
+
+
+
+.data-table td .btn + .btn {
+    margin-left: var(--space-xs);
+}
+
+.responsive-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 16. Admin: Form Sections */
+.form-section {
+    background: var(--form-bg);
+    border: 1px solid var(--fg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--space-md);
 }
 
 .form-section h3 {
-    font-size: 1.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-secondary);
+    font-size: 1.6rem;
+    font-weight: 700;
     margin: 0 0 var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--fg);
 }
+
+.form-section:last-child { margin-bottom: 0; }
 
 .form-group {
     margin-bottom: var(--space-md);
 }
 
+.form-group:last-child { margin-bottom: 0; }
+
 .form-group label {
     display: block;
     margin-bottom: var(--space-xs);
     font-weight: 600;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
 }
 
 .form-group small,
 .form-group .text-muted {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     color: var(--color-text-secondary);
     display: block;
     margin-top: var(--space-xs);
 }
 
-.form-row {
-    display: flex;
-    flex-wrap: wrap;
+/* Form grid: 2-column layout for form fields */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: var(--space-md);
 }
 
-.form-row > * {
-    flex: 1;
-    min-width: 200px;
+.form-grid .form-group {
+    margin-bottom: 0;
+}
+
+.form-grid .full-width {
+    grid-column: span 2;
 }
 
 .form-actions {
@@ -840,34 +569,18 @@ aside h1, aside h2, aside h3, aside h4 {
     flex-wrap: wrap;
     gap: var(--space-sm);
     margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--fg);
 }
 
-/* Login form override — simple centered card */
-.login-card {
-    max-width: 400px;
-    margin: 6rem auto;
-}
-
-.login-card .btn {
-    width: 100%;
-}
-
-.login-card form {
-    box-shadow: none;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-}
-
-/* 23. Badges */
+/* 17. Admin: Badge */
 .badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1.2;
+    padding: 0.15rem 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.3;
     white-space: nowrap;
     background: var(--bg);
     color: var(--color-text-secondary);
@@ -887,7 +600,7 @@ aside h1, aside h2, aside h3, aside h4 {
 }
 
 .badge-info {
-    background: var(--color-primary-bg);
+    background: var(--color-nav-hover);
     color: var(--fg);
     border-color: var(--fg);
 }
@@ -898,14 +611,14 @@ aside h1, aside h2, aside h3, aside h4 {
     border-color: var(--color-warning);
 }
 
-/* 24. Dropzone & Upload */
+/* 18. Admin: Dropzone */
 .dropzone {
     border: 2px dashed var(--fg);
-    padding: var(--space-xl);
+    padding: var(--space-2xl) var(--space-lg);
     text-align: center;
     cursor: pointer;
-    transition: all 0.25s ease;
-    background: var(--color-bg-card);
+    transition: background 0.2s ease, border-color 0.2s ease;
+    background: var(--bg);
     margin-bottom: var(--space-md);
 }
 
@@ -917,7 +630,7 @@ aside h1, aside h2, aside h3, aside h4 {
 
 .dropzone-uploading {
     border-color: var(--fg);
-    background: var(--color-primary-bg);
+    background: var(--color-nav-hover);
     cursor: default;
 }
 
@@ -934,60 +647,50 @@ aside h1, aside h2, aside h3, aside h4 {
 }
 
 .dropzone:hover .dropzone-icon {
-    transform: translateY(-4px);
+    transform: translateY(-0.3rem);
 }
 
 .dropzone-text {
-    font-family: "Averia Serif Libre", serif;
     font-weight: 600;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
 }
 
 .dropzone-hint {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     color: var(--color-text-secondary);
     margin-top: var(--space-xs);
 }
 
-.upload-progress {
-    display: none;
-}
-
-.upload-progress-bar {
-    width: 100%;
-    height: 8px;
-    margin-top: var(--space-sm);
-}
+.upload-progress { display: none; }
+.upload-progress-bar { width: 100%; height: 0.6rem; margin-top: var(--space-sm); accent-color: var(--fg); }
 
 .upload-success {
     display: none;
-    margin-bottom: var(--space-md);
     padding: var(--space-md);
     background: var(--color-success-bg);
     border: 1px solid var(--color-success);
+    font-size: 1.4rem;
+    font-weight: 600;
     color: var(--color-success);
-    font-size: 1.6rem;
-    font-weight: 500;
-}
-
-/* 25. Empty States */
-.empty-state {
-    text-align: center;
-    padding: var(--space-xl) var(--space-md);
-    color: var(--color-text-secondary);
-}
-
-.empty-state-icon {
-    font-size: 4rem;
     margin-bottom: var(--space-md);
-    opacity: 0.5;
 }
 
-.empty-state p {
-    margin: var(--space-sm) 0;
+/* 19. Admin: Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    flex-wrap: wrap;
 }
 
-/* 26. Share Detail */
+.pagination span {
+    font-size: 1.3rem;
+    color: var(--color-text-secondary);
+    padding: 0 var(--space-xs);
+}
+
+/* 20. Share Detail */
 .share-detail-grid {
     display: flex;
     flex-wrap: wrap;
@@ -996,30 +699,31 @@ aside h1, aside h2, aside h3, aside h4 {
 }
 
 .share-detail-info {
-    flex: 1 1 500px;
-    margin: 0;
+    flex: 1 1 60rem;
 }
 
 .share-detail-qrcode {
-    flex: 0 0 300px;
+    flex: 0 0 28rem;
     max-width: 100%;
-    margin: 0;
+    text-align: center;
 }
 
+.share-detail-qrcode h3 { margin-top: 0; }
+
 .qrcode-img {
-    max-width: 200px;
+    max-width: 18rem;
     height: auto;
     margin: var(--space-md) 0;
-    border: 1px solid var(--color-text-secondary);
+    border: 1px solid var(--fg);
     padding: var(--space-xs);
-    background: #ffffff;
+    background: #fff;
 }
 
 .token-display {
     font-family: var(--font-mono);
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     padding: var(--space-sm) var(--space-md);
-    background: var(--color-bg-card);
+    background: var(--bg);
     border: 1px solid var(--fg);
     word-break: break-all;
     font-weight: 600;
@@ -1035,30 +739,162 @@ aside h1, aside h2, aside h3, aside h4 {
 .text-content {
     white-space: pre-wrap;
     word-break: break-word;
-    max-height: 400px;
+    max-height: 40rem;
     overflow-y: auto;
     padding: var(--space-md);
     background: var(--bg);
     border: 1px solid var(--fg);
     font-family: var(--font-mono);
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     line-height: 1.5;
 }
 
-/* 27. Download Pages */
+/* 21. Detail Table (key-value) */
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.detail-table tr {
+    border-bottom: 1px solid var(--fg);
+}
+
+.detail-table tr:last-child {
+    border-bottom: none;
+}
+
+.detail-table th {
+    padding: var(--space-md);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    width: 14rem;
+    white-space: nowrap;
+    vertical-align: top;
+    border-bottom: none;
+}
+
+.detail-table td {
+    padding: var(--space-md);
+    vertical-align: middle;
+}
+
+.detail-table td .btn-sm {
+    margin-left: var(--space-sm);
+}
+
+/* 22. Type Toggle Cards */
+.type-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.type-toggle label {
+    display: block;
+    cursor: pointer;
+}
+
+.type-toggle input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.type-toggle .type-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    border: 2px solid var(--fg);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    background: var(--bg);
+}
+
+.type-toggle .type-card:hover {
+    background: var(--color-nav-hover);
+}
+
+.type-toggle input[type="radio"]:checked + .type-card {
+    background: var(--color-nav-hover);
+    border-width: 3px;
+}
+
+.type-toggle .type-card-icon { font-size: 2.8rem; }
+.type-toggle .type-card-label { font-weight: 700; font-size: 1.5rem; }
+.type-toggle .type-card-desc { font-size: 1.2rem; color: var(--color-text-secondary); }
+
+/* 23. Login */
+.login-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 40rem;
+    padding: var(--space-2xl) var(--space-xl);
+    text-align: center;
+}
+
+.login-card .login-brand {
+    font-size: 3.2rem;
+    font-weight: 800;
+    margin-bottom: var(--space-xs);
+    letter-spacing: -0.03em;
+}
+
+.login-card .login-subtitle {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xl);
+}
+
+.login-card .form-group { text-align: left; }
+
+.login-card .btn {
+    width: 100%;
+    height: 4.2rem;
+    font-size: 1.5rem;
+}
+
+.login-card .login-error {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
+    font-size: 1.4rem;
+}
+
+/* 24. Download Pages */
+.download-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
 .download-card {
-    max-width: 480px;
-    margin: 4rem auto;
+    width: 100%;
+    max-width: 48rem;
+    text-align: center;
 }
 
 .download-card .file-icon {
-    font-size: 3.5rem;
+    font-size: 4rem;
     margin-bottom: var(--space-sm);
     line-height: 1;
 }
 
 .password-form {
-    max-width: 320px;
+    max-width: 30rem;
     margin: 0 auto;
 }
 
@@ -1072,69 +908,92 @@ aside h1, aside h2, aside h3, aside h4 {
 }
 
 .image-preview-container img {
-    max-height: 400px;
+    max-height: 40rem;
     margin: 0;
 }
 
-/* 28. Flash Messages */
+/* 25. Flash Messages */
 .flash {
-    padding: 0.75rem 1rem;
-    margin: var(--space-md) 0;
-    font-size: 1.6rem;
-    font-weight: 500;
-}
-
-.flash-success {
-    background: var(--color-success-bg);
+    padding: var(--space-sm) var(--space-md);
+    margin-bottom: var(--space-md);
+    font-size: 1.4rem;
+    font-weight: 600;
     border: 1px solid var(--color-success);
+    background: var(--color-success-bg);
     color: var(--color-success);
 }
 
 .flash-error {
+    border-color: var(--color-danger);
     background: var(--color-danger-bg);
-    border: 1px solid var(--color-danger);
     color: var(--color-danger);
 }
 
-/* 29. Error Page */
+/* 26. Error Page */
+.error-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
 .error-page {
-    max-width: 480px;
-    margin: 6rem auto;
     text-align: center;
-    padding: var(--space-xl) var(--space-lg);
-    background: var(--color-bg-card);
-    border: 1px solid var(--fg);
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.08);
+    max-width: 48rem;
+    padding: var(--space-2xl);
 }
 
 .error-page h1 {
-    font-size: 4rem;
+    font-size: 6rem;
     color: var(--color-danger);
-    margin-top: 0;
-    margin-bottom: var(--space-sm);
+    margin: 0 0 var(--space-sm);
     font-weight: 800;
     line-height: 1;
 }
 
 .error-page p {
     color: var(--color-text-secondary);
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     margin-bottom: var(--space-xl);
 }
 
-/* 30. Admin: Inline search */
-input[type="search"].inline-search {
-    max-width: 320px;
+/* 27. Empty State */
+.empty-state {
+    text-align: center;
+    padding: var(--space-2xl) var(--space-md);
+    color: var(--color-text-secondary);
 }
 
-/* 31. Utilities */
+.empty-state-icon {
+    font-size: 3.6rem;
+    margin-bottom: var(--space-md);
+    opacity: 0.4;
+}
+
+/* 28. Search */
+input[type="search"] { max-width: 36rem; }
+
+/* 29. Code */
+code {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    background: var(--color-nav-hover);
+    padding: 0.15rem 0.4rem;
+}
+
+pre {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    line-height: 1.5;
+}
+
+/* 30. Utilities */
 .flex { display: flex; }
 .flex-wrap { flex-wrap: wrap; }
 .flex-col { flex-direction: column; }
 .items-center { align-items: center; }
 .justify-center { justify-content: center; }
 .justify-between { justify-content: space-between; }
-.flex-center { display: flex; align-items: center; justify-content: center; }
 
 .gap-xs { gap: var(--space-xs); }
 .gap-sm { gap: var(--space-sm); }
@@ -1142,7 +1001,6 @@ input[type="search"].inline-search {
 .gap-lg { gap: var(--space-lg); }
 
 .mt-0 { margin-top: 0; }
-.mt-xs { margin-top: var(--space-xs); }
 .mt-sm { margin-top: var(--space-sm); }
 .mt-md { margin-top: var(--space-md); }
 .mt-lg { margin-top: var(--space-lg); }
@@ -1159,45 +1017,54 @@ input[type="search"].inline-search {
 .text-danger { color: var(--color-danger); }
 .text-success { color: var(--color-success); }
 
-.hide-mobile { display: none; }
+.w-full { width: 100%; }
+
+/* 31. Fieldset */
+fieldset {
+    border: 1px solid var(--fg);
+    padding: var(--space-md);
+}
+
+fieldset legend {
+    font-weight: 700;
+    padding: 0 var(--space-sm);
+    color: var(--color-text-secondary);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+fieldset p { margin: var(--space-sm) 0; }
+fieldset p:last-child { margin-bottom: 0; }
 
 /* 32. Responsive */
+@media (max-width: 900px) {
+    main.admin-mode {
+        padding: 0 var(--space-md);
+    }
+
+    .stat-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .main-nav ul li:last-child {
+        margin-left: 0;
+    }
+}
+
 @media (max-width: 600px) {
     html { font-size: 56%; }
 
-    header, section, footer {
-        margin-top: 0.2rem;
-        margin-bottom: 0.2rem;
+    .stat-cards {
+        grid-template-columns: 1fr;
     }
 
-    main { padding: 0 0.2rem; }
-
-    header { margin: 0; padding: 1.2rem; }
-
-    .admin-mode header {
-        margin: 0;
-        padding: 0.7rem;
-    }
-
-    .admin-mode .main-nav ul {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--space-xs);
-    }
-
-    .admin-mode .main-nav ul li:last-child {
-        margin-left: 0;
-    }
-
-    .nav-brand {
-        margin-right: 0;
-        justify-content: center;
-    }
-
-    .nav-link {
-        text-align: center;
-        display: block;
-        width: 100%;
+    .type-toggle {
+        grid-template-columns: 1fr;
     }
 
     .data-table th {
@@ -1206,8 +1073,8 @@ input[type="search"].inline-search {
 
     .data-table td {
         display: block;
-        padding: var(--space-sm) var(--space-md);
         border-bottom: 1px solid var(--fg);
+        padding: var(--space-sm) var(--space-md);
         position: relative;
         padding-left: 40%;
         text-align: right;
@@ -1221,31 +1088,18 @@ input[type="search"].inline-search {
         top: var(--space-sm);
         color: var(--color-text-secondary);
         text-transform: uppercase;
-        font-size: 1.3rem;
+        font-size: 1.1rem;
     }
 
-    .hide-mobile {
-        display: block;
-    }
-
-    .stat-cards {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .stat-cards {
-        grid-template-columns: 1fr;
-    }
-
-    .nav-link {
-        padding: 0.5rem 0;
+    .share-detail-qrcode {
+        flex-basis: 100%;
     }
 }
 
 @media (pointer: coarse) {
     a, button, input, select, textarea {
-        min-height: 44px;
-        min-width: 44px;
+        min-height: 4.4rem;
+        min-width: 4.4rem;
     }
+    .btn-sm { min-height: 3.6rem; }
 }

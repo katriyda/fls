@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{block "title" .}}FLS - 文件分享系统{{end}}</title>
-    <link rel="stylesheet" href="/static/custom.css?v=2.0.0">
+    <link rel="stylesheet" href="/static/custom.css?v=4.0.0">
     <script src="/static/htmx.min.js"></script>
     <script src="/static/tus.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Set active class on navigation link matching current path
             const currentPath = window.location.pathname;
             document.querySelectorAll('.nav-link').forEach(link => {
                 const href = link.getAttribute('href');
@@ -31,26 +30,28 @@
 </head>
 <body>
     <main class="{{if .Authenticated}}admin-mode{{end}}">
+        {{if .Authenticated}}
         <header>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="/admin/" class="nav-brand">📦 FLS</a></li>
-                    {{if .Authenticated}}
+                    <li><a href="/admin/" class="nav-brand">▣ FLS</a></li>
                     <li><a href="/admin/" class="nav-link" data-page="dashboard">仪表盘</a></li>
                     <li><a href="/admin/files" class="nav-link" data-page="files">文件</a></li>
                     <li><a href="/admin/shares" class="nav-link" data-page="shares">分享</a></li>
                     <li><a href="/admin/config" class="nav-link" data-page="config">配置</a></li>
                     <li><a href="/logout" class="nav-link">登出</a></li>
-                    {{end}}
                 </ul>
             </nav>
         </header>
+        {{end}}
         <section>
             {{block "content" .}}{{end}}
         </section>
+        {{if .Authenticated}}
         <footer>
-            <p>FLS - File Sharing System</p>
+            <p>FLS — File Sharing System</p>
         </footer>
+        {{end}}
     </main>
 </body>
 </html>

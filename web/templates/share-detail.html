@@ -2,29 +2,37 @@
 {{define "title"}}{{if eq .Mode "new"}}新建分享 - FLS{{else}}分享详情 - FLS{{end}}{{end}}
 {{define "content"}}
 {{if eq .Mode "new"}}
-<h1>新建分享</h1>
+<div class="page-header">
+    <h1>新建分享</h1>
+</div>
+
 <form method="POST" action="/admin/shares">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
     <div class="form-section">
         <h3>分享类型</h3>
-        <div class="form-group">
-            <label>分享类型</label>
-            <div>
-                <label>
-                    <input type="radio" name="content_type" value="file" checked onchange="toggleShareType()">
-                    文件分享
-                </label>
-                <label>
-                    <input type="radio" name="content_type" value="text" onchange="toggleShareType()">
-                    文本分享
-                </label>
-            </div>
+        <div class="type-toggle">
+            <label>
+                <input type="radio" name="content_type" value="file" checked onchange="toggleShareType()">
+                <div class="type-card">
+                    <div class="type-card-icon">📄</div>
+                    <div class="type-card-label">文件分享</div>
+                    <div class="type-card-desc">分享已有文件或上传新文件</div>
+                </div>
+            </label>
+            <label>
+                <input type="radio" name="content_type" value="text" onchange="toggleShareType()">
+                <div class="type-card">
+                    <div class="type-card-icon">📝</div>
+                    <div class="type-card-label">文本分享</div>
+                    <div class="type-card-desc">直接粘贴文本内容</div>
+                </div>
+            </label>
         </div>
     </div>
 
     <div class="form-section">
-        <h3>文件/文本上传</h3>
+        <h3>内容</h3>
         <div id="file-share-fields">
             <div class="form-group">
                 <label>上传文件</label>
@@ -34,8 +42,8 @@
                      onclick="document.getElementById('file-input').click()">
                     <div id="dropzone-text">
                         <div class="dropzone-icon">📁</div>
-                        <div>拖拽文件到此处，或点击选择文件</div>
-                        <div class="dropzone-hint">上传后自动创建分享</div>
+                        <div class="dropzone-text">拖拽文件到此处，或点击选择</div>
+                        <div class="dropzone-hint">上传后自动创建分享链接</div>
                     </div>
                     <div id="upload-progress" class="upload-progress" style="display: none;">
                         <div>上传中...</div>
@@ -48,7 +56,7 @@
                 <div id="uploaded-file-info" class="upload-success" style="display: none;">
                     ✅ 已上传: <span id="uploaded-filename"></span>
                     <span class="text-muted" id="uploaded-filesize"></span>
-                    <button type="button" class="btn btn-sm" onclick="resetUpload()">更换文件</button>
+                    <button type="button" class="btn btn-sm" onclick="resetUpload()" style="margin-left: 0.6rem;">更换</button>
                 </div>
             </div>
 
@@ -56,9 +64,9 @@
                 <div id="existing-files-section">
                     <label for="file_id_select">或选择已上传的文件</label>
                     <select id="file_id_select" onchange="selectExistingFile(this)">
-                        <option value="">-- 选择文件 --</option>
+                        <option value="">— 选择文件 —</option>
                         {{range .Files}}
-                        <option value="{{.ID}}">{{.OriginalName}} ({{.Size}} bytes)</option>
+                        <option value="{{.ID}}">{{.OriginalName}} ({{.Size | bytes}})</option>
                         {{end}}
                     </select>
                 </div>
@@ -68,31 +76,33 @@
         <div id="text-share-fields" style="display: none;">
             <div class="form-group">
                 <label for="text_content">文本内容</label>
-                <textarea id="text_content" name="text_content" rows="6"></textarea>
+                <textarea id="text_content" name="text_content" rows="8" placeholder="在此粘贴要分享的文本..."></textarea>
             </div>
         </div>
     </div>
 
     <div class="form-section">
         <h3>分享设置</h3>
-        <div class="form-group">
-            <label for="password">访问密码（可选）</label>
-            <input type="password" id="password" name="password" placeholder="留空则不设置密码">
-        </div>
-        <div class="form-group">
-            <label for="expires_in">过期时间</label>
-            <select id="expires_in" name="expires_in">
-                <option value="1h">1 小时</option>
-                <option value="24h" selected>24 小时</option>
-                <option value="7d">7 天</option>
-                <option value="30d">30 天</option>
-                <option value="never">永不过期</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="max_downloads">最大下载次数</label>
-            <input type="number" id="max_downloads" name="max_downloads" value="0" min="0">
-            <small>0 表示不限制</small>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="expires_in">过期时间</label>
+                <select id="expires_in" name="expires_in">
+                    <option value="1h">1 小时</option>
+                    <option value="24h" selected>24 小时</option>
+                    <option value="7d">7 天</option>
+                    <option value="30d">30 天</option>
+                    <option value="never">永不过期</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="max_downloads">最大下载次数</label>
+                <input type="number" id="max_downloads" name="max_downloads" value="0" min="0">
+                <small>0 表示不限制</small>
+            </div>
+            <div class="form-group full-width">
+                <label for="password">访问密码（可选）</label>
+                <input type="password" id="password" name="password" placeholder="留空则不设置密码">
+            </div>
         </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">创建分享</button>
@@ -123,17 +133,15 @@ function uploadFile(input) {
     dz.style.cursor = 'default';
     dz.onclick = null;
 
-    // Use TUS for resumable, chunked file upload
     var upload = new tus.Upload(file, {
         endpoint: '/api/upload/tus',
         retryDelays: [0, 1000, 3000, 5000, 10000, 20000],
-        chunkSize: 10 * 1024 * 1024, // 10MB chunks
+        chunkSize: 10 * 1024 * 1024,
         metadata: {
             filename: file.name,
             filetype: file.type
         },
         onError: function(error) {
-            console.error("Upload failed: ", error);
             progress.style.display = 'none';
             dzText.style.display = 'block';
             dzText.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>上传失败: ' + (error.message || '网络错误') + '</div>';
@@ -150,21 +158,15 @@ function uploadFile(input) {
         },
         onSuccess: function() {
             dz.style.display = 'none';
-
-            // Extract finalized file UUID from the TUS upload URL
             var uploadUrl = upload.url;
             var fileId = uploadUrl.substring(uploadUrl.lastIndexOf('/') + 1);
-
             document.getElementById('file_id').value = fileId;
             document.getElementById('uploaded-filename').textContent = file.name;
             document.getElementById('uploaded-filesize').textContent = formatSize(file.size);
             document.getElementById('uploaded-file-info').style.display = 'block';
-
-            // Hide existing files section since we uploaded a file
             document.getElementById('existing-files-section').style.display = 'none';
         }
     });
-
     upload.start();
 }
 
@@ -201,7 +203,6 @@ function formatSize(bytes) {
     return bytes + ' B';
 }
 
-// Drag-and-drop support
 document.addEventListener('DOMContentLoaded', function() {
     var dz = document.getElementById('dropzone');
     if (dz) {
@@ -221,80 +222,82 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {{else}}
-<h1>分享详情</h1>
+<div class="page-header">
+    <h1>分享详情</h1>
+</div>
 
 <div class="share-detail-grid">
     <div class="share-detail-info">
-        <div class="responsive-table">
-        <table class="data-table">
-            <tr>
-                <th>令牌</th>
-                <td>
-                    <code>{{.Share.Token}}</code>
-                    <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.Share.Token}}')">复制</button>
-                </td>
-            </tr>
-            <tr>
-                <th>分享链接</th>
-                <td>
-                    <input type="text" value="{{.ShareURL}}" readonly onclick="this.select()">
-                    <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.ShareURL}}')">复制链接</button>
-                </td>
-            </tr>
-            <tr>
-                <th>类型</th>
-                <td>{{if eq .Share.ContentType "file"}}📄 文件分享{{else}}📝 文本分享{{end}}</td>
-            </tr>
-            <tr>
-                <th>目标</th>
-                <td>
-                    {{if eq .Share.ContentType "file"}}
-                        {{.FileName}}
-                    {{else}}
-                        <pre class="text-content">{{.Share.TextContent}}</pre>
-                    {{end}}
-                </td>
-            </tr>
-            <tr>
-                <th>密码保护</th>
-                <td>{{if .HasPassword}}🔒 是{{else}}-{{end}}</td>
-            </tr>
-            <tr>
-                <th>过期时间</th>
-                <td>
-                    {{if .Share.ExpiresAt}}
-                        {{.Share.ExpiresAt.Format "2006-01-02 15:04"}}
-                        {{if .Share.IsExpired}}<span class="text-danger">(已过期)</span>{{end}}
-                    {{else}}
-                        永不过期
-                    {{end}}
-                </td>
-            </tr>
-            <tr>
-                <th>下载次数</th>
-                <td>{{.Share.DownloadCount}}/{{if eq .Share.MaxDownloads 0}}∞{{else}}{{.Share.MaxDownloads}}{{end}}</td>
-            </tr>
-            <tr>
-                <th>创建时间</th>
-                <td>{{.Share.CreatedAt.Format "2006-01-02 15:04"}}</td>
-            </tr>
-            <tr>
-                <th>更新时间</th>
-                <td>{{.Share.UpdatedAt.Format "2006-01-02 15:04"}}</td>
-            </tr>
-        </table>
-        </div>
-
-        <div class="flex gap-sm mt-lg">
-            <a href="/admin/shares" class="btn" role="button">&laquo; 返回列表</a>
-            <button class="btn btn-danger" hx-delete="/admin/shares/{{.Share.ID}}" hx-confirm="确定删除此分享？">删除分享</button>
+        <div class="card">
+            <table class="detail-table">
+                <tr>
+                    <th>令牌</th>
+                    <td>
+                        <code>{{.Share.Token}}</code>
+                        <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.Share.Token}}')">复制</button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>分享链接</th>
+                    <td>
+                        <input type="text" value="{{.ShareURL}}" readonly onclick="this.select()" style="max-width: 38rem;">
+                        <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.ShareURL}}')">复制</button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>类型</th>
+                    <td>{{if eq .Share.ContentType "file"}}📄 文件分享{{else}}📝 文本分享{{end}}</td>
+                </tr>
+                <tr>
+                    <th>目标</th>
+                    <td>
+                        {{if eq .Share.ContentType "file"}}
+                            {{.FileName}}
+                        {{else}}
+                            <pre class="text-content">{{.Share.TextContent}}</pre>
+                        {{end}}
+                    </td>
+                </tr>
+                <tr>
+                    <th>密码</th>
+                    <td>{{if .HasPassword}}🔒 是{{else}}<span class="text-muted">—</span>{{end}}</td>
+                </tr>
+                <tr>
+                    <th>过期</th>
+                    <td>
+                        {{if .Share.ExpiresAt}}
+                            {{.Share.ExpiresAt.Format "2006-01-02 15:04"}}
+                            {{if .Share.IsExpired}}<span class="text-danger">(已过期)</span>{{end}}
+                        {{else}}
+                            永不过期
+                        {{end}}
+                    </td>
+                </tr>
+                <tr>
+                    <th>下载</th>
+                    <td>{{.Share.DownloadCount}}/{{if eq .Share.MaxDownloads 0}}∞{{else}}{{.Share.MaxDownloads}}{{end}}</td>
+                </tr>
+                <tr>
+                    <th>创建时间</th>
+                    <td>{{.Share.CreatedAt.Format "2006-01-02 15:04"}}</td>
+                </tr>
+                <tr>
+                    <th>更新时间</th>
+                    <td>{{.Share.UpdatedAt.Format "2006-01-02 15:04"}}</td>
+                </tr>
+            </table>
+            <div class="flex gap-sm mt-md">
+                <a href="/admin/shares" class="btn">&laquo; 返回列表</a>
+                <button class="btn btn-danger" hx-delete="/admin/shares/{{.Share.ID}}" hx-confirm="确定删除此分享？">删除分享</button>
+            </div>
         </div>
     </div>
-
-    <div class="card text-center share-detail-qrcode">
-        <h3>QR Code</h3>
-        <img src="/admin/shares/{{.Share.ID}}/qrcode" alt="QR Code" class="qrcode-img">
-        <p class="text-muted">{{.ShareURL}}</p>
+    <div class="share-detail-qrcode">
+        <div class="card">
+            <h3>QR Code</h3>
+            <img src="/admin/shares/{{.Share.ID}}/qrcode" alt="QR Code" class="qrcode-img">
+            <p class="text-muted" style="font-size: 1.3rem; word-break: break-all;">{{.ShareURL}}</p>
+        </div>
     </div>
 </div>
 {{end}}

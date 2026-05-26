@@ -1,25 +1,25 @@
 {{template "layout.html" .}}
 {{define "title"}}文本内容 - FLS{{end}}
 {{define "content"}}
-<div class="card download-card">
-    <h3 class="mb-sm" style="word-break: break-all;">文本分享</h3>
-    <p class="text-muted mb-md">大小: {{.Size | bytes}}</p>
-    
-    <div class="mb-lg">
+<div class="download-wrapper">
+<div class="card" style="max-width: 60rem;">
+    <h3 style="margin-bottom: var(--space-xs);">文本分享</h3>
+    <p class="text-muted" style="margin-bottom: var(--space-md);">大小: {{.Size | bytes}}</p>
+    <div style="margin-bottom: var(--space-lg);">
         {{if gt .Size 102400}}
         <details>
             <summary>点击查看文本内容 ({{.Size | bytes}})</summary>
-            <pre class="text-content text-left">{{.TextContent}}</pre>
+            <pre class="text-content text-left" style="margin-top: var(--space-sm);">{{.TextContent}}</pre>
         </details>
         {{else}}
         <pre class="text-content text-left">{{.TextContent}}</pre>
         {{end}}
     </div>
-    
     <div class="flex justify-center gap-sm">
-        <a href="/s/{{.Token}}/download" class="btn btn-primary" role="button">下载为 .txt</a>
+        <a href="/s/{{.Token}}/download" class="btn btn-primary">下载为 .txt</a>
         <button onclick="copyText()" class="btn">复制文本</button>
     </div>
+</div>
 </div>
 <script>
 function copyText() {

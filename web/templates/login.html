@@ -1,20 +1,21 @@
 {{template "layout.html" .}}
 {{define "title"}}登录 - FLS{{end}}
 {{define "content"}}
+<div class="login-wrapper">
 <div class="card login-card">
-<h1 class="text-center mb-lg">登录</h1>
-<form method="POST" action="/login">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-    <div class="form-group">
-        <label for="password">密码</label>
-        <input type="password" id="password" name="password" required minlength="6" autofocus placeholder="请输入管理员密码">
-    </div>
-    <div class="form-actions mt-lg">
+    <div class="login-brand">▣ FLS</div>
+    <p class="login-subtitle">文件分享系统</p>
+    <form method="POST" action="/login">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <div class="form-group">
+            <label for="password">管理员密码</label>
+            <input type="password" id="password" name="password" required minlength="6" autofocus placeholder="请输入密码">
+        </div>
         <button type="submit" class="btn btn-primary">登录</button>
-    </div>
-    {{if .Error}}
-    <p class="text-danger">{{.Error}}</p>
-    {{end}}
-</form>
+        {{if .Error}}
+        <div class="login-error">{{.Error}}</div>
+        {{end}}
+    </form>
+</div>
 </div>
 {{end}}

@@ -1,12 +1,12 @@
 {{template "layout.html" .}}
 {{define "title"}}下载文件 - FLS{{end}}
 {{define "content"}}
-<div class="card download-card text-center">
+<div class="download-wrapper">
+<div class="card download-card">
     <div class="file-icon">📄</div>
-    <h3 class="mb-sm" style="word-break: break-word;">{{.FileName}}</h3>
-    <p class="text-muted mb-lg">大小: {{.Size | bytes}} | 类型: {{.MimeType}}</p>
-    <div class="flex justify-center">
-        <a href="/s/{{.Token}}/download" class="btn btn-primary" role="button">下载文件</a>
-    </div>
+    <h3 style="word-break: break-word; margin-bottom: var(--space-xs);">{{.FileName}}</h3>
+    <p class="text-muted" style="margin-bottom: var(--space-lg);">大小: {{.Size | bytes}} · 类型: {{.MimeType}}</p>
+    <a href="/s/{{.Token}}/download" class="btn btn-primary" style="padding: 0.6rem 2.4rem;">下载文件</a>
+</div>
 </div>
 {{end}}
