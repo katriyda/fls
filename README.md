@@ -29,7 +29,12 @@ task build
 **运行：**
 
 ```bash
-./fls.exe --port 8080 --data-dir ./data
+# 首次运行（会提示设置管理员密码）
+./fls --port 8080 --data-dir ./data
+
+# 或使用 Taskfile
+task dev       # 开发模式，自动填入密码 "admin123"
+task run       # 直接运行
 ```
 
 首次运行会自动在终端提示设置管理员密码。访问 `http://localhost:8080/admin/` 登录管理面板。
@@ -101,6 +106,8 @@ fls/
 │   ├── static/          # 静态资源 (CSS)
 │   ├── templates/       # HTML 模板
 │   └── embed.go         # 静态文件嵌入
+├── Taskfile.yml         # Taskfile 构建系统
+├── mise.toml            # mise 工具版本管理
 └── data/                # 数据目录 (自动创建)
 ```
 
@@ -113,7 +120,12 @@ task              # 构建当前平台
 task build        # 同上
 task build:windows  # Windows amd64 交叉编译
 task build:linux    # Linux amd64 交叉编译
+task test           # 运行所有测试
+task dev            # 构建并启动开发服务器
+task run            # 直接运行（不重新构建）
 task clean          # 清理构建产物
 ```
 
 输出到当前目录（当前平台）或 `./dist/`（交叉编译），包含版本号和提交信息。
+
+> 需要 [mise](https://mise.jdx.dev/) 安装 task：`mise install task && mise use task`

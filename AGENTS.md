@@ -144,6 +144,7 @@ fls/
 │   └── static/
 │       └── custom.css         # Custom styles
 ├── Taskfile.yml               # Taskfile build system (used via `task`)
+├── mise.toml                  # mise tool version management
 └── AGENTS.md                  # This file
 ```
 
