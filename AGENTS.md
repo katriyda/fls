@@ -4,26 +4,28 @@
 
 ```powershell
 # Build
-go build -o fls.exe .
+task build
 
 # Run (first run prompts for admin password on stdin)
-./fls.exe --port 8080 --data-dir ./data
+task run -- --port 8080 --data-dir ./data
 
-# Dev: run-fls.ps1 auto-provides password "admin123", uses test-data/
-.\run-fls.ps1
+# Dev: auto-provides password "admin123", uses test-data/
+task dev
 ```
 
 ## Commands
 
 | Action | Command |
 |--------|---------|
-| Build (Windows) | `go build -o fls.exe .` |
-| Build with version | `.\build.ps1` (outputs to `./dist/fls.exe`) |
-| Build (Linux/Mac) | `make` or `make build` |
-| Cross-compile all | `make all` (output to `./dist/`) |
-| Run tests (all) | `go test ./...` |
-| Run tests (single package) | `go test ./internal/handler/...` |
-| Run tests (single test) | `go test ./... -run TestIntegration_Dashboard -v` |
+| Build (current platform) | `task build` |
+| Build (Windows cross) | `task build:windows` |
+| Build (Linux cross) | `task build:linux` |
+| Run tests (all) | `task test` |
+| Run tests (single) | `go test ./... -run TestIntegration_Dashboard -v` |
+| Dev server (auto password) | `task dev` |
+| Start server (manual) | `task run` |
+| Clean artifacts | `task clean` |
+| List all tasks | `task --list` |
 
 ## Architecture
 
@@ -141,9 +143,7 @@ fls/
 │   │   └── config.html        # System config page
 │   └── static/
 │       └── custom.css         # Custom styles
-├── build.ps1                  # Windows build with version injection
-├── Makefile                   # Linux/macOS build + cross-compile
-├── run-fls.ps1                # Dev server starter (auto password)
+├── Taskfile.yml               # Taskfile build system (used via `task`)
 └── AGENTS.md                  # This file
 ```
 
@@ -210,6 +210,6 @@ Key testing facts:
 
 6. **New share form uses a hidden `file_id` input** populated by JavaScript (upload or existing file select). Without a file uploaded/selected, the form submission fails with `"file_id is required for file share"`.
 
-7. **First-run password wizard reads from stdin.** For automated dev setup, pipe password into stdin or use `run-fls.ps1` which auto-provides "admin123".
+7. **First-run password wizard reads from stdin.** For automated dev setup, pipe password into stdin or use `task dev` which auto-provides "admin123".
 
 8. **Session cookie is named `"session"`.** Managed by SCS (`github.com/alexedwards/scs/v2`). Session lifetime is configurable via the admin config page.

@@ -4,6 +4,7 @@ fls.exe
 *.exe
 *.test
 *.out
+dist/
 
 # Runtime data
 data/*

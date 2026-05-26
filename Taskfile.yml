@@ -1,0 +1,60 @@
+version: '3'
+
+vars:
+  VERSION:
+    sh: git describe --tags --always 2>/dev/null || git describe --tags --always 2>nul || echo dev
+  COMMIT:
+    sh: git rev-parse --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>nul || echo unknown
+  DATE:
+    sh: date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || powershell -NoProfile -Command "Get-Date -Format yyyy-MM-ddTHH:mm:ssZ" 2>nul || echo unknown
+  LDFLAGS: '-s -w -X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}'
+
+tasks:
+  default:
+    desc: Build for current platform
+    deps: [build]
+
+  build:
+    desc: Build fls for current platform
+    cmds:
+      - go build -ldflags '{{.LDFLAGS}}' -o fls .
+
+  build:windows:
+    desc: Cross-compile for Windows amd64
+    cmds:
+      - mkdir -p dist
+      - GOOS=windows GOARCH=amd64 go build -ldflags '{{.LDFLAGS}}' -o dist/fls-windows-amd64.exe .
+
+  build:linux:
+    desc: Cross-compile for Linux amd64
+    cmds:
+      - mkdir -p dist
+      - GOOS=linux GOARCH=amd64 go build -ldflags '{{.LDFLAGS}}' -o dist/fls-linux-amd64 .
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - rm -rf dist fls fls.exe
+
+  test:
+    desc: Run all tests
+    cmds:
+      - go test ./...
+
+  dev:
+    desc: Build and start dev server with auto-password
+    cmds:
+      - task: build
+      - rm -rf test-data
+      - cmd: printf 'admin123\nadmin123\n' | ./fls --port 8080 --data-dir ./test-data
+        platforms: [linux, darwin]
+      - cmd: Write-Output "admin123", "admin123" | .\fls --port 8080 --data-dir ./test-data
+        platforms: [windows]
+
+  run:
+    desc: Start fls without rebuild
+    cmds:
+      - cmd: ./fls --port 8080 --data-dir ./data
+        platforms: [linux, darwin]
+      - cmd: .\fls --port 8080 --data-dir ./data
+        platforms: [windows]

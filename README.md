@@ -19,11 +19,11 @@
 **构建：**
 
 ```bash
-# Windows
-go build -o fls.exe .
+# Windows (使用 Taskfile)
+task build
 
 # Linux/macOS
-make
+task build
 ```
 
 **运行：**
@@ -106,23 +106,14 @@ fls/
 
 ## 构建
 
-### Windows (PowerShell)
-
-```powershell
-.\build.ps1
-```
-
-输出到 `./dist/fls.exe`，包含版本号和提交信息。
-
-### Linux/macOS (Make)
+使用 [Taskfile](https://taskfile.dev/) 进行构建（推荐通过 [mise](https://mise.jdx.dev/) 安装：`mise install task`）。
 
 ```bash
-make            # 构建当前平台
-make build-linux      # Linux amd64 交叉编译
-make build-darwin     # macOS amd64 交叉编译
-make build-darwin-arm # macOS ARM64 交叉编译
-make build-windows    # Windows amd64 交叉编译
-make clean            # 清理构建产物
+task              # 构建当前平台
+task build        # 同上
+task build:windows  # Windows amd64 交叉编译
+task build:linux    # Linux amd64 交叉编译
+task clean          # 清理构建产物
 ```
 
-输出到 `./dist/` 目录，文件名包含目标平台信息。
+输出到当前目录（当前平台）或 `./dist/`（交叉编译），包含版本号和提交信息。
