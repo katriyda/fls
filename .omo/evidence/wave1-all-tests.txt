@@ -1,9 +1,0 @@
-?   	fls	[no test files]
-ok  	fls/internal/config	0.719s
-ok  	fls/internal/database	0.718s
-ok  	fls/internal/handler	0.576s
-?   	fls/internal/middleware	[no test files]
-ok  	fls/internal/model	0.333s
-ok  	fls/internal/service	2.355s
-ok  	fls/internal/tus	0.795s
-?   	fls/web	[no test files]
