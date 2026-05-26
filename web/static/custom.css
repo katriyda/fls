@@ -326,6 +326,12 @@ select {
     caret-color: var(--form-fg);
 }
 
+input[type="password"] {
+    font-family: inherit !important;
+    line-height: 1.5 !important;
+    letter-spacing: normal !important;
+}
+
 input[type="email"]:disabled,
 input[type="number"]:disabled,
 input[type="password"]:disabled,
