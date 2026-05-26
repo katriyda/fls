@@ -141,12 +141,14 @@ func (s *ShareService) CreateTextShare(textContent, passwordHash string, expires
 func scanShare(row interface{ Scan(dest ...interface{}) error }) (*model.Share, error) {
 	var share model.Share
 	var fileID, passwordHash, textContent, originalName sql.NullString
-	var expiresAt sql.NullTime
+	var expiresAt, featuredAt sql.NullTime
+	var isFeatured sql.NullInt64
 
 	err := row.Scan(
 		&share.ID, &fileID, &share.Token, &passwordHash, &expiresAt,
 		&share.MaxDownloads, &share.DownloadCount, &share.ContentType, &textContent,
 		&share.CreatedAt, &share.UpdatedAt, &originalName,
+		&isFeatured, &featuredAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -168,20 +170,29 @@ func scanShare(row interface{ Scan(dest ...interface{}) error }) (*model.Share, 
 	if originalName.Valid {
 		share.FileName = originalName.String
 	}
+	share.IsFeatured = isFeatured.Valid && isFeatured.Int64 == 1
+	if featuredAt.Valid {
+		share.FeaturedAt = &featuredAt.Time
+	}
 
 	return &share, nil
 }
 
+const shareSelectCols = `s.id, s.file_id, s.token, s.password_hash, s.expires_at,
+	s.max_downloads, s.download_count, s.content_type, s.text_content,
+	s.created_at, s.updated_at, f.original_name,
+	s.is_featured, s.featured_at`
+
 func (s *ShareService) GetShare(id string) (*model.Share, error) {
 	return scanShare(s.db.QueryRow(
-		`SELECT s.id, s.file_id, s.token, s.password_hash, s.expires_at, s.max_downloads, s.download_count, s.content_type, s.text_content, s.created_at, s.updated_at, f.original_name
+		`SELECT `+shareSelectCols+`
 		 FROM shares s LEFT JOIN files f ON s.file_id = f.id WHERE s.id = ?`, id,
 	))
 }
 
 func (s *ShareService) GetShareByToken(token string) (*model.Share, error) {
 	return scanShare(s.db.QueryRow(
-		`SELECT s.id, s.file_id, s.token, s.password_hash, s.expires_at, s.max_downloads, s.download_count, s.content_type, s.text_content, s.created_at, s.updated_at, f.original_name
+		`SELECT `+shareSelectCols+`
 		 FROM shares s LEFT JOIN files f ON s.file_id = f.id WHERE s.token = ?`, token,
 	))
 }
@@ -194,7 +205,7 @@ func (s *ShareService) ListShares(offset, limit int) ([]*model.Share, int, error
 	}
 
 	rows, err := s.db.Query(
-		`SELECT s.id, s.file_id, s.token, s.password_hash, s.expires_at, s.max_downloads, s.download_count, s.content_type, s.text_content, s.created_at, s.updated_at, f.original_name
+		`SELECT `+shareSelectCols+`
 		 FROM shares s LEFT JOIN files f ON s.file_id = f.id ORDER BY s.created_at DESC LIMIT ? OFFSET ?`, limit, offset,
 	)
 	if err != nil {
@@ -212,6 +223,48 @@ func (s *ShareService) ListShares(offset, limit int) ([]*model.Share, int, error
 	}
 
 	return shares, total, nil
+}
+
+func (s *ShareService) ListFeaturedShares() ([]*model.Share, error) {
+	rows, err := s.db.Query(
+		`SELECT `+shareSelectCols+`
+		 FROM shares s LEFT JOIN files f ON s.file_id = f.id
+		 WHERE s.is_featured = 1
+		   AND (s.expires_at IS NULL OR s.expires_at > datetime('now'))
+		   AND (s.max_downloads = 0 OR s.download_count < s.max_downloads)
+		 ORDER BY s.featured_at DESC`,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("list featured shares: %w", err)
+	}
+	defer rows.Close()
+
+	var shares []*model.Share
+	for rows.Next() {
+		share, err := scanShare(rows)
+		if err != nil {
+			return nil, fmt.Errorf("scan featured share row: %w", err)
+		}
+		shares = append(shares, share)
+	}
+
+	return shares, nil
+}
+
+func (s *ShareService) SetFeatured(id string, featured bool) error {
+	var featuredAt *time.Time
+	if featured {
+		t := time.Now()
+		featuredAt = &t
+	}
+	_, err := s.db.Exec(
+		"UPDATE shares SET is_featured = ?, featured_at = ?, updated_at = ? WHERE id = ?",
+		featured, featuredAt, time.Now(), id,
+	)
+	if err != nil {
+		return fmt.Errorf("set featured: %w", err)
+	}
+	return nil
 }
 
 func (s *ShareService) IncrementDownloadCount(shareID string) error {
@@ -239,7 +292,7 @@ func (s *ShareService) DeleteShare(id string) error {
 
 func (s *ShareService) GetFileShares(fileID string) ([]*model.Share, error) {
 	rows, err := s.db.Query(
-		`SELECT s.id, s.file_id, s.token, s.password_hash, s.expires_at, s.max_downloads, s.download_count, s.content_type, s.text_content, s.created_at, s.updated_at, f.original_name
+		`SELECT `+shareSelectCols+`
 		 FROM shares s LEFT JOIN files f ON s.file_id = f.id WHERE s.file_id = ? ORDER BY s.created_at DESC`, fileID,
 	)
 	if err != nil {

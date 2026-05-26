@@ -1096,6 +1096,72 @@ fieldset p:last-child { margin-bottom: 0; }
     }
 }
 
+/* 30. Public Share Grid */
+.share-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
+    gap: var(--space-md);
+}
+
+.public-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    background: var(--form-bg);
+    border: 1px solid var(--fg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-card);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.public-card:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0 1.6rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.public-card-icon {
+    font-size: 2.8rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.public-card-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.public-card-title {
+    font-weight: 700;
+    font-size: 1.6rem;
+    margin-bottom: var(--space-xs);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.public-card-preview {
+    font-size: 1.3rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xs);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.public-card-token code {
+    font-size: 1.2rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 600px) {
+    .share-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (pointer: coarse) {
     a, button, input, select, textarea {
         min-height: 4.4rem;

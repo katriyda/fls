@@ -78,12 +78,32 @@ func (db *DB) Migrate() error {
 	CREATE INDEX IF NOT EXISTS idx_shares_file_id ON shares(file_id);
 	CREATE INDEX IF NOT EXISTS idx_download_logs_share_id ON download_logs(share_id);
 	`
-	_, err := db.Exec(schema)
-	if err != nil {
-		return fmt.Errorf("migrate: %w", err)
+	if _, err := db.Exec(schema); err != nil {
+		return fmt.Errorf("migrate schema: %w", err)
 	}
+
+	// Idempotent migration: add is_featured and featured_at to shares
+	if !db.hasColumn("shares", "is_featured") {
+		if _, err := db.Exec("ALTER TABLE shares ADD COLUMN is_featured INTEGER NOT NULL DEFAULT 0"); err != nil {
+			return fmt.Errorf("migrate add is_featured: %w", err)
+		}
+	}
+	if !db.hasColumn("shares", "featured_at") {
+		if _, err := db.Exec("ALTER TABLE shares ADD COLUMN featured_at TIMESTAMP"); err != nil {
+			return fmt.Errorf("migrate add featured_at: %w", err)
+		}
+	}
+
 	slog.Info("database migration completed")
 	return nil
+}
+
+func (db *DB) hasColumn(table, column string) bool {
+	var count int
+	err := db.QueryRow(
+		"SELECT COUNT(*) FROM pragma_table_info(?) WHERE name = ?", table, column,
+	).Scan(&count)
+	return err == nil && count > 0
 }
 
 // StartLogCleaner runs a periodic task to clean download logs older than retention days.

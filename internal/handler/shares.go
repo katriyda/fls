@@ -42,6 +42,7 @@ type shareRow struct {
 	FileName    string
 	TextPreview string
 	HasPassword bool
+	IsFeatured  bool
 }
 
 func (h *ShareHandler) ListShares(w http.ResponseWriter, r *http.Request) {
@@ -71,6 +72,7 @@ func (h *ShareHandler) ListShares(w http.ResponseWriter, r *http.Request) {
 			FileName:    share.FileName,
 			TextPreview: textPreview,
 			HasPassword: share.PasswordHash != "",
+			IsFeatured:  share.IsFeatured,
 		}
 	}
 
@@ -88,6 +90,7 @@ func (h *ShareHandler) ListShares(w http.ResponseWriter, r *http.Request) {
 
 	RenderTemplate(w, "shares", map[string]interface{}{
 		"Authenticated": true,
+		"CSRFToken":     middleware.CSRFToken(r),
 		"Shares":        rows,
 		"Total":         total,
 		"Offset":        offset,
@@ -224,6 +227,8 @@ func (h *ShareHandler) GetShare(w http.ResponseWriter, r *http.Request) {
 		"ShareURL":      shareURL,
 		"FileName":      share.FileName,
 		"HasPassword":   share.PasswordHash != "",
+		"IsFeatured":    share.IsFeatured,
+		"CSRFToken":     middleware.CSRFToken(r),
 	})
 }
 
@@ -240,6 +245,27 @@ func (h *ShareHandler) DeleteShare(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	} else {
 		http.Redirect(w, r, "/admin/shares", http.StatusSeeOther)
+	}
+}
+
+func (h *ShareHandler) ToggleFeature(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	share, err := h.shareSvc.GetShare(id)
+	if err != nil {
+		http.Error(w, "share not found", http.StatusNotFound)
+		return
+	}
+
+	if err := h.shareSvc.SetFeatured(id, !share.IsFeatured); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if r.Header.Get("HX-Request") == "true" {
+		w.Header().Set("HX-Redirect", "/admin/shares/"+id)
+		w.WriteHeader(http.StatusOK)
+	} else {
+		http.Redirect(w, r, "/admin/shares/"+id, http.StatusSeeOther)
 	}
 }
 

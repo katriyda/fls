@@ -17,6 +17,8 @@ type Share struct {
 	ContentType   string     `json:"content_type"` // "file" or "text"
 	TextContent   string     `json:"text_content,omitempty"`
 	FileName      string     `json:"file_name,omitempty"`
+	IsFeatured    bool       `json:"is_featured"`
+	FeaturedAt    *time.Time `json:"featured_at,omitempty"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
 }

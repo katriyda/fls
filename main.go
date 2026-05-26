@@ -98,6 +98,7 @@ func main() {
 	configHandler := handler.NewConfigHandler(cfg, sessionManager)
 	tusHandler := tus.New(db.DB, *dataDir, cfg)
 	statsHandler := handler.NewStatsHandler(statsService)
+	publicHandler := handler.NewPublicHandler(shareService)
 
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)
@@ -114,6 +115,12 @@ func main() {
 	// Static files - no rate limit, no auth, no CSRF
 	r.Group(func(r chi.Router) {
 		r.Handle("/static/*", http.StripPrefix("/static/", handler.StaticHandler()))
+	})
+
+	// Public index - rate limited, no auth, no CSRF
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.DynamicRateLimitMiddleware(cfg, false))
+		r.Get("/", publicHandler.GetPublicIndex)
 	})
 
 	// Login routes - login rate limit + CSRF
@@ -162,6 +169,7 @@ func main() {
 		r.Post("/admin/shares", shareHandler.CreateShare)
 		r.Get("/admin/shares/{id}", shareHandler.GetShare)
 		r.Delete("/admin/shares/{id}", shareHandler.DeleteShare)
+		r.Post("/admin/shares/{id}/feature", shareHandler.ToggleFeature)
 		r.Get("/admin/shares/{id}/qrcode", shareHandler.QRCode)
 
 		// Config

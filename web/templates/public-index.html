@@ -1,0 +1,36 @@
+{{template "layout.html" .}}
+{{define "title"}}公开分享 - FLS{{end}}
+{{define "content"}}
+<div class="page-header">
+    <h1>公开分享</h1>
+    <p class="text-muted">无需登录即可访问的分享内容</p>
+</div>
+
+{{if .Shares}}
+<div class="share-grid">
+    {{range .Shares}}
+    <a href="/s/{{.Token}}" class="card public-card">
+        <div class="public-card-icon">
+            {{if eq .ContentType "file"}}📄{{else}}📝{{end}}
+        </div>
+        <div class="public-card-body">
+            <div class="public-card-title">
+                {{if eq .ContentType "file"}}{{.FileName}}{{else}}文本分享{{end}}
+            </div>
+            {{if eq .ContentType "text"}}
+            <div class="public-card-preview">{{.TextPreview}}</div>
+            {{end}}
+            <div class="public-card-token"><code>{{.Token}}</code></div>
+        </div>
+    </a>
+    {{end}}
+</div>
+{{else}}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-state-icon">📂</div>
+        <p>暂无公开内容</p>
+    </div>
+</div>
+{{end}}
+{{end}}
