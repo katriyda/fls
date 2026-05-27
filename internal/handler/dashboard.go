@@ -86,6 +86,9 @@ func (h *DashboardHandler) getRecentFiles() ([]RecentFileEntry, error) {
 		}
 		files = append(files, f)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	if files == nil {
 		files = []RecentFileEntry{}
 	}
@@ -120,6 +123,9 @@ func (h *DashboardHandler) getRecentShares() ([]RecentShareEntry, error) {
 			s.ExpiresAt = &expiresAt.Time
 		}
 		shares = append(shares, s)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	if shares == nil {
 		shares = []RecentShareEntry{}

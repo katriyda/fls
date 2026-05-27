@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -84,13 +85,14 @@ func DynamicRateLimitMiddleware(cfg *config.Config, isLogin bool) func(http.Hand
 			mu.Lock()
 			limit := 60
 			if cfg != nil {
+				rateLimit := cfg.GetRateLimitPerMinute()
 				if isLogin {
-					limit = cfg.RateLimitPerMinute / 3
+					limit = rateLimit / 3
 					if limit < 5 {
 						limit = 5
 					}
 				} else {
-					limit = cfg.RateLimitPerMinute
+					limit = rateLimit
 				}
 			} else {
 				if isLogin {
@@ -109,16 +111,21 @@ func DynamicRateLimitMiddleware(cfg *config.Config, isLogin bool) func(http.Hand
 				instance = limiter.New(store, rate)
 			}
 			lim := instance
+			limitHeader := currentLimit
 			mu.Unlock()
 
-			key := r.RemoteAddr
+			host, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				host = r.RemoteAddr
+			}
+			key := host
 			lctx, err := lim.Get(r.Context(), key)
 			if err != nil {
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
 			}
 
-			w.Header().Set("X-RateLimit-Limit", fmt.Sprintf("%d", currentLimit))
+			w.Header().Set("X-RateLimit-Limit", fmt.Sprintf("%d", limitHeader))
 			w.Header().Set("X-RateLimit-Remaining", fmt.Sprintf("%d", lctx.Remaining))
 			w.Header().Set("X-RateLimit-Reset", fmt.Sprintf("%d", lctx.Reset))
 
@@ -140,7 +147,11 @@ func RateLimitMiddleware(rate limiter.Rate) func(http.Handler) http.Handler {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			key := r.RemoteAddr
+			host, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				host = r.RemoteAddr
+			}
+			key := host
 
 			lctx, err := instance.Get(r.Context(), key)
 			if err != nil {

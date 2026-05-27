@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"fls/internal/model"
@@ -96,6 +97,10 @@ func (h *FileHandler) ListFiles(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		files = append(files, f)
+	}
+	if err := rows.Err(); err != nil {
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
 	}
 	if files == nil {
 		files = []fileRow{}
@@ -191,6 +196,9 @@ func (h *FileHandler) DeleteFile(w http.ResponseWriter, r *http.Request) {
 				slog.Error("failed to remove file from disk", "path", storagePath, "error", err)
 			}
 		}
+		// Clean up empty parent directory (TUS upload dir)
+		parentDir := filepath.Dir(storagePath)
+		os.Remove(parentDir) // ignores error if dir is not empty
 	}
 
 	if r.Header.Get("HX-Request") == "true" {
@@ -290,6 +298,10 @@ func (h *FileHandler) getFileShares(fileID string) ([]model.Share, error) {
 		s.TextContent = textContent.String
 
 		shares = append(shares, s)
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("getFileShares iteration error", "err", err, "fileID", fileID)
+		return nil, err
 	}
 	if shares == nil {
 		shares = []model.Share{}

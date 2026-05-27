@@ -81,10 +81,10 @@ func setupTestServer(t *testing.T) (*http.Client, string, func()) {
 	// Router
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)
-	r.Use(RecoveryMiddleware)
 	r.Use(chimw.RealIP)
 	r.Use(middleware.SecurityHeadersMiddleware)
 	r.Use(sm.LoadAndSave)
+	r.Use(NewRecoveryMiddleware(sm))
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("OK")) })
 
@@ -128,14 +128,15 @@ func setupTestServer(t *testing.T) (*http.Client, string, func()) {
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.RateLimitMiddleware(middleware.APIRate))
+		r.Use(middleware.CSRFMiddleware)
 		r.Get("/s/{token}", dlH.ServeShare)
 		r.Post("/s/{token}", dlH.VerifySharePassword)
 		r.Get("/s/{token}/raw", dlH.RawContent)
 		r.Get("/s/{token}/download", dlH.DownloadFile)
 	})
 
-	r.NotFound(NotFoundHandler)
-	r.MethodNotAllowed(MethodNotAllowedHandler)
+	r.NotFound(NewNotFoundHandler(sm))
+	r.MethodNotAllowed(NewMethodNotAllowedHandler(sm))
 
 	srv := httptest.NewServer(r)
 	jar, _ := cookiejar.New(nil)

@@ -8,10 +8,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"fls/internal/config"
+	"fls/internal/middleware"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -25,6 +27,7 @@ type uploadInfo struct {
 	metadata    map[string]string
 	storagePath string
 	isFinished  bool
+	isCancelled bool
 	tempDir     string
 }
 
@@ -51,8 +54,10 @@ func (h *Handler) Mount() http.Handler {
 
 func (h *Handler) SimpleUpload(w http.ResponseWriter, r *http.Request) {
 	maxSize := int64(10 << 30) // default 10GB
-	if h.cfg != nil && h.cfg.MaxUploadSize > 0 {
-		maxSize = h.cfg.MaxUploadSize
+	if h.cfg != nil {
+		if cfgMax := h.cfg.GetMaxUploadSize(); cfgMax > 0 {
+			maxSize = cfgMax
+		}
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, maxSize)
 
@@ -77,8 +82,15 @@ func (h *Handler) SimpleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	storedName := id + "_" + header.Filename
+	cleanFilename := filepath.Base(header.Filename)
+	cleanFilename = strings.ReplaceAll(cleanFilename, "/", "")
+	cleanFilename = strings.ReplaceAll(cleanFilename, "\\", "")
+	storedName := id + "_" + cleanFilename
 	storagePath := filepath.Join(storageDir, storedName)
+	if err := middleware.ValidatePath(storageDir, storagePath); err != nil {
+		http.Error(w, "invalid filename", http.StatusBadRequest)
+		return
+	}
 
 	dst, err := os.Create(storagePath)
 	if err != nil {

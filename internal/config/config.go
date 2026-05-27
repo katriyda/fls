@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 )
 
 type Config struct {
+	mu                 sync.RWMutex
 	Port               int           `json:"port"`
 	DataDir            string        `json:"data_dir"`
 	TokenLength        int           `json:"token_length"`
@@ -63,6 +65,12 @@ func (c *Config) Load() {
 }
 
 func (c *Config) Save() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.saveLocked()
+}
+
+func (c *Config) saveLocked() error {
 	if c.db == nil {
 		return fmt.Errorf("database not connected")
 	}
@@ -188,4 +196,78 @@ func (c *Config) EnvOverrides() {
 	if v := os.Getenv("FLS_PUBLIC_BASE_URL"); v != "" {
 		c.PublicBaseURL = v
 	}
+}
+
+// GetRateLimitPerMinute returns the rate limit per minute in a thread-safe manner.
+func (c *Config) GetRateLimitPerMinute() int {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.RateLimitPerMinute
+}
+
+// GetMaxUploadSize returns the max upload size in a thread-safe manner.
+func (c *Config) GetMaxUploadSize() int64 {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.MaxUploadSize
+}
+
+// GetTokenLength returns the token length in a thread-safe manner.
+func (c *Config) GetTokenLength() int {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.TokenLength
+}
+
+// GetDefaultExpiry returns the default expiry duration in a thread-safe manner.
+func (c *Config) GetDefaultExpiry() time.Duration {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.DefaultExpiry
+}
+
+// GetSessionTimeout returns the session timeout duration in a thread-safe manner.
+func (c *Config) GetSessionTimeout() time.Duration {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.SessionTimeout
+}
+
+// GetLogRetentionDays returns the log retention days in a thread-safe manner.
+func (c *Config) GetLogRetentionDays() int {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.LogRetentionDays
+}
+
+// GetPublicBaseURL returns the public base URL in a thread-safe manner.
+func (c *Config) GetPublicBaseURL() string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.PublicBaseURL
+}
+
+// Snapshot returns a read-only copy of the config with all fields read under a single RLock.
+func (c *Config) Snapshot() Config {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return Config{
+		Port:               c.Port,
+		DataDir:            c.DataDir,
+		TokenLength:        c.TokenLength,
+		MaxUploadSize:      c.MaxUploadSize,
+		DefaultExpiry:      c.DefaultExpiry,
+		SessionTimeout:     c.SessionTimeout,
+		LogRetentionDays:   c.LogRetentionDays,
+		RateLimitPerMinute: c.RateLimitPerMinute,
+		PublicBaseURL:      c.PublicBaseURL,
+	}
+}
+
+// UpdateAndSave acquires the write lock, executes fn, and persists to DB — all atomically.
+func (c *Config) UpdateAndSave(fn func()) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	fn()
+	return c.saveLocked()
 }

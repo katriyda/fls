@@ -21,7 +21,7 @@ Uses [Taskfile](https://taskfile.dev/) (install via `mise install task`). Build 
 
 Go 1.26 web app — single-binary file sharing system with SQLite storage (pure Go, no CGO via `modernc.org/sqlite`).
 
-**Entry point**: `main.go` wires `chi.NewRouter()` with global middleware: `chimw.Logger → RecoveryMiddleware → chimw.RealIP → SecurityHeadersMiddleware → sessionManager.LoadAndSave`.
+**Entry point**: `main.go` wires `chi.NewRouter()` with global middleware: `chimw.Logger → chimw.RealIP → SecurityHeadersMiddleware → sessionManager.LoadAndSave → NewRecoveryMiddleware(sm)`.
 
 **Route groups** (exact middleware per group defined in `main.go`):
 | Group | RateLimit | CSRF | Auth |

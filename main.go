@@ -58,7 +58,7 @@ func main() {
 
 	// Start background log cleaner
 	cleanerStop := database.StartLogCleaner(db.DB, func() int {
-		return cfg.LogRetentionDays
+		return cfg.GetLogRetentionDays()
 	})
 	defer close(cleanerStop)
 
@@ -102,10 +102,10 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)
-	r.Use(handler.RecoveryMiddleware)
 	r.Use(chimw.RealIP)
 	r.Use(middleware.SecurityHeadersMiddleware)
 	r.Use(sessionManager.LoadAndSave)
+	r.Use(handler.NewRecoveryMiddleware(sessionManager))
 
 	// Health check - no rate limit, no auth, no CSRF
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -132,9 +132,10 @@ func main() {
 		r.Post("/login", loginHandler.PostLogin)
 	})
 
-	// Public share/download routes - rate limited, no auth, no CSRF
+	// Public share/download routes - rate limited, no auth, CSRF on POST
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.DynamicRateLimitMiddleware(cfg, false))
+		r.Use(middleware.CSRFMiddleware)
 
 		r.Get("/s/{token}", downloadHandler.ServeShare)
 		r.Post("/s/{token}", downloadHandler.VerifySharePassword)
@@ -142,10 +143,13 @@ func main() {
 		r.Get("/s/{token}/download", downloadHandler.DownloadFile)
 	})
 
-	// Logout - no CSRF needed (just clearing session)
-	r.Post("/logout", func(w http.ResponseWriter, r *http.Request) {
-		middleware.ClearAuthenticated(r.Context(), sessionManager)
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+	// Logout - CSRF protected (prevents forced logout via cross-site requests)
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.CSRFMiddleware)
+		r.Post("/logout", func(w http.ResponseWriter, r *http.Request) {
+			middleware.ClearAuthenticated(r.Context(), sessionManager)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		})
 	})
 
 	// Admin routes - rate limit + CSRF + auth
@@ -188,8 +192,8 @@ func main() {
 		r.Mount("/api/upload", tusHandler.Mount())
 	})
 
-	r.NotFound(handler.NotFoundHandler)
-	r.MethodNotAllowed(handler.MethodNotAllowedHandler)
+	r.NotFound(handler.NewNotFoundHandler(sessionManager))
+	r.MethodNotAllowed(handler.NewMethodNotAllowedHandler(sessionManager))
 
 	addr := fmt.Sprintf(":%d", *port)
 	srv := &http.Server{

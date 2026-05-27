@@ -15,7 +15,7 @@
 
 ## Key Architecture
 
-**Entry point**: `main.go` wires `chi.NewRouter()` with global middleware stack `chimw.Logger → RecoveryMiddleware → chimw.RealIP → SecurityHeadersMiddleware → sessionManager.LoadAndSave`, then per-group middleware.
+**Entry point**: `main.go` wires `chi.NewRouter()` with global middleware stack `chimw.Logger → chimw.RealIP → SecurityHeadersMiddleware → sessionManager.LoadAndSave → NewRecoveryMiddleware(sm)`, then per-group middleware.
 
 **Route groups** (see `main.go` for exact middleware per group):
 | Group | RateLimit | CSRF | Auth |

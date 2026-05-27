@@ -103,8 +103,10 @@ func (h *ShareHandler) ListShares(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ShareHandler) getBaseURL(r *http.Request) string {
-	if h.cfg != nil && h.cfg.PublicBaseURL != "" {
-		return strings.TrimSuffix(h.cfg.PublicBaseURL, "/")
+	if h.cfg != nil {
+		if baseURL := h.cfg.GetPublicBaseURL(); baseURL != "" {
+			return strings.TrimSuffix(baseURL, "/")
+		}
 	}
 	scheme := "http"
 	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
@@ -122,7 +124,7 @@ func (h *ShareHandler) NewShareForm(w http.ResponseWriter, r *http.Request) {
 
 	defaultExpiryStr := "24h"
 	if h.cfg != nil {
-		switch h.cfg.DefaultExpiry {
+		switch h.cfg.GetDefaultExpiry() {
 		case time.Hour:
 			defaultExpiryStr = "1h"
 		case 24 * time.Hour:
@@ -318,6 +320,9 @@ func (h *ShareHandler) listFiles() ([]model.File, error) {
 			return nil, fmt.Errorf("scan file: %w", err)
 		}
 		files = append(files, f)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate files: %w", err)
 	}
 
 	return files, nil

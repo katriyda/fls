@@ -73,6 +73,9 @@ func (s *StatsService) GetShareStats(shareID string) (*ShareStats, error) {
 		}
 		recent = append(recent, log)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate download logs: %w", err)
+	}
 
 	return &ShareStats{
 		TotalDownloads:  totalDownloads,
@@ -101,7 +104,7 @@ func (s *StatsService) GetGlobalStats() (*GlobalStats, error) {
 	}
 
 	var activeShares int
-	err = s.db.QueryRow("SELECT COUNT(*) FROM shares WHERE expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP").Scan(&activeShares)
+	err = s.db.QueryRow("SELECT COUNT(*) FROM shares WHERE (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP) AND (max_downloads = 0 OR download_count < max_downloads)").Scan(&activeShares)
 	if err != nil {
 		return nil, fmt.Errorf("count active shares: %w", err)
 	}

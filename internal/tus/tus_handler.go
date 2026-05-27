@@ -221,9 +221,11 @@ func (h *Handler) TusCreateUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.cfg != nil && h.cfg.MaxUploadSize > 0 && uploadLength > h.cfg.MaxUploadSize {
-		http.Error(w, "file size exceeds maximum upload size limit", http.StatusRequestEntityTooLarge)
-		return
+	if h.cfg != nil {
+		if cfgMax := h.cfg.GetMaxUploadSize(); cfgMax > 0 && uploadLength > cfgMax {
+			http.Error(w, "file size exceeds maximum upload size limit", http.StatusRequestEntityTooLarge)
+			return
+		}
 	}
 
 	id := uuid.New().String()
@@ -350,6 +352,11 @@ func (h *Handler) TusPatchUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if info.isCancelled {
+		http.Error(w, "upload cancelled", http.StatusNotFound)
+		return
+	}
+
 	if requestOffset != info.offset {
 		http.Error(w, fmt.Sprintf("offset mismatch: expected %d, got %d", info.offset, requestOffset), http.StatusConflict)
 		return
@@ -377,14 +384,19 @@ func (h *Handler) TusPatchUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	info.offset += written
-	h.saveUploadInfo(info)
-
+	// Check for excess data BEFORE updating offset to avoid corrupting upload state
 	buf := make([]byte, 1)
 	if n, _ := r.Body.Read(buf); n > 0 {
+		// Truncate the file back to the original offset to remove the excess bytes
+		if truncErr := f.Truncate(info.offset); truncErr != nil {
+			slog.Error("failed to truncate excess data", "id", id, "error", truncErr)
+		}
 		http.Error(w, "upload length exceeded limit", http.StatusRequestEntityTooLarge)
 		return
 	}
+
+	info.offset += written
+	h.saveUploadInfo(info)
 
 	if info.size > 0 && info.offset >= info.size {
 		if err := h.finalizeUpload(info); err != nil {
@@ -412,6 +424,12 @@ func (h *Handler) TusDeleteUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	info.mu.Lock()
+	if info.isCancelled {
+		info.mu.Unlock()
+		http.Error(w, "upload not found", http.StatusNotFound)
+		return
+	}
+	info.isCancelled = true
 	info.mu.Unlock()
 
 	if info.tempDir != "" {

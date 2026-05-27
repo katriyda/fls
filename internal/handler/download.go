@@ -2,11 +2,15 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
+	"fls/internal/middleware"
 	"fls/internal/model"
 	"fls/internal/service"
 
@@ -87,6 +91,7 @@ func (h *DownloadHandler) ServeShare(w http.ResponseWriter, r *http.Request) {
 	case statusPasswordRequired:
 		RenderTemplate(w, "download-password", map[string]interface{}{
 			"Authenticated": false,
+			"CSRFToken":     middleware.CSRFToken(r),
 			"Token":         token,
 			"Error":         "",
 		})
@@ -160,6 +165,7 @@ func (h *DownloadHandler) VerifySharePassword(w http.ResponseWriter, r *http.Req
 	if err := r.ParseForm(); err != nil {
 		RenderTemplate(w, "download-password", map[string]interface{}{
 			"Authenticated": false,
+			"CSRFToken":     middleware.CSRFToken(r),
 			"Token":         token,
 			"Error":         "invalid form data",
 		})
@@ -175,6 +181,7 @@ func (h *DownloadHandler) VerifySharePassword(w http.ResponseWriter, r *http.Req
 
 	RenderTemplate(w, "download-password", map[string]interface{}{
 		"Authenticated": false,
+		"CSRFToken":     middleware.CSRFToken(r),
 		"Token":         token,
 		"Error":         "密码错误",
 	})
@@ -263,14 +270,43 @@ func (h *DownloadHandler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 		storagePath = fileObj.StoragePath
 	}
 
-	if err := h.statsSvc.RecordDownload(share.ID, r.RemoteAddr, r.UserAgent()); err != nil {
-		slog.Error("failed to record download stats", "share_id", share.ID, "error", err)
-	}
-	if err := h.shareSvc.IncrementDownloadCount(share.ID); err != nil {
+	// Atomically increment download count and check limit — after file info is resolved
+	if ok, err := h.shareSvc.TryIncrementDownloadCount(share.ID); err != nil {
 		slog.Error("failed to increment download count", "share_id", share.ID, "error", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	} else if !ok {
+		http.Error(w, "download limit reached", http.StatusGone)
+		return
 	}
 
-	w.Header().Set("Content-Disposition", "attachment; filename="+originalName)
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	if ip == "" {
+		ip = r.RemoteAddr
+	}
+	if err := h.statsSvc.RecordDownload(share.ID, ip, r.UserAgent()); err != nil {
+		slog.Error("failed to record download stats", "share_id", share.ID, "error", err)
+	}
+
+	safeName := strings.ReplaceAll(originalName, `\`, `\\`)
+	safeName = strings.ReplaceAll(safeName, `"`, `\"`)
+	safeName = strings.ReplaceAll(safeName, "\r", "")
+	safeName = strings.ReplaceAll(safeName, "\n", "")
+	safeName = strings.ReplaceAll(safeName, "\x00", "")
+
+	needsEncoding := false
+	for _, r := range originalName {
+		if r > 127 {
+			needsEncoding = true
+			break
+		}
+	}
+	if needsEncoding {
+		w.Header().Set("Content-Disposition",
+			`attachment; filename="download"; filename*=UTF-8''`+percentEncodeUTF8(originalName))
+	} else {
+		w.Header().Set("Content-Disposition", `attachment; filename="`+safeName+`"`)
+	}
 
 	if share.IsTextShare() {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -304,4 +340,16 @@ func (h *DownloadHandler) getFile(id string) (*model.File, error) {
 		return nil, err
 	}
 	return &f, nil
+}
+
+func percentEncodeUTF8(s string) string {
+	var buf strings.Builder
+	for _, b := range []byte(s) {
+		if b > 127 {
+			buf.WriteString(fmt.Sprintf("%%%02X", b))
+		} else {
+			buf.WriteByte(b)
+		}
+	}
+	return buf.String()
 }

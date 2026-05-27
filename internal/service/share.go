@@ -57,8 +57,10 @@ func (s *ShareService) generateUniqueToken(length int) (string, error) {
 func (s *ShareService) CreateFileShare(fileID, passwordHash string, expiresAt *time.Time, maxDownloads int) (*model.Share, error) {
 	id := uuid.New().String()
 	length := 8
-	if s.cfg != nil && s.cfg.TokenLength >= 4 {
-		length = s.cfg.TokenLength
+	if s.cfg != nil {
+		if cfgLen := s.cfg.GetTokenLength(); cfgLen >= 4 {
+			length = cfgLen
+		}
 	}
 	token, err := s.generateUniqueToken(length)
 	if err != nil {
@@ -100,8 +102,10 @@ func (s *ShareService) CreateFileShare(fileID, passwordHash string, expiresAt *t
 func (s *ShareService) CreateTextShare(textContent, passwordHash string, expiresAt *time.Time, maxDownloads int) (*model.Share, error) {
 	id := uuid.New().String()
 	length := 8
-	if s.cfg != nil && s.cfg.TokenLength >= 4 {
-		length = s.cfg.TokenLength
+	if s.cfg != nil {
+		if cfgLen := s.cfg.GetTokenLength(); cfgLen >= 4 {
+			length = cfgLen
+		}
 	}
 	token, err := s.generateUniqueToken(length)
 	if err != nil {
@@ -221,6 +225,9 @@ func (s *ShareService) ListShares(offset, limit int) ([]*model.Share, int, error
 		}
 		shares = append(shares, share)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("iterate shares: %w", err)
+	}
 
 	return shares, total, nil
 }
@@ -247,6 +254,9 @@ func (s *ShareService) ListFeaturedShares() ([]*model.Share, error) {
 		}
 		shares = append(shares, share)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate featured shares: %w", err)
+	}
 
 	return shares, nil
 }
@@ -267,12 +277,21 @@ func (s *ShareService) SetFeatured(id string, featured bool) error {
 	return nil
 }
 
-func (s *ShareService) IncrementDownloadCount(shareID string) error {
-	_, err := s.db.Exec("UPDATE shares SET download_count = download_count + 1 WHERE id = ?", shareID)
+// TryIncrementDownloadCount atomically increments the download count only if the limit has not been reached.
+// Returns true if the increment succeeded (limit not reached), false if the limit was already reached.
+func (s *ShareService) TryIncrementDownloadCount(shareID string) (bool, error) {
+	result, err := s.db.Exec(
+		"UPDATE shares SET download_count = download_count + 1 WHERE id = ? AND (max_downloads = 0 OR download_count < max_downloads)",
+		shareID,
+	)
 	if err != nil {
-		return fmt.Errorf("increment download count: %w", err)
+		return false, fmt.Errorf("try increment download count: %w", err)
 	}
-	return nil
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return false, fmt.Errorf("check rows affected: %w", err)
+	}
+	return affected > 0, nil
 }
 
 func (s *ShareService) DeleteShare(id string) error {
@@ -307,6 +326,9 @@ func (s *ShareService) GetFileShares(fileID string) ([]*model.Share, error) {
 			return nil, fmt.Errorf("scan share row: %w", err)
 		}
 		shares = append(shares, share)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate file shares: %w", err)
 	}
 
 	return shares, nil
