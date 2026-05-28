@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"fls/internal/middleware"
 	"fls/internal/service"
 )
 
@@ -39,6 +40,7 @@ type RecentShareEntry struct {
 
 type DashboardData struct {
 	Authenticated bool
+	CSRFToken     string
 	Stats         *service.GlobalStats
 	RecentFiles   []RecentFileEntry
 	RecentShares  []RecentShareEntry
@@ -65,6 +67,7 @@ func (h *DashboardHandler) GetDashboard(w http.ResponseWriter, r *http.Request) 
 
 	RenderTemplate(w, "dashboard", DashboardData{
 		Authenticated: true,
+		CSRFToken:     middleware.CSRFToken(r),
 		Stats:         stats,
 		RecentFiles:   recentFiles,
 		RecentShares:  recentShares,

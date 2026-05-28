@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"fls/internal/middleware"
 	"fls/internal/model"
 
 	"github.com/go-chi/chi/v5"
@@ -28,6 +29,7 @@ type fileRow struct {
 
 type filesPageData struct {
 	Authenticated bool
+	CSRFToken     string
 	Files         []fileRow
 	Search        string
 	Page          int
@@ -39,6 +41,7 @@ type filesPageData struct {
 
 type fileDetailPageData struct {
 	Authenticated bool
+	CSRFToken     string
 	File          model.File
 	Shares        []model.Share
 	EditMode      bool
@@ -117,6 +120,7 @@ func (h *FileHandler) ListFiles(w http.ResponseWriter, r *http.Request) {
 
 	RenderTemplate(w, "files", filesPageData{
 		Authenticated: true,
+		CSRFToken:     middleware.CSRFToken(r),
 		Files:         files,
 		Search:        search,
 		Page:          page,
@@ -153,6 +157,7 @@ func (h *FileHandler) GetFile(w http.ResponseWriter, r *http.Request) {
 
 	RenderTemplate(w, "file-detail", fileDetailPageData{
 		Authenticated: true,
+		CSRFToken:     middleware.CSRFToken(r),
 		File:          f,
 		Shares:        shares,
 		EditMode:      false,
@@ -233,6 +238,7 @@ func (h *FileHandler) EditFile(w http.ResponseWriter, r *http.Request) {
 
 	RenderTemplate(w, "file-detail", fileDetailPageData{
 		Authenticated: true,
+		CSRFToken:     middleware.CSRFToken(r),
 		File:          f,
 		Shares:        shares,
 		EditMode:      true,

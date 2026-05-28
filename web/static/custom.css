@@ -481,6 +481,13 @@ main.admin-mode {
     font-weight: 700;
 }
 
+.nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
 .nav-link.active::after {
     content: '';
     position: absolute;

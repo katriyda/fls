@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{block "title" .}}FLS - 文件分享系统{{end}}</title>
-    <link rel="stylesheet" href="/static/custom.css?v=6.0.0">
+    <link rel="stylesheet" href="/static/custom.css?v=6.0.1">
     <script src="/static/htmx.min.js"></script>
     <script src="/static/tus.js"></script>
     <script>
@@ -39,7 +39,7 @@
                     <li><a href="/admin/files" class="nav-link" data-page="files">文件</a></li>
                     <li><a href="/admin/shares" class="nav-link" data-page="shares">分享</a></li>
                     <li><a href="/admin/config" class="nav-link" data-page="config">配置</a></li>
-                    <li><a href="/logout" class="nav-link">登出</a></li>
+                    <li><form method="POST" action="/logout" style="display:inline"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><button type="submit" class="nav-link nav-btn">登出</button></form></li>
                 </ul>
             </nav>
         </header>
