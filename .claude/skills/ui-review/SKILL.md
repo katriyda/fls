@@ -22,7 +22,7 @@ license: Apache-2.0
 
 ### Step 2: 扫描模板文件
 
-读取 `web/templates/` 下所有 `.html` 文件。对每个模板执行以下 7 项检查。
+读取 `web/templates/` 下所有 `.html` 文件。对每个模板执行以下 10 项检查。
 
 ### Step 3: 输出报告
 
@@ -49,10 +49,11 @@ license: Apache-2.0
 
 比较同类组件在不同模板中的使用：
 
-- **按钮**: 同一逻辑操作（返回、删除、分页）在不同页面是否使用相同的 `btn`/`btn-sm`/`btn-lg` + `btn-primary`/`btn-danger`/`btn-warning` 组合
+- **按钮**: 同一逻辑操作（返回、删除、分页、复制）在不同页面是否使用相同的 `btn`/`btn-sm`/`btn-lg`/`btn-link` + `btn-primary`/`btn-danger`/`btn-warning` 组合
 - **卡片**: 所有 `.card` 是否有相同的 padding、border、shadow
 - **表格**: `.data-table` 的 `<td>` 是否都有 `data-label` 属性（移动端需要）
 - **表单**: `.form-section`、`.form-group` 是否一致使用
+- **详情页操作行**: 所有详情页底部的"返回+删除"按钮组是否使用相同的 `btn-sm` + `flex gap-sm` 模式
 
 **检查方法**: 提取每个模板中同类组件的 CSS 类组合，找出不一致的实例。
 
@@ -107,6 +108,54 @@ license: Apache-2.0
 - **移动端表格**: `.data-table` 在 `<600px` 是否都有 `data-label` 支持
 
 **严重级别**: 不一致的断点 = warning；缺少移动端支持 = warning。
+
+### 8. 按钮重量层级 (button-weight-hierarchy)
+
+检查按钮的视觉重量是否正确反映操作的重要性。业界标准层级：
+
+| 操作类型 | 视觉重量 | 允许的样式 |
+|---|---|---|
+| 主要 CTA（保存、登录、下载） | 最高 | `btn-primary`（填充） |
+| 破坏性操作（删除） | 高 | `btn-danger`（填充） |
+| 次要操作（查看、返回、编辑） | 中 | `btn-sm`（outline） |
+| 内联操作（复制、toggle 开关） | 低 | `btn-link`（文字链接）或 `btn-sm` outline |
+
+**检查规则**:
+- `btn-primary`（填充）只用于表单提交、主要 CTA，不应用于 toggle/开关操作
+- `btn-danger`（填充）只用于删除等破坏性操作
+- Toggle/开关操作（如公开/取消公开）应使用 outline 样式（`btn-sm` 或 `btn-warning`），不应比删除按钮更醒目
+- 复制、剪贴板等轻量操作应使用 `btn-link` 样式
+- 同一行内的多个按钮，视觉重量应与操作重要性成正比
+
+**检查方法**: 扫描所有 `.btn*` 的使用上下文。如果一个 toggle 操作使用了 `btn-primary`（填充），而同页面的删除操作使用 `btn-danger`（填充），则两者视觉重量相同 — 这是错误的，toggle 应更轻。
+
+**严重级别**: toggle 操作使用填充样式（比删除更重或相同）= critical；次要操作使用填充样式 = warning。
+
+### 9. 内嵌按钮间距 (inline-button-spacing)
+
+检查按钮与相邻内容之间是否有适当的间距。
+
+**检查规则**:
+- 按钮与相邻的 `<code>`、`<input>`、文字之间必须有间距类（`ml-sm`、`gap-sm` 等）
+- 表格操作列（`<td>` 内）多个按钮之间必须有间距（通过 `.btn + .btn` CSS 规则或 flex gap）
+- 按钮不应紧贴（flush）任何相邻元素
+
+**检查方法**: 扫描模板中 `<button` 和 `<a class="btn` 的前一个兄弟元素，如果紧邻 `<code>`、`<input>`、文字且没有 `ml-sm`/`gap-*` 等间距类，则报告。
+
+**严重级别**: 按钮紧贴相邻内容（无间距）= warning。
+
+### 10. 堆叠元素 (stacked-elements)
+
+检查 `<td>` 或其他容器内是否堆叠了多个独立的视觉元素。
+
+**检查规则**:
+- 同一个 `<td>` 内不应同时存在 badge + button 等多个独立元素
+- 状态指示和操作按钮应合并为单一元素（用按钮样式表达状态，如 warning 色 + 图标前缀）
+- 如果一个 `<td>` 内有超过 1 个交互元素（按钮、链接），应考虑合并或简化
+
+**检查方法**: 扫描所有 `<td>` 元素，计算其中的 `button`、`a.btn`、`.badge` 元素数量。超过 1 个交互元素或 badge + button 组合则报告。
+
+**严重级别**: badge + button 堆叠在同一个 td = critical；多个按钮在同一个 td 无分组 = warning。
 
 ---
 
