@@ -37,9 +37,8 @@
                 </td>
                 <td data-label="密码">{{if .HasPassword}}<span class="badge">🔒</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
                 <td data-label="公开">
-                    {{if .IsFeatured}}<span class="badge badge-success">⭐</span>{{else}}<span class="text-muted">—</span>{{end}}
                     <button class="btn btn-sm {{if .IsFeatured}}btn-warning{{else}}btn-primary{{end}}" hx-post="/admin/shares/{{.ID}}/feature">
-                        {{if .IsFeatured}}取消{{else}}公开{{end}}
+                        {{if .IsFeatured}}⭐ 已公开{{else}}公开{{end}}
                     </button>
                 </td>
                 <td data-label="过期时间">{{if .ExpiresAt}}{{.ExpiresAt.Format "2006-01-02"}}{{else}}永不过期{{end}}</td>

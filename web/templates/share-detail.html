@@ -265,11 +265,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <tr>
                     <th>公开</th>
                     <td>
-                        {{if .IsFeatured}}<span class="badge badge-success">⭐ 是</span>{{else}}<span class="text-muted">—</span>{{end}}
                         <form method="POST" action="/admin/shares/{{.Share.ID}}/feature" class="share-feature-inline">
                             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                             <button type="submit" class="btn btn-sm {{if .IsFeatured}}btn-warning{{else}}btn-primary{{end}}">
-                                {{if .IsFeatured}}取消公开{{else}}设为公开{{end}}
+                                {{if .IsFeatured}}⭐ 取消公开{{else}}设为公开{{end}}
                             </button>
                         </form>
                     </td>
