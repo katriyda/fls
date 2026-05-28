@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"fls/internal/config"
+	"fls/internal/middleware"
 
 	"github.com/alexedwards/scs/v2"
 )
@@ -22,6 +23,7 @@ func NewConfigHandler(cfg *config.Config, sm *scs.SessionManager) *ConfigHandler
 
 type configPageData struct {
 	Authenticated      bool
+	CSRFToken          string
 	Flash              string
 	Port               int
 	DataDir            string
@@ -35,12 +37,12 @@ type configPageData struct {
 }
 
 func (h *ConfigHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
-	h.render(w, "")
+	h.render(w, r, "")
 }
 
 func (h *ConfigHandler) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		h.renderWithFlash(w, "解析表单失败: "+err.Error())
+		h.renderWithFlash(w, r, "解析表单失败: "+err.Error())
 		return
 	}
 
@@ -112,21 +114,22 @@ func (h *ConfigHandler) UpdateConfig(w http.ResponseWriter, r *http.Request) {
 			h.sm.Lifetime = newSessionTimeout
 		}
 	}); err != nil {
-		h.renderWithFlash(w, "保存失败: "+err.Error())
+		h.renderWithFlash(w, r, "保存失败: "+err.Error())
 		return
 	}
 
-	h.renderWithFlash(w, "配置已保存")
+	h.renderWithFlash(w, r, "配置已保存")
 }
 
-func (h *ConfigHandler) renderWithFlash(w http.ResponseWriter, flash string) {
-	h.render(w, flash)
+func (h *ConfigHandler) renderWithFlash(w http.ResponseWriter, r *http.Request, flash string) {
+	h.render(w, r, flash)
 }
 
-func (h *ConfigHandler) render(w http.ResponseWriter, flash string) {
+func (h *ConfigHandler) render(w http.ResponseWriter, r *http.Request, flash string) {
 	snap := h.cfg.Snapshot()
 	RenderTemplate(w, "config", configPageData{
 		Authenticated:      true,
+		CSRFToken:          middleware.CSRFToken(r),
 		Flash:              flash,
 		Port:               snap.Port,
 		DataDir:            snap.DataDir,

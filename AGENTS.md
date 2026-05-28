@@ -63,14 +63,22 @@ form-action 'self'
 
 ## Frontend Design
 
-**Design system**: magick.css-inspired monochrome minimalism. High-contrast black-on-white, border-only form inputs, paper-like cards with subtle shadow, system fonts. All styles in `web/static/custom.css` via CSS variables (`:root`). Dark/light mode via `prefers-color-scheme`.
+**Design system**: Monochrome minimalism, Carbon/M3-aligned scales. All styles in `web/static/custom.css` via CSS variables (`:root`). Dark/light mode via `prefers-color-scheme`.
+
+**Typography**: Type scale follows IBM Carbon / Material Design 3 convergent standard: 12/14/16/20/28/32px (`--text-xs` through `--text-2xl`).
+
+**Buttons**: M3/Carbon heights — SM=32px, MD=40px, LG=48px (`--btn-height-sm/md/lg`). Classes: `.btn`, `.btn-sm`, `.btn-lg`, `.btn-primary`, `.btn-danger`.
+
+**Icons**: 5-tier scale — 16/20/24/32/48px (`--icon-xs` through `--icon-xl`).
+
+**Spacing**: 4px base grid — 4/8/12/16/20/24/32/40/48/64px (`--space-1` through `--space-16`). Legacy aliases (`--space-xs/sm/md/lg/xl/2xl/3xl`) still work.
 
 **Templates** (`web/templates/`): Go `html/template` with `layout.html` inheritance. `.Authenticated` controls nav/footer visibility. Admin pages use `main.admin-mode` (wider max-width).
 
 **Components** (see `custom.css` for exact class names):
 | Component | CSS classes | Notes |
 |-----------|-------------|-------|
-| Buttons | `.btn`, `.btn-primary`, `.btn-danger`, `.btn-sm` | Flat, bordered, monochrome |
+| Buttons | `.btn`, `.btn-sm`, `.btn-lg`, `.btn-primary`, `.btn-danger` | Flat, bordered, monochrome |
 | Cards | `.card` | Paper style with border + shadow |
 | Stat cards | `.stat-card` grid (4-col) | Dashboard metric display |
 | Data table | `.data-table` + `.responsive-table` | Column headers uppercase, responsive on mobile |
@@ -82,16 +90,18 @@ form-action 'self'
 | Flash messages | `.flash`, `.flash-error` | Success/error notifications |
 | Pagination | `.pagination` | Page nav with prev/next |
 | Empty state | `.empty-state` | "No data" placeholder |
+| Download pages | `.download-card`, `.download-heading`, `.download-meta`, `.download-icon-lg` | Standardized download page layout |
+| Dashboard | `.card-header-row`, `.view-all-link` | Card header with "view all" link |
 
 **HTMX**: Used for search (files), delete confirmations, pagination. CSRF token injected via `XSRF-TOKEN` cookie in `htmx:configRequest` event handler (`layout.html:22`).
 
 **JS** (inline in templates): File upload via TUS protocol (tus.js), clipboard copy, type toggling, drop event handling. All inline `<script>` — requires `'unsafe-inline'` + `'unsafe-hashes'` in CSP `script-src`.
 
-**Fonts**: System font stack only (`-apple-system`, `Segoe UI`, etc. — no Google Fonts loaded despite CSP allowance). Monospace for code/tokens.
+**Fonts**: Local DM Sans (body) + JetBrains Mono (code) woff2 in `web/static/fonts/`. CJK falls back to `Noto Sans SC` then system fonts.
 
 **Responsive**: Breakpoints at 900px (2-col stats) and 600px (stacked layout, data tables become labeled rows). Touch targets ≥44px for `pointer: coarse`.
 
-**Build**: Static files (`custom.css`, `htmx.min.js`, `tus.js`) embedded at compile time in `web/embed.go`. Update `custom.css?v=4.0.0` cache-bust version in `layout.html:7` when modifying CSS.
+**Build**: Static files embedded at compile time in `web/embed.go`. Update `custom.css?v=6.0.0` cache-bust version in `layout.html:7` when modifying CSS.
 
 ## Testing
 

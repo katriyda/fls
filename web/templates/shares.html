@@ -30,7 +30,7 @@
                     {{if eq .ContentType "file"}}<span class="badge badge-info">📄</span>{{else}}<span class="badge badge-info">📝</span>{{end}}
                 </td>
                 <td data-label="令牌">
-                    <code style="cursor: pointer;" onclick="navigator.clipboard.writeText('{{.Token}}')">{{.Token}}</code>
+                    <code class="cursor-pointer" onclick="navigator.clipboard.writeText('{{.Token}}')">{{.Token}}</code>
                 </td>
                 <td data-label="目标">
                     {{if eq .ContentType "file"}}{{.FileName}}{{else}}{{.TextPreview}}{{end}}

@@ -6,44 +6,44 @@
 </div>
 
 {{if .EditMode}}
+<form class="detail-form-contents" hx-put="/admin/files/{{.File.ID}}" hx-target="body" hx-push-url="true">
 <div class="card">
-    <form hx-put="/admin/files/{{.File.ID}}" hx-target="body" hx-push-url="true" style="display: contents;">
-        <table class="detail-table">
-            <tr>
-                <th>ID</th>
-                <td><code>{{.File.ID}}</code></td>
-            </tr>
-            <tr>
-                <th>文件名</th>
-                <td><code>{{.File.Filename}}</code></td>
-            </tr>
-            <tr>
-                <th>原始名称</th>
-                <td><input type="text" name="original_name" value="{{.File.OriginalName}}" required style="max-width: 40rem;"></td>
-            </tr>
-            <tr>
-                <th>大小</th>
-                <td>{{.File.Size | bytes}}</td>
-            </tr>
-            <tr>
-                <th>MIME</th>
-                <td><code>{{.File.MimeType}}</code></td>
-            </tr>
-            <tr>
-                <th>上传时间</th>
-                <td>{{.File.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
-            </tr>
-            <tr>
-                <th>更新时间</th>
-                <td>{{.File.UpdatedAt.Format "2006-01-02 15:04:05"}}</td>
-            </tr>
-        </table>
-        <div class="flex gap-sm mt-md">
-            <button type="submit" class="btn btn-primary">保存</button>
-            <a href="/admin/files/{{.File.ID}}" class="btn">取消</a>
-        </div>
-    </form>
+    <table class="detail-table">
+        <tr>
+            <th>ID</th>
+            <td><code>{{.File.ID}}</code></td>
+        </tr>
+        <tr>
+            <th>文件名</th>
+            <td><code>{{.File.Filename}}</code></td>
+        </tr>
+        <tr>
+            <th>原始名称</th>
+            <td><input type="text" name="original_name" value="{{.File.OriginalName}}" required class="detail-input-wide"></td>
+        </tr>
+        <tr>
+            <th>大小</th>
+            <td>{{.File.Size | bytes}}</td>
+        </tr>
+        <tr>
+            <th>MIME</th>
+            <td><code>{{.File.MimeType}}</code></td>
+        </tr>
+        <tr>
+            <th>上传时间</th>
+            <td>{{.File.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+        <tr>
+            <th>更新时间</th>
+            <td>{{.File.UpdatedAt.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+    </table>
+    <div class="flex gap-sm mt-md">
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a href="/admin/files/{{.File.ID}}" class="btn">取消</a>
+    </div>
 </div>
+</form>
 {{else}}
 <div class="card">
     <table class="detail-table">
@@ -85,7 +85,7 @@
 {{end}}
 
 {{if .Shares}}
-<div class="card" style="margin-top: var(--space-lg);">
+<div class="card mt-lg">
     <h2>关联分享</h2>
     <div class="responsive-table">
     <table class="data-table">
@@ -101,11 +101,11 @@
         <tbody>
             {{range .Shares}}
             <tr>
-                <td><a href="/admin/shares/{{.ID}}"><code>{{.Token}}</code></a></td>
-                <td>{{if eq .ContentType "file"}}文件{{else if eq .ContentType "text"}}文本{{else}}{{.ContentType}}{{end}}</td>
-                <td>{{.DownloadCount}}/{{.MaxDownloads}}</td>
-                <td>{{if .ExpiresAt}}{{.ExpiresAt.Format "2006-01-02"}}{{else}}永不过期{{end}}</td>
-                <td>{{.CreatedAt.Format "2006-01-02"}}</td>
+                <td data-label="Token"><a href="/admin/shares/{{.ID}}"><code>{{.Token}}</code></a></td>
+                <td data-label="类型">{{if eq .ContentType "file"}}文件{{else if eq .ContentType "text"}}文本{{else}}{{.ContentType}}{{end}}</td>
+                <td data-label="下载">{{.DownloadCount}}/{{.MaxDownloads}}</td>
+                <td data-label="过期">{{if .ExpiresAt}}{{.ExpiresAt.Format "2006-01-02"}}{{else}}永不过期{{end}}</td>
+                <td data-label="创建时间">{{.CreatedAt.Format "2006-01-02"}}</td>
             </tr>
             {{end}}
         </tbody>

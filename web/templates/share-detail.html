@@ -45,7 +45,7 @@
                         <div class="dropzone-text">拖拽文件到此处，或点击选择</div>
                         <div class="dropzone-hint">上传后自动创建分享链接</div>
                     </div>
-                    <div id="upload-progress" class="upload-progress" style="display: none;">
+                    <div id="upload-progress" class="upload-progress">
                         <div>上传中...</div>
                         <progress id="progress-bar" class="upload-progress-bar" value="0" max="100"></progress>
                     </div>
@@ -53,10 +53,10 @@
                 <input type="file" id="file-input" style="display: none;" onchange="uploadFile(this)">
                 <input type="hidden" id="file_id" name="file_id" value="">
 
-                <div id="uploaded-file-info" class="upload-success" style="display: none;">
+                <div id="uploaded-file-info" class="upload-success">
                     ✅ 已上传: <span id="uploaded-filename"></span>
                     <span class="text-muted" id="uploaded-filesize"></span>
-                    <button type="button" class="btn btn-sm" onclick="resetUpload()" style="margin-left: 0.6rem;">更换</button>
+                    <button type="button" class="btn btn-sm ml-sm" onclick="resetUpload()">更换</button>
                 </div>
             </div>
 
@@ -144,7 +144,7 @@ function uploadFile(input) {
         onError: function(error) {
             progress.style.display = 'none';
             dzText.style.display = 'block';
-            dzText.innerHTML = '<div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div><div>上传失败: ' + (error.message || '网络错误') + '</div>';
+            dzText.innerHTML = '<div class="dropzone-icon">❌</div><div>上传失败: ' + (error.message || '网络错误') + '</div>';
             dz.classList.add('dropzone-error');
             dz.classList.remove('dropzone-uploading');
             dz.style.cursor = 'pointer';
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <tr>
                     <th>分享链接</th>
                     <td>
-                        <input type="text" value="{{.ShareURL}}" readonly onclick="this.select()" style="max-width: 38rem;">
+                        <input type="text" value="{{.ShareURL}}" readonly onclick="this.select()" class="share-url-input">
                         <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.ShareURL}}')">复制</button>
                     </td>
                 </tr>
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <th>公开</th>
                     <td>
                         {{if .IsFeatured}}<span class="badge badge-success">⭐ 是</span>{{else}}<span class="text-muted">—</span>{{end}}
-                        <form method="POST" action="/admin/shares/{{.Share.ID}}/feature" style="display: inline; margin-left: 0.6rem;">
+                        <form method="POST" action="/admin/shares/{{.Share.ID}}/feature" class="share-feature-inline">
                             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
                             <button type="submit" class="btn btn-sm {{if .IsFeatured}}btn-warning{{else}}btn-primary{{end}}">
                                 {{if .IsFeatured}}取消公开{{else}}设为公开{{end}}
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="card">
             <h3>QR Code</h3>
             <img src="/admin/shares/{{.Share.ID}}/qrcode" alt="QR Code" class="qrcode-img">
-            <p class="text-muted" style="font-size: 1.3rem; word-break: break-all;">{{.ShareURL}}</p>
+            <p class="text-muted download-text-wrap">{{.ShareURL}}</p>
         </div>
     </div>
 </div>

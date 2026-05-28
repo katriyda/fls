@@ -10,6 +10,7 @@
 {{end}}
 
 <form method="POST" action="/admin/config">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
     <div class="form-section">
         <h3>上传设置</h3>
         <div class="form-group">
@@ -85,8 +86,8 @@
         </fieldset>
     </div>
 
-    <div style="text-align: right; margin-top: var(--space-lg);">
-        <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2.4rem;">保存配置</button>
+    <div class="form-actions-right">
+        <button type="submit" class="btn btn-primary btn-lg">保存配置</button>
     </div>
 </form>
 {{end}}

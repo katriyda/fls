@@ -4,9 +4,9 @@
 <div class="download-wrapper">
 <div class="card download-card">
     <div class="file-icon">📄</div>
-    <h3 style="word-break: break-word; margin-bottom: var(--space-xs);">{{.FileName}}</h3>
-    <p class="text-muted" style="margin-bottom: var(--space-lg);">大小: {{.Size | bytes}} · 类型: {{.MimeType}}</p>
-    <a href="/s/{{.Token}}/download" class="btn btn-primary" style="padding: 0.6rem 2.4rem;">下载文件</a>
+    <h3 class="download-heading">{{.FileName}}</h3>
+    <p class="text-muted download-meta">大小: {{.Size | bytes}} · 类型: {{.MimeType}}</p>
+    <a href="/s/{{.Token}}/download" class="btn btn-primary download-btn-primary">下载文件</a>
 </div>
 </div>
 {{end}}

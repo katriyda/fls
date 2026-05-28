@@ -74,13 +74,21 @@ Go 1.26 web app — single-binary file sharing system with SQLite storage (pure 
 
 ## Frontend
 
-**Design system**: magick.css-inspired monochrome minimalism. High-contrast black-on-white, border-only form inputs, paper-like cards with subtle shadow, system fonts.
+**Design system**: Monochrome minimalism, Carbon/M3-aligned scales. High-contrast black-on-white, border-only form inputs, paper-like cards with subtle shadow.
 
-**Styles**: All in `web/static/custom.css` via CSS variables (`:root`). Dark/light mode via `prefers-color-scheme`. Fonts are local woff2 in `web/static/fonts/` (DM Sans + JetBrains Mono). Update `custom.css?v=5.0.0` cache-bust version in `layout.html` when modifying CSS.
+**Typography**: Local DM Sans (body) + JetBrains Mono (code) woff2 in `web/static/fonts/`. Type scale follows IBM Carbon / Material Design 3 convergent standard: 12/14/16/20/28/32px (`--text-xs` through `--text-2xl`).
 
-**Components** (in `custom.css`): `.btn` variants, `.card`, `.stat-card` (4-col grid), `.data-table` + `.responsive-table`, `.form-section`/`.form-group`/`.form-grid`, `.badge` variants, `.dropzone` (upload area with states), `.type-toggle`/`.type-card`, `.detail-table`, `.flash`, `.pagination`, `.empty-state`.
+**Buttons**: M3/Carbon-aligned heights — SM=32px, MD=40px, LG=48px (`--btn-height-sm/md/lg`). Classes: `.btn`, `.btn-sm`, `.btn-lg`, `.btn-primary`, `.btn-danger`.
 
-**JS**: File upload via TUS protocol (tus.js), clipboard copy, type toggling, drop handling — all inline `<script>` in templates.
+**Icons**: 5-tier scale — 16/20/24/32/48px (`--icon-xs` through `--icon-xl`).
+
+**Spacing**: 4px base grid — 4/8/12/16/20/24/32/40/48/64px (`--space-1` through `--space-16`).
+
+**Styles**: All in `web/static/custom.css` via CSS variables (`:root`). Dark/light mode via `prefers-color-scheme`. Update `custom.css?v=6.0.0` cache-bust version in `layout.html` when modifying CSS.
+
+**Components**: `.btn` variants, `.card`, `.stat-card`, `.data-table` + `.responsive-table`, `.form-section`/`.form-group`/`.form-grid`, `.badge` variants, `.dropzone`, `.type-toggle`/`.type-card`, `.detail-table`, `.flash`, `.pagination`, `.empty-state`, `.download-card`/`.download-heading`/`.download-meta`, `.card-header-row`/`.view-all-link`.
+
+**JS**: File upload via TUS protocol (tus.js), clipboard copy, type toggling, drop handling — inline `<script>` in templates.
 
 **Responsive**: 900px (2-col stats) and 600px (stacked layout). Touch targets >= 44px for `pointer: coarse`.
 
