@@ -388,6 +388,10 @@ select {
     text-decoration-thickness: 0.15em;
 }
 
+.btn-link.btn-warning {
+    color: var(--color-warning);
+}
+
 .btn-sm {
     padding: 0 var(--space-2);
     font-size: var(--text-xs);
