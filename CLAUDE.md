@@ -61,7 +61,7 @@ Go 1.26 web app — single-binary file sharing system with SQLite storage (pure 
 
 6. **New share form** requires hidden `file_id` populated by JS (upload or file select). Without it, form submission fails with `"file_id is required for file share"`.
 
-7. **CSP** allows `'unsafe-inline'` and `'unsafe-hashes'` — required because templates use inline `<script>` and HTML event handlers (`onclick`, `onchange`, `ondragover`).
+7. **CSP** allows `'unsafe-inline'` and `'unsafe-hashes'` — required because templates use inline `<script>` and HTML event handlers (`onclick`, `onchange`, `ondragover`). Fonts are served locally, no external CDN needed.
 
 8. **HX-Redirect pattern**: POST handlers check `HX-Request` and set `HX-Redirect` for HTMX, `303 See Other` for regular forms.
 
@@ -76,7 +76,7 @@ Go 1.26 web app — single-binary file sharing system with SQLite storage (pure 
 
 **Design system**: magick.css-inspired monochrome minimalism. High-contrast black-on-white, border-only form inputs, paper-like cards with subtle shadow, system fonts.
 
-**Styles**: All in `web/static/custom.css` via CSS variables (`:root`). Dark/light mode via `prefers-color-scheme`. Update `custom.css?v=4.0.0` cache-bust version in `layout.html` when modifying CSS.
+**Styles**: All in `web/static/custom.css` via CSS variables (`:root`). Dark/light mode via `prefers-color-scheme`. Fonts are local woff2 in `web/static/fonts/` (DM Sans + JetBrains Mono). Update `custom.css?v=5.0.0` cache-bust version in `layout.html` when modifying CSS.
 
 **Components** (in `custom.css`): `.btn` variants, `.card`, `.stat-card` (4-col grid), `.data-table` + `.responsive-table`, `.form-section`/`.form-group`/`.form-grid`, `.badge` variants, `.dropzone` (upload area with states), `.type-toggle`/`.type-card`, `.detail-table`, `.flash`, `.pagination`, `.empty-state`.
 

@@ -23,7 +23,7 @@ license: Apache-2.0
 
 ### 排版
 - 选择有个性、有特色的字体。避免 Inter、Arial、系统字体等泛泛之选。
-- 在 `custom.css` 中通过 Google Fonts 引入（注意 CSP 的 `style-src` 已允许 `fonts.googleapis.com`，`font-src` 已允许 `fonts.gstatic.com`）。
+- 字体文件存放在 `web/static/fonts/` 目录下（woff2 格式），通过 `@font-face` 在 `custom.css` 中引入。当前使用 DM Sans（正文）和 JetBrains Mono（等宽）。
 - 用有表现力的展示字体搭配精致的正文字体。
 
 ### 色彩与主题

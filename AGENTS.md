@@ -35,9 +35,9 @@
 ```
 default-src 'self'
 script-src 'self' https://static.cloudflareinsights.com 'unsafe-inline' 'unsafe-hashes'
-style-src 'self' https://fonts.googleapis.com 'unsafe-inline'
+style-src 'self' 'unsafe-inline'
 img-src 'self' data:
-font-src 'self' https://fonts.gstatic.com
+font-src 'self'
 connect-src 'self' https://cloudflareinsights.com
 form-action 'self'
 ```
