@@ -234,14 +234,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <th>令牌</th>
                     <td>
                         <code>{{.Share.Token}}</code>
-                        <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.Share.Token}}')">复制</button>
+                        <button class="btn-link ml-sm" onclick="navigator.clipboard.writeText('{{.Share.Token}}')">复制</button>
                     </td>
                 </tr>
                 <tr>
                     <th>分享链接</th>
                     <td>
                         <input type="text" value="{{.ShareURL}}" readonly onclick="this.select()" class="share-url-input">
-                        <button class="btn btn-sm" onclick="navigator.clipboard.writeText('{{.ShareURL}}')">复制</button>
+                        <button class="btn-link ml-sm" onclick="navigator.clipboard.writeText('{{.ShareURL}}')">复制</button>
                     </td>
                 </tr>
                 <tr>
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         <form method="POST" action="/admin/shares/{{.Share.ID}}/feature" class="share-feature-inline">
                             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-                            <button type="submit" class="btn btn-sm {{if .IsFeatured}}btn-warning{{else}}btn-primary{{end}}">
+                            <button type="submit" class="btn btn-sm{{if .IsFeatured}} btn-warning{{end}}">
                                 {{if .IsFeatured}}⭐ 取消公开{{else}}设为公开{{end}}
                             </button>
                         </form>

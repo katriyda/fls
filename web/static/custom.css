@@ -362,11 +362,30 @@ select {
 .btn-warning {
     border-color: var(--color-warning);
     color: var(--color-warning);
+    background: transparent;
 }
 
 .btn-warning:hover {
     background: var(--color-warning-bg);
     color: var(--color-warning);
+}
+
+.btn-link {
+    border: none;
+    background: none;
+    color: var(--color-text-secondary);
+    padding: 0 var(--space-1);
+    height: auto;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+    text-decoration-thickness: 0.08em;
+    transition: color var(--transition-fast);
+}
+
+.btn-link:hover {
+    color: var(--fg);
+    text-decoration-thickness: 0.15em;
 }
 
 .btn-sm {

@@ -37,7 +37,7 @@
                 </td>
                 <td data-label="密码">{{if .HasPassword}}<span class="badge">🔒</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
                 <td data-label="公开">
-                    <button class="btn btn-sm {{if .IsFeatured}}btn-warning{{else}}btn-primary{{end}}" hx-post="/admin/shares/{{.ID}}/feature">
+                    <button class="btn btn-sm{{if .IsFeatured}} btn-warning{{end}}" hx-post="/admin/shares/{{.ID}}/feature">
                         {{if .IsFeatured}}⭐ 已公开{{else}}公开{{end}}
                     </button>
                 </td>
