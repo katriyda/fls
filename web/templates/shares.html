@@ -38,7 +38,7 @@
                 <td data-label="密码">{{if .HasPassword}}<span class="badge">🔒</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
                 <td data-label="公开">
                     {{if .IsFeatured}}<span class="badge badge-success">⭐</span>{{else}}<span class="text-muted">—</span>{{end}}
-                    <button class="btn btn-sm" hx-post="/admin/shares/{{.ID}}/feature">
+                    <button class="btn btn-sm {{if .IsFeatured}}btn-warning{{else}}btn-primary{{end}}" hx-post="/admin/shares/{{.ID}}/feature">
                         {{if .IsFeatured}}取消{{else}}公开{{end}}
                     </button>
                 </td>
@@ -56,11 +56,11 @@
     </div>
     <div class="pagination">
         {{if gt .Page 1}}
-        <a href="/admin/shares?offset={{.PrevOffset}}&amp;limit={{.Limit}}" class="btn btn-sm">&laquo; 上一页</a>
+        <a href="/admin/shares?offset={{.PrevOffset}}&amp;limit={{.Limit}}" class="btn btn-sm">上一页</a>
         {{end}}
         <span>第 {{.Page}} / {{.TotalPages}} 页 (共 {{.Total}} 条)</span>
         {{if lt .Page .TotalPages}}
-        <a href="/admin/shares?offset={{.NextOffset}}&amp;limit={{.Limit}}" class="btn btn-sm">下一页 &raquo;</a>
+        <a href="/admin/shares?offset={{.NextOffset}}&amp;limit={{.Limit}}" class="btn btn-sm">下一页</a>
         {{end}}
     </div>
 </div>

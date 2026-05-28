@@ -78,7 +78,7 @@ Go 1.26 web app — single-binary file sharing system with SQLite storage (pure 
 
 **Typography**: Local DM Sans (body) + JetBrains Mono (code) woff2 in `web/static/fonts/`. Type scale follows IBM Carbon / Material Design 3 convergent standard: 12/14/16/20/28/32px (`--text-xs` through `--text-2xl`).
 
-**Buttons**: M3/Carbon-aligned heights — SM=32px, MD=40px, LG=48px (`--btn-height-sm/md/lg`). Classes: `.btn`, `.btn-sm`, `.btn-lg`, `.btn-primary`, `.btn-danger`.
+**Buttons**: M3/Carbon-aligned heights — SM=32px, MD=40px, LG=48px (`--btn-height-sm/md/lg`). Classes: `.btn`, `.btn-sm`, `.btn-lg`, `.btn-primary`, `.btn-danger`, `.btn-warning`. Detail page action rows use `btn-sm` consistently.
 
 **Icons**: 5-tier scale — 16/20/24/32/48px (`--icon-xs` through `--icon-xl`).
 

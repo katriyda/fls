@@ -359,6 +359,16 @@ select {
     color: var(--color-danger);
 }
 
+.btn-warning {
+    border-color: var(--color-warning);
+    color: var(--color-warning);
+}
+
+.btn-warning:hover {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
 .btn-sm {
     padding: 0 var(--space-2);
     font-size: var(--text-xs);
@@ -1002,8 +1012,6 @@ main.admin-mode {
 
 .login-card .btn {
     width: 100%;
-    height: var(--btn-height-lg);
-    font-size: var(--text-sm);
 }
 
 .login-card .login-error {
@@ -1388,11 +1396,6 @@ fieldset p:last-child { margin-bottom: 0; }
     font-size: var(--icon-xl);
     margin-bottom: var(--space-2);
     line-height: 1;
-}
-
-.download-btn-primary {
-    padding: 0 var(--space-6);
-    height: var(--btn-height);
 }
 
 .download-text-wrap {
