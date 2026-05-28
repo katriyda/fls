@@ -8,6 +8,7 @@
 
 {{if .Shares}}
 <div class="card">
+    <div id="share-list">
     <div class="responsive-table">
     <table class="data-table">
         <thead>
@@ -55,12 +56,15 @@
     </div>
     <div class="pagination">
         {{if gt .Page 1}}
-        <a href="/admin/shares?offset={{.PrevOffset}}&amp;limit={{.Limit}}" class="btn btn-sm">上一页</a>
+        <a href="/admin/shares?offset={{.PrevOffset}}&amp;limit={{.Limit}}"
+           hx-get="/admin/shares?offset={{.PrevOffset}}&amp;limit={{.Limit}}" hx-target="#share-list" hx-push-url="true" class="btn btn-sm">上一页</a>
         {{end}}
         <span>第 {{.Page}} / {{.TotalPages}} 页 (共 {{.Total}} 条)</span>
         {{if lt .Page .TotalPages}}
-        <a href="/admin/shares?offset={{.NextOffset}}&amp;limit={{.Limit}}" class="btn btn-sm">下一页</a>
+        <a href="/admin/shares?offset={{.NextOffset}}&amp;limit={{.Limit}}"
+           hx-get="/admin/shares?offset={{.NextOffset}}&amp;limit={{.Limit}}" hx-target="#share-list" hx-push-url="true" class="btn btn-sm">下一页</a>
         {{end}}
+    </div>
     </div>
 </div>
 {{else}}
